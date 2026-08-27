@@ -2920,10 +2920,11 @@ synergyTheme.textContent = `
 }
 .wordmark {
   font-size: clamp(84px, 11vw, 150px);
-  line-height: .95;
+  line-height: 1;
   letter-spacing: -.075em;
   text-transform: lowercase;
-  margin: 0 0 34px;
+  margin: 0 0 22px;
+  padding-bottom: .15em;
   background: linear-gradient(150deg, #fff 30%, #b89bff 105%);
   -webkit-background-clip: text;
   background-clip: text;
@@ -3114,7 +3115,8 @@ shadowRoot.appendChild(synergyTheme);
 const synergyRoot = shadowRoot.firstElementChild;
 if (synergyRoot) {
   Object.assign(synergyRoot.style, {
-    background: "radial-gradient(circle at 72% 16%, #3d2867 0, transparent 31%), radial-gradient(circle at 12% 88%, #123653 0, transparent 35%), #08070c"
+    background: "radial-gradient(circle at 72% 16%, #3d2867 0, transparent 31%), radial-gradient(circle at 12% 88%, #123653 0, transparent 35%), #08070c",
+    overflow: "visible"
   });
 }
 }
