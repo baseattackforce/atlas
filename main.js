@@ -2878,7 +2878,7 @@ document.body.firstElementChild?.remove();
 function applySynergyTheme() {
 document.title = "Synergy";
 const synergyWordmark = document.querySelector(".wordmark");
-if (synergyWordmark) synergyWordmark.textContent = "Synergy";
+if (synergyWordmark) synergyWordmark.textContent = "synergy";
 document.querySelectorAll(".screen-header-title").forEach(el => {
   el.textContent = "Synergy";
 });
@@ -2902,6 +2902,7 @@ synergyTheme.textContent = `
   width: auto;
   padding: 0;
   align-items: flex-start;
+  overflow: visible;
   transform: translateY(-51%);
 }
 .content::after {
@@ -2924,9 +2925,10 @@ synergyTheme.textContent = `
   font-size: clamp(56px, 7vw, 102px);
   line-height: 1.1;
   letter-spacing: -.065em;
+  text-transform: lowercase;
   padding-inline: .09em;
   overflow: visible;
-  margin: 8px 0 17px;
+  margin: 0 0 34px;
   margin-inline: -.09em;
   white-space: nowrap;
   background: linear-gradient(150deg, #fff 30%, #b89bff 105%);
