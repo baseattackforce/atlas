@@ -2918,10 +2918,13 @@ synergyTheme.textContent = `
   letter-spacing: .04em;
 }
 .wordmark {
-  font-size: clamp(84px, 11vw, 150px);
-  line-height: .82;
-  letter-spacing: -.075em;
+  width: fit-content;
+  max-inline-size: calc(100vw - 175px);
+  font-size: clamp(58px, 8vw, 112px);
+  line-height: .86;
+  letter-spacing: -.065em;
   margin: 8px 0 32px;
+  white-space: nowrap;
   background: linear-gradient(150deg, #fff 30%, #b89bff 105%);
   -webkit-background-clip: text;
   background-clip: text;
@@ -3071,7 +3074,7 @@ synergyTheme.textContent = `
     padding-bottom: 72px;
   }
   .content::after { top: 18px; right: 18px; }
-  .wordmark { font-size: clamp(68px, 21vw, 92px); margin-bottom: 25px; }
+  .wordmark { max-inline-size: 100%; font-size: clamp(56px, 17vw, 80px); margin-bottom: 25px; }
   .tagline { text-align: center; }
   .search-wrap,
   .search-wrap.expanded { width: 100%; }
@@ -3103,7 +3106,7 @@ synergyTheme.textContent = `
 @media (max-width: 420px) {
   .content { top: 44%; }
   .content::after { display: none; }
-  .wordmark { font-size: 66px; }
+  .wordmark { font-size: min(17vw, 64px); }
   .shortcut { min-height: 80px; }
   .nav-item { width: 62px; }
 }
