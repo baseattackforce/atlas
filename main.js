@@ -2922,7 +2922,7 @@ synergyTheme.textContent = `
   width: auto;
   max-inline-size: none;
   font-size: clamp(56px, 7vw, 102px);
-  line-height: .86;
+  line-height: 1;
   letter-spacing: -.065em;
   padding-inline: .09em;
   overflow: visible;
