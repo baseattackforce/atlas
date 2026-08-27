@@ -2927,8 +2927,9 @@ synergyTheme.textContent = `
   letter-spacing: -.065em;
   text-transform: lowercase;
   padding-inline: .09em;
+  padding-bottom: .15em;
   overflow: visible;
-  margin: 0 0 34px;
+  margin: 0 0 22px;
   margin-inline: -.09em;
   white-space: nowrap;
   background: linear-gradient(150deg, #fff 30%, #b89bff 105%);
@@ -3121,7 +3122,8 @@ shadowRoot.appendChild(synergyTheme);
 const synergyRoot = shadowRoot.firstElementChild;
 if (synergyRoot) {
   Object.assign(synergyRoot.style, {
-    background: "radial-gradient(circle at 72% 16%, #3d2867 0, transparent 31%), radial-gradient(circle at 12% 88%, #123653 0, transparent 35%), #08070c"
+    background: "radial-gradient(circle at 72% 16%, #3d2867 0, transparent 31%), radial-gradient(circle at 12% 88%, #123653 0, transparent 35%), #08070c",
+    overflow: "visible"
   });
 }
 }
