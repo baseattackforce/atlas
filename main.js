@@ -2919,7 +2919,7 @@ synergyTheme.textContent = `
 }
 .wordmark {
   font-size: clamp(84px, 11vw, 150px);
-  line-height: .82;
+  line-height: 1;
   letter-spacing: -.075em;
   margin: 8px 0 32px;
   background: linear-gradient(150deg, #fff 30%, #b89bff 105%);
