@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Synergy Technologies — three final directions</title>
+  <style>
+    :root { color-scheme: dark; font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; min-height: 100%; background: #050508; }
+    button, input { font: inherit; }
+    button { color: inherit; }
+    .option { display: none; min-height: 100vh; overflow: hidden; }
+    .option.active { display: block; animation: appear .36s ease both; }
+    @keyframes appear { from { opacity: 0; transform: translateY(4px); } }
+    .selector { position: fixed; z-index: 1000; left: 50%; bottom: 18px; transform: translateX(-50%); display: flex; gap: 6px; padding: 7px; border: 1px solid rgba(255,255,255,.13); border-radius: 999px; background: rgba(8,8,12,.84); backdrop-filter: blur(20px); box-shadow: 0 15px 50px rgba(0,0,0,.5); }
+    .selector button { width: 40px; height: 40px; border: 0; border-radius: 50%; background: transparent; color: rgba(255,255,255,.48); cursor: pointer; font-size: 12px; }
+    .selector button.active { background: #f7f3ff; color: #0a0810; }
+    .micro { font-size: 10px; text-transform: uppercase; letter-spacing: .18em; color: rgba(255,255,255,.47); }
+    .serif { font-family: Georgia, "Times New Roman", serif; font-style: italic; font-weight: 400; letter-spacing: -.075em; }
+    .search { display: flex; align-items: center; gap: 12px; }
+    .search input { flex: 1; min-width: 0; border: 0; background: transparent; color: inherit; outline: 0; }
+    .brand { display: flex; align-items: center; gap: 10px; font-size: 18px; font-weight: 600; letter-spacing: -.035em; }
+    .brand-mark { width: 28px; height: 28px; position: relative; flex: 0 0 auto; }
+    .brand-mark::before,.brand-mark::after { content: ""; position: absolute; width: 15px; height: 15px; top: 5px; border: 2px solid #bea1ff; border-radius: 50%; }
+    .brand-mark::before { left: 1px; }.brand-mark::after { right: 1px; border-color: #68e7d0; }
+
+    /* Option 1 — Nexus Rail */
+    .o1 { color: #f8f5ff; background: radial-gradient(circle at 76% 18%,#4a2a7b 0,transparent 30%),radial-gradient(circle at 14% 92%,#0a3a56 0,transparent 35%),#07070b; }
+    .o1::before { content:""; position:fixed; inset:0; background:linear-gradient(rgba(255,255,255,.02) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.02) 1px,transparent 1px);background-size:48px 48px;mask-image:linear-gradient(#000,transparent 85%);pointer-events:none; }
+    .o1-shell { position:relative;min-height:100vh;display:grid;grid-template-columns:84px 1fr;padding:16px 18px 96px;gap:14px; }
+    .o1-rail { border:1px solid rgba(255,255,255,.1);border-radius:26px;background:rgba(255,255,255,.042);backdrop-filter:blur(18px);display:flex;flex-direction:column;align-items:center;padding:18px 0;gap:11px; }
+    .o1-rail .brand-mark { margin-bottom:auto; }.o1-rail button{width:43px;height:43px;border:0;border-radius:14px;background:transparent;opacity:.48;cursor:pointer}.o1-rail button.active{background:rgba(157,123,255,.2);color:#cebaff;opacity:1}
+    .o1-content { max-width:1380px;width:100%;margin:auto;min-width:0;display:flex;flex-direction:column; }
+    .o1-head { height:64px;display:flex;justify-content:space-between;align-items:center;padding:0 8px; }.o1-head nav{display:flex;gap:8px}.o1-head nav button{border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.04);border-radius:12px;padding:10px 14px;font-size:11px}
+    .o1-grid { flex:1;min-height:calc(100vh - 176px);display:grid;grid-template-columns:minmax(0,1.5fr) 310px;gap:12px; }
+    .o1-hero,.o1-card { border:1px solid rgba(255,255,255,.105);background:rgba(255,255,255,.04);backdrop-filter:blur(18px); }
+    .o1-hero { border-radius:30px;padding:clamp(32px,5vw,76px);display:flex;flex-direction:column;justify-content:center;background:linear-gradient(145deg,rgba(255,255,255,.065),rgba(255,255,255,.02)); }
+    .o1 h1 { font-size:clamp(78px,10vw,146px);line-height:.77;margin:22px 0 38px; }.o1 h1 em{color:#a888ff;font-style:inherit}
+    .o1-search { max-width:740px;padding:11px 11px 11px 19px;border:1px solid rgba(255,255,255,.18);border-radius:19px;background:rgba(4,4,9,.5);box-shadow:inset 0 1px rgba(255,255,255,.08),0 24px 60px rgba(0,0,0,.25) }.o1-search button{border:0;border-radius:14px;background:linear-gradient(135deg,#ad8cff,#7356e8);padding:14px 19px}
+    .o1-side { display:grid;grid-template-rows:1fr 1fr;gap:12px }.o1-card{border-radius:27px;padding:24px;position:relative;overflow:hidden}.o1-orbit{background:radial-gradient(circle at 55% 44%,#f2e8ff 0,#9a6cff 12%,#452476 34%,transparent 35%),rgba(255,255,255,.035)}.o1-orbit::after{content:"";position:absolute;width:190px;height:65px;border:1px solid rgba(255,255,255,.35);border-radius:50%;left:50%;top:48%;transform:translate(-50%,-50%) rotate(-18deg)}.o1-status{display:flex;flex-direction:column;justify-content:space-between;background:linear-gradient(150deg,rgba(92,231,206,.16),rgba(255,255,255,.04))}.o1-status strong{font-size:35px;font-weight:500}.o1-status small{color:rgba(255,255,255,.52)}
+
+    /* Option 2 — Chromatic Center */
+    .o2 { color:#f8f6ff;background:#07070b;padding:22px 4vw 98px;position:relative; }.o2::before{content:"";position:fixed;inset:-45%;background:conic-gradient(from 20deg,transparent,#6d45c855,transparent,#2dccae44,transparent,#ed6bbb40,transparent);filter:blur(90px);animation:turn 20s linear infinite}@keyframes turn{to{transform:rotate(360deg)}}@media(prefers-reduced-motion:reduce){.o2::before{animation:none}}
+    .o2-shell { position:relative;max-width:1280px;margin:auto; }.o2-head{display:flex;justify-content:space-between;align-items:center}.o2-status{padding:9px 13px;border:1px solid rgba(255,255,255,.1);border-radius:999px;background:rgba(255,255,255,.035);font-size:10px;color:#70e9d3}
+    .o2-center { min-height:78vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center }.o2-symbol{width:86px;height:86px;position:relative}.o2-symbol::before,.o2-symbol::after{content:"";position:absolute;inset:12px;border:2px solid #c8adff;border-radius:50%;box-shadow:0 0 35px #9f7bff}.o2-symbol::after{inset:25px -5px;transform:rotate(58deg);border-color:#65e7cf;box-shadow:0 0 24px #5ee0c8}
+    .o2 h1 { font-size:clamp(88px,13vw,175px);line-height:.74;margin:18px 0 38px;background:linear-gradient(#fff,#aba4bd 68%,#645d74);background-clip:text;color:transparent;text-shadow:0 18px 60px #000 }.o2-kicker{margin-top:8px}
+    .o2-search{width:min(790px,100%);padding:11px 11px 11px 24px;border:1px solid rgba(255,255,255,.2);border-radius:999px;background:linear-gradient(110deg,rgba(255,255,255,.15),rgba(255,255,255,.045));backdrop-filter:blur(24px);box-shadow:inset 0 1px rgba(255,255,255,.14),0 28px 75px rgba(0,0,0,.45)}.o2-search button{width:50px;height:50px;border-radius:50%;border:0;background:linear-gradient(145deg,#fff,#ab88ff);color:#241639;font-size:18px}
+    .o2-links{display:flex;gap:9px;margin-top:19px}.o2-links button{border:1px solid rgba(255,255,255,.08);border-radius:999px;background:rgba(255,255,255,.045);padding:9px 14px;font-size:10px;color:rgba(255,255,255,.58)}
+    .o2-foot{display:flex;justify-content:space-between;align-items:center;border-top:1px solid rgba(255,255,255,.09);padding-top:14px;color:rgba(255,255,255,.4);font-size:10px;text-transform:uppercase;letter-spacing:.13em}
+
+    /* Option 3 — Unified Bento */
+    .o3 { color:#f8f5ff;background:radial-gradient(circle at 0 0,#312056 0,transparent 30%),radial-gradient(circle at 100% 100%,#0b443a 0,transparent 34%),#08080e;padding:18px 3vw 98px; }
+    .o3-shell{max-width:1390px;margin:auto}.o3-head{height:66px;display:flex;align-items:center;justify-content:space-between}.o3-head nav{display:flex;gap:22px;font-size:11px;color:rgba(255,255,255,.55)}
+    .o3-grid{min-height:calc(100vh - 184px);display:grid;grid-template-columns:1.25fr .78fr .78fr;grid-template-rows:250px 250px;gap:11px}.o3-tile{border:1px solid rgba(255,255,255,.105);border-radius:28px;background:rgba(255,255,255,.045);backdrop-filter:blur(18px);padding:26px;overflow:hidden;position:relative}
+    .o3-hero{grid-column:1/3;grid-row:1/3;padding:clamp(34px,5vw,72px);display:flex;flex-direction:column;justify-content:center;background:radial-gradient(circle at 90% 8%,#573192 0,transparent 33%),linear-gradient(145deg,rgba(255,255,255,.06),rgba(255,255,255,.02))}.o3 h1{font-size:clamp(76px,10vw,145px);line-height:.77;margin:22px 0 38px}.o3 h1 em{color:#a98aff;font-style:inherit}.o3-search{max-width:730px;padding:11px 11px 11px 20px;border:1px solid rgba(255,255,255,.18);border-radius:19px;background:rgba(5,5,10,.48)}.o3-search button{border:0;border-radius:14px;background:#f6f2ff;color:#1c1429;padding:14px 19px}
+    .o3-network{background:linear-gradient(145deg,rgba(102,232,208,.17),rgba(255,255,255,.035))}.o3-network strong{display:block;font-size:34px;font-weight:500;margin-top:52px}.o3-network small{color:rgba(255,255,255,.5)}
+    .o3-launch{display:grid;grid-template-columns:1fr 1fr;gap:9px}.o3-launch button{border:0;border-radius:18px;background:rgba(255,255,255,.06);display:flex;flex-direction:column;justify-content:space-between;align-items:flex-start;padding:15px;font-size:10px;color:rgba(255,255,255,.56)}.o3-launch button b{font-size:19px;color:white}.o3-ring{position:absolute;width:180px;height:180px;border:24px solid transparent;border-radius:50%;right:-45px;top:-45px;background:linear-gradient(145deg,#be9aff,#7256e6,#61ddca) border-box;mask:linear-gradient(#000 0 0) padding-box,linear-gradient(#000 0 0);mask-composite:exclude;opacity:.85}
+
+    @media(max-width:850px){.o1-grid{grid-template-columns:1fr}.o1-side{grid-template-columns:1fr 1fr;grid-template-rows:230px}.o1-hero{min-height:570px}.o3-grid{grid-template-columns:1fr 1fr;grid-template-rows:auto 230px}.o3-hero{grid-column:1/3;grid-row:auto;min-height:570px}}
+    @media(max-width:560px){
+      .selector{bottom:9px}.brand{font-size:15px}.o1-shell{grid-template-columns:1fr;padding:12px 13px 88px}.o1-rail{display:none}.o1-head nav,.o3-head nav{display:none}.o1-grid{display:block}.o1-hero{padding:28px;min-height:600px;margin-bottom:10px}.o1-side{display:block}.o1-card{height:220px;margin-bottom:10px}.o1 h1,.o2 h1,.o3 h1{font-size:68px}
+      .o2{padding:18px 16px 88px}.o2-center{min-height:79vh}.o2-links{flex-wrap:wrap;justify-content:center}.o2-foot{gap:10px;flex-wrap:wrap}
+      .o3{padding:12px 13px 88px}.o3-grid{display:block}.o3-tile{margin-bottom:10px}.o3-hero{padding:28px;min-height:600px}.o3-network{height:220px}.o3-launch{height:230px}
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <article class="option o1 active" data-name="Nexus Rail">
+      <div class="o1-shell"><aside class="o1-rail"><span class="brand-mark"></span><button class="active" aria-label="Home">⌂</button><button aria-label="Library">◇</button><button aria-label="Effects">♫</button><button aria-label="Settings">⚙</button></aside><div class="o1-content"><header class="o1-head"><div class="brand"><span class="brand-mark"></span>Synergy Technologies</div><nav><button>Library</button><button>Effects</button><button>Settings</button></nav></header><div class="o1-grid"><section class="o1-hero"><span class="micro">Final option 01 / Nexus Rail</span><h1 class="serif">browse in<br><em>synergy.</em></h1><div class="search o1-search"><span>⌕</span><input aria-label="Search" placeholder="Search or enter an address"><button>Connect</button></div></section><aside class="o1-side"><section class="o1-card o1-orbit"><span class="micro">Private orbit</span></section><section class="o1-card o1-status"><span class="micro">Network status</span><div><strong>Aligned</strong><br><small>42 ms / encrypted</small></div></section></aside></div></div></div>
+    </article>
+    <article class="option o2" data-name="Chromatic Center">
+      <div class="o2-shell"><header class="o2-head"><div class="brand"><span class="brand-mark"></span>Synergy Technologies</div><div class="o2-status">● private session</div></header><section class="o2-center"><div class="o2-symbol" aria-label="Synergy orbital symbol"></div><span class="micro o2-kicker">Final option 02 / Chromatic Center</span><h1 class="serif">synergy</h1><div class="search o2-search"><input aria-label="Search" placeholder="Search without the noise"><button>↗</button></div><div class="o2-links"><button>Video</button><button>Games</button><button>Effects</button><button>Settings</button></div></section><footer class="o2-foot"><span>Wisp connected</span><span>42 ms</span><span>Filters active</span></footer></div>
+    </article>
+    <article class="option o3" data-name="Unified Bento">
+      <div class="o3-shell"><header class="o3-head"><div class="brand"><span class="brand-mark"></span>Synergy Technologies</div><span class="micro">Final option 03 / Unified Bento</span><nav><span>Library</span><span>Effects</span><span>Settings</span></nav></header><div class="o3-grid"><section class="o3-tile o3-hero"><span class="micro">One interface / every path</span><h1 class="serif">everything,<br><em>connected.</em></h1><div class="search o3-search"><span>⌕</span><input aria-label="Search" placeholder="Search or enter an address"><button>Open</button></div></section><section class="o3-tile o3-network"><div class="o3-ring"></div><span class="micro">Network</span><strong>Online</strong><small>private / stable / 42 ms</small></section><section class="o3-tile o3-launch"><button><span>Video</span><b>▶</b></button><button><span>Games</span><b>◆</b></button><button><span>Effects</span><b>♫</b></button><button><span>More</span><b>＋</b></button></section></div></div>
+    </article>
+  </main>
+  <nav class="selector" aria-label="Choose a final Synergy concept"></nav>
+  <script>
+    const options = [...document.querySelectorAll('.option')];
+    const selector = document.querySelector('.selector');
+    function show(index) {
+      const next = (index + options.length) % options.length;
+      options.forEach((option, i) => option.classList.toggle('active', i === next));
+      [...selector.children].forEach((button, i) => button.classList.toggle('active', i === next));
+      history.replaceState(null, '', `#${next + 1}`);
+      document.title = `Synergy Technologies final ${next + 1} — ${options[next].dataset.name}`;
+    }
+    options.forEach((option, index) => {
+      const button = document.createElement('button');
+      button.type = 'button'; button.textContent = index + 1;
+      button.setAttribute('aria-label', `Show final option ${index + 1}: ${option.dataset.name}`);
+      button.addEventListener('click', () => show(index)); selector.appendChild(button);
+    });
+    document.addEventListener('keydown', event => {
+      const current = options.findIndex(option => option.classList.contains('active'));
+      if (event.key === 'ArrowRight') show(current + 1);
+      if (event.key === 'ArrowLeft') show(current - 1);
+      if (/^[1-3]$/.test(event.key)) show(Number(event.key) - 1);
+    });
+    show(Math.min(3, Math.max(1, Number(location.hash.slice(1)) || 1)) - 1);
+  </script>
+</body>
+</html>
