@@ -1,0 +1,11 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Synergy local readable runtime</title>
+<script>
+  // Keep the original loader's bootstrap intact while supplying local hosting
+  // values that it normally receives from production infrastructure.
+  window.swPath = "/sw.js";
+  window.wispServer = "wss://girlspreples.org/wi/";
+</script>
+<body></body>
+<script src="/readable/loader.js"></script>

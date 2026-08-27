@@ -1,0 +1,11 @@
+{
+  "name": "synergy-deobfuscation-tools",
+  "private": true,
+  "description": "Isolated AST tooling for the Synergy readable-source copy.",
+  "dependencies": {
+    "@babel/generator": "7.29.8",
+    "@babel/parser": "7.29.8",
+    "@babel/traverse": "7.29.8",
+    "@babel/types": "7.29.8"
+  }
+}

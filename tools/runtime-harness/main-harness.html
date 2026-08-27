@@ -1,0 +1,47 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Main differential harness</title>
+<script>
+  (() => {
+    const variant = new URLSearchParams(location.search).get("variant") === "readable" ? "readable" : "source";
+    const events = [], errors = [];
+    const record = (name, detail = "") => events.push({ name, detail: String(detail) });
+    const nativeAppendChild = HTMLHeadElement.prototype.appendChild;
+    window.addEventListener("error", event => errors.push(String(event.message || event.error || "error")));
+    window.addEventListener("unhandledrejection", event => errors.push(`rejection:${String(event.reason)}`));
+    Object.defineProperty(navigator, "serviceWorker", { configurable: true, value: {
+      controller: { id: "harness-controller" }, ready: Promise.resolve({}),
+      register: async path => ({ update() { record("serviceWorker.update", path); }, active: { state: "activated", addEventListener() {} } }),
+    }});
+    window.$scramjetController = { Controller: class {
+      constructor(options) { this.options = options; this.config = options.config; record("controller.construct"); }
+      async wait() { record("controller.wait"); }
+    }};
+    localStorage.setItem("transport", "data:text/javascript,export default class HarnessTransport { constructor(options) { this.options = options; } async init() {} }");
+    HTMLHeadElement.prototype.appendChild = function(node) {
+      if (node.tagName !== "SCRIPT" || !node.src) return nativeAppendChild.call(this, node);
+      if (/\/stuff\/main\.js(?:\?|$)/.test(node.src)) {
+        node.src = `/${variant}/main.js`;
+        record("main.load", node.src);
+        return nativeAppendChild.call(this, node);
+      }
+      record("script.blocked", node.src);
+      queueMicrotask(() => node.onload && node.onload());
+      return node;
+    };
+    const loader = document.createElement("script");
+    loader.src = `/${variant}/loader.js`;
+    loader.onload = () => setTimeout(() => {
+      const pick = key => typeof window[key];
+      const result = {
+        variant, ready: true, events, errors,
+        globals: Object.fromEntries(["devMode","getAsset","wispServer","transport","controller","shadowRoot","toggleSettings","openGames","openEffects","navigate"].map(key => [key, pick(key)])),
+        dom: Object.fromEntries(["searchInput","settingsScreen","gamesScreen","effectsScreen","bottomNav","stars"].map(id => [id, Boolean(window.shadowRoot && window.shadowRoot.querySelector(`#${id}`))])),
+        shadowChildCount: window.shadowRoot && window.shadowRoot.childNodes.length,
+      };
+      document.documentElement.dataset.mainHarness = JSON.stringify(result);
+      document.title = `${variant}:ready`;
+    }, 1500);
+    nativeAppendChild.call(document.head, loader);
+  })();
+</script>

@@ -1,0 +1,61 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Loader differential harness</title>
+<script>
+  (() => {
+    const params = new URLSearchParams(location.search);
+    const variant = params.get("variant") === "readable" ? "readable" : "source";
+    const events = [];
+    const record = (name, detail = "") => events.push({ name, detail: String(detail) });
+    const nativeAppendChild = HTMLHeadElement.prototype.appendChild;
+
+    Object.defineProperty(navigator, "serviceWorker", {
+      configurable: true,
+      value: {
+        controller: { id: "harness-controller" },
+        ready: Promise.resolve({}),
+        register: async path => {
+          record("serviceWorker.register", path);
+          return { update() { record("serviceWorker.update"); }, active: { state: "activated", addEventListener() {} } };
+        },
+      },
+    });
+    window.$scramjetController = {
+      Controller: class {
+        constructor(options) { this.options = options; this.config = options.config; record("controller.construct", options.config.prefix); }
+        async wait() { record("controller.wait"); }
+      },
+    };
+    localStorage.setItem("transport", "data:text/javascript,export default class HarnessTransport { constructor(options) { this.options = options; } async init() {} }");
+    HTMLHeadElement.prototype.appendChild = function(node) {
+      if (node.tagName === "SCRIPT" && node.src) {
+        record("script.blocked", node.src);
+        queueMicrotask(() => node.onload && node.onload());
+        return node;
+      }
+      return nativeAppendChild.call(this, node);
+    };
+    window.__loaderHarness = { variant, events, ready: false };
+    const script = document.createElement("script");
+    script.src = `/${variant}/loader.js`;
+    script.onload = () => {
+      record("loader.loaded", script.src);
+      setTimeout(() => {
+        const pick = key => typeof window[key];
+        const controller = window.controller;
+        const result = {
+          variant,
+          ready: true,
+          events,
+          globals: Object.fromEntries(["devMode", "swPath", "assetsBase", "getAsset", "wispServer", "WispPing", "transport", "controller", "shadowRoot"].map(key => [key, pick(key)])),
+          assetUrl: window.getAsset && window.getAsset("main.js"),
+          controllerConfig: controller && controller.options && controller.options.config,
+          shadowChildCount: window.shadowRoot && window.shadowRoot.childNodes.length,
+        };
+        document.documentElement.dataset.loaderHarness = JSON.stringify(result);
+        document.title = `${variant}:ready`;
+      }, 500);
+    };
+    nativeAppendChild.call(document.head, script);
+  })();
+</script>

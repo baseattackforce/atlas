@@ -1,0 +1,17 @@
+{
+  "inputPath": "C:\\Users\\danny\\Documents\\synergy\\main.js",
+  "outputPath": "C:\\Users\\danny\\Documents\\synergy\\deobfuscated\\main.js",
+  "sourceBytes": 208619,
+  "outputBytes": 104138,
+  "transformations": {
+    "stringEscape": 670,
+    "boolean": 150,
+    "reverseString": 272,
+    "binaryLiteral": 1119,
+    "memberProperty": 1605,
+    "removedJunkBindings": 146,
+    "removedJunkWrites": 146,
+    "loaderRenames": 0,
+    "localRenames": 349
+  }
+}
