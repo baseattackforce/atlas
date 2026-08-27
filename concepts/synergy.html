@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Synergy — five refined concepts</title>
+  <style>
+    :root { color-scheme: dark; font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; min-height: 100%; background: #050509; }
+    button, input { font: inherit; }
+    button { color: inherit; }
+    .concept { display: none; min-height: 100vh; overflow: hidden; }
+    .concept.active { display: block; animation: enter .4s ease both; }
+    @keyframes enter { from { opacity: 0; transform: scale(.995); } }
+    .chooser { position: fixed; z-index: 2000; left: 50%; bottom: 17px; transform: translateX(-50%); display: flex; align-items: center; gap: 6px; padding: 7px; border: 1px solid rgba(255,255,255,.14); border-radius: 999px; background: rgba(8,8,13,.82); backdrop-filter: blur(20px); box-shadow: 0 15px 50px rgba(0,0,0,.42); }
+    .chooser button { width: 38px; height: 38px; border: 0; border-radius: 50%; background: transparent; color: rgba(255,255,255,.48); cursor: pointer; font-size: 12px; }
+    .chooser button.active { color: #080810; background: #f7f4ff; }
+    .micro { font-size: 10px; letter-spacing: .18em; text-transform: uppercase; color: rgba(255,255,255,.48); }
+    .search { display: flex; align-items: center; gap: 12px; }
+    .search input { flex: 1; min-width: 0; border: 0; background: transparent; color: inherit; outline: 0; }
+    .synergy-word { font-family: Georgia, "Times New Roman", serif; font-style: italic; font-weight: 400; letter-spacing: -.07em; }
+
+    /* A — Nexus */
+    .a { color: #f8f5ff; background: radial-gradient(circle at 70% 16%, #4f317d 0, transparent 31%), radial-gradient(circle at 13% 88%, #0b3552 0, transparent 34%), #07070c; padding: 18px 3vw 100px; }
+    .a::before { content: ""; position: fixed; inset: 0; pointer-events: none; background: linear-gradient(rgba(255,255,255,.02) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.02) 1px,transparent 1px); background-size: 46px 46px; mask-image: linear-gradient(to bottom,black,transparent 80%); }
+    .a-shell { position: relative; max-width: 1380px; margin: auto; }
+    .a-nav { height: 64px; display: flex; align-items: center; justify-content: space-between; padding: 0 4px; }
+    .a-logo { display: flex; align-items: center; gap: 11px; font-weight: 600; letter-spacing: -.03em; font-size: 20px; }
+    .a-mark { width: 29px; height: 29px; position: relative; }
+    .a-mark::before,.a-mark::after { content:""; position:absolute; width:16px; height:16px; border:2px solid #caaeff; border-radius:50%; }
+    .a-mark::before { left:1px; top:6px; }.a-mark::after { right:1px; top:6px; border-color:#6ee7d3; }
+    .a-nav-links { display: flex; gap: 8px; }
+    .a-nav-links button { border: 1px solid rgba(255,255,255,.1); background: rgba(255,255,255,.04); border-radius: 12px; padding: 10px 14px; font-size: 11px; }
+    .a-grid { min-height: calc(100vh - 165px); display: grid; grid-template-columns: 1.45fr .72fr .72fr; grid-template-rows: 1fr 190px; gap: 11px; }
+    .a-panel { border: 1px solid rgba(255,255,255,.105); border-radius: 27px; background: rgba(255,255,255,.045); backdrop-filter: blur(18px); overflow: hidden; }
+    .a-main { grid-row: 1/3; padding: clamp(30px,5vw,72px); display: flex; flex-direction: column; justify-content: center; background: linear-gradient(145deg,rgba(255,255,255,.07),rgba(255,255,255,.025)); }
+    .a-main h1 { font-size: clamp(70px,10vw,145px); line-height: .78; margin: 24px 0 38px; }
+    .a-main h1 span { color: #a78bfa; }
+    .a-search { max-width: 760px; border: 1px solid rgba(255,255,255,.18); border-radius: 18px; padding: 10px 10px 10px 18px; background: rgba(6,6,11,.45); box-shadow: inset 0 1px rgba(255,255,255,.08),0 22px 60px rgba(0,0,0,.26); }
+    .a-search button { border: 0; border-radius: 13px; background: linear-gradient(135deg,#aa8cff,#745ee8); padding: 13px 18px; }
+    .a-state { padding: 24px; background: linear-gradient(145deg,rgba(103,232,203,.17),rgba(255,255,255,.03)); }
+    .a-state strong { display: block; margin-top: 42px; font-size: 32px; font-weight: 500; }
+    .a-orb { position: relative; background: radial-gradient(circle at 60% 36%,#e5d7ff 0,#8b62f2 19%,#362064 43%,transparent 44%); }
+    .a-orb::after { content:""; position:absolute; width:150px;height:54px;border:1px solid rgba(255,255,255,.35);border-radius:50%;left:50%;top:50%;transform:translate(-50%,-50%) rotate(-18deg); }
+    .a-shortcuts { grid-column:2/4; padding: 17px; display:grid; grid-template-columns:repeat(4,1fr); gap:9px; }
+    .a-shortcut { border-radius: 17px; background: rgba(255,255,255,.055); padding: 14px; display:flex; flex-direction:column; justify-content:space-between; font-size:11px; color:rgba(255,255,255,.7); }
+    .a-shortcut b { font-size:20px; color:white; }
+
+    /* B — Event Horizon */
+    .b { color: #f7f5ff; background: #050509; padding: 24px 4vw 105px; }
+    .b-shell { max-width: 1320px; margin:auto; }
+    .b-head { display:grid; grid-template-columns:1fr auto 1fr; align-items:center; }
+    .b-brand { font-size:22px; font-weight:600; letter-spacing:-.04em; }
+    .b-head .micro { justify-self:center; }.b-head nav { justify-self:end; display:flex; gap:24px; font-size:11px; color:rgba(255,255,255,.55); }
+    .b-stage { min-height: 76vh; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; position:relative; }
+    .b-rings { position:absolute; width:min(56vw,700px); aspect-ratio:1; border-radius:50%; border:1px solid rgba(185,151,255,.25); box-shadow:0 0 90px rgba(123,78,238,.14); }
+    .b-rings::before,.b-rings::after { content:""; position:absolute; inset:10%; border-radius:50%; border:1px solid rgba(105,232,211,.2); transform:rotateX(68deg); }
+    .b-rings::after { inset:23%; background:radial-gradient(circle at 35% 25%,#f6eaff 0,#a074ff 18%,#3c1e76 46%,#090912 70%); border:0; transform:none; box-shadow:0 0 80px #6b3bdc66; }
+    .b-copy { position:relative; z-index:2; }
+    .b-copy h1 { font-size:clamp(70px,11vw,160px);line-height:.77;margin:18px 0 32px;text-shadow:0 12px 50px #000; }
+    .b-copy h1 small { display:block;font:500 11px/1.3 Inter,sans-serif;letter-spacing:.28em;text-transform:uppercase;color:#75ead7;margin-bottom:20px; }
+    .b-search { width:min(680px,82vw);margin:auto;padding:10px 10px 10px 21px;border:1px solid rgba(255,255,255,.21);border-radius:999px;background:rgba(12,10,20,.72);backdrop-filter:blur(22px);box-shadow:inset 0 1px rgba(255,255,255,.1),0 20px 60px #0008; }
+    .b-search button { width:46px;height:46px;border-radius:50%;border:0;background:linear-gradient(145deg,#fff,#a082ff);color:#1d1234; }
+    .b-foot { display:flex;justify-content:space-between;border-top:1px solid rgba(255,255,255,.1);padding-top:15px;color:rgba(255,255,255,.45);font-size:10px;text-transform:uppercase;letter-spacing:.14em; }
+
+    /* C — Flux */
+    .c { color:#f7f5ff;background:radial-gradient(circle at 0 0,#321e59 0,transparent 28%),radial-gradient(circle at 100% 100%,#12483e 0,transparent 30%),#090912;padding:18px 2vw 100px; }
+    .c-shell { min-height:calc(100vh - 118px);display:grid;grid-template-columns:78px 1fr 300px;gap:12px;max-width:1400px;margin:auto; }
+    .c-rail,.c-main,.c-side > section { border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.045);backdrop-filter:blur(18px); }
+    .c-rail { border-radius:25px;display:flex;flex-direction:column;align-items:center;padding:18px 0;gap:12px; }.c-rail strong{font-size:25px;margin-bottom:auto}.c-rail button{width:42px;height:42px;border:0;border-radius:14px;background:transparent;opacity:.5}.c-rail button:first-of-type{background:#a685ff33;opacity:1;color:#d6c4ff}
+    .c-main { border-radius:30px;padding:35px 4vw;display:flex;flex-direction:column;overflow:hidden;position:relative; }
+    .c-wave { position:absolute;right:-100px;top:-80px;width:480px;height:480px;border-radius:45% 55% 58% 42%;background:conic-gradient(from 45deg,#65e9d0,#7c54e8,#ff8ccc,#65e9d0);filter:blur(1px);opacity:.24;animation:drift 12s linear infinite; }
+    @keyframes drift { to { transform:rotate(360deg); } }
+    @media (prefers-reduced-motion:reduce){.c-wave{animation:none}}
+    .c-top { display:flex;justify-content:space-between;position:relative;z-index:1; }.c-live{color:#6fe9ce;font-size:10px;letter-spacing:.1em;text-transform:uppercase}
+    .c-hero { margin:auto 0;position:relative;z-index:1; }.c-hero h1 { font-size:clamp(68px,9vw,128px);line-height:.78;margin:18px 0 35px; }.c-hero h1 em { color:#b697ff; }
+    .c-search { max-width:680px;padding:11px 11px 11px 19px;border:1px solid rgba(255,255,255,.18);border-radius:19px;background:rgba(5,5,10,.48); }.c-search button{border:0;border-radius:14px;background:#f6f2ff;color:#171123;padding:13px 18px}
+    .c-side { display:grid;grid-template-rows:1fr 1fr;gap:12px; }.c-side > section { border-radius:26px;padding:24px;position:relative;overflow:hidden; }.c-side h3{font-size:28px;margin:50px 0 4px}.c-metric{background:linear-gradient(145deg,rgba(108,233,210,.16),rgba(255,255,255,.04))!important}.c-stack{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-top:24px}.c-stack div{height:70px;border-radius:16px;background:rgba(255,255,255,.06);display:grid;place-items:center;font-size:18px}
+
+    /* D — Halo Grid */
+    .d { color:#fbf9ff;background:linear-gradient(135deg,#0b0912,#131023 48%,#091518);padding:22px 3vw 105px; }
+    .d-shell { max-width:1380px;margin:auto; }.d-nav{display:flex;justify-content:space-between;align-items:center;padding:4px 0 24px}.d-brand{font-size:20px;font-weight:600}.d-nav nav{display:flex;gap:8px}.d-nav button{border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.04);border-radius:99px;padding:9px 14px;font-size:10px}
+    .d-grid { display:grid;grid-template-columns:1fr 1fr 1fr;grid-template-rows:260px 260px;gap:11px; }.d-tile{border:1px solid rgba(255,255,255,.1);border-radius:28px;background:rgba(255,255,255,.045);backdrop-filter:blur(18px);padding:26px;overflow:hidden;position:relative}.d-hero{grid-column:1/3;grid-row:1/3;padding:clamp(30px,5vw,70px);display:flex;flex-direction:column;justify-content:center;background:radial-gradient(circle at 90% 10%,#5c3298 0,transparent 33%),rgba(255,255,255,.045)}.d-hero h1{font-size:clamp(65px,9vw,130px);line-height:.79;margin:20px 0 34px}.d-search{max-width:680px;padding:10px 10px 10px 18px;border:1px solid rgba(255,255,255,.18);border-radius:18px;background:rgba(7,6,12,.5)}.d-search button{border:0;border-radius:13px;padding:13px 17px;background:linear-gradient(135deg,#b691ff,#7656e8)}
+    .d-halo { background:linear-gradient(145deg,rgba(255,137,212,.15),rgba(255,255,255,.04)); }.d-halo::before{content:"";position:absolute;width:190px;height:190px;border-radius:50%;border:28px solid transparent;background:linear-gradient(145deg,#ff9ade,#8e6fff,#6ae7d0) border-box;mask:linear-gradient(#000 0 0) padding-box,linear-gradient(#000 0 0);mask-composite:exclude;right:-28px;bottom:-36px;filter:drop-shadow(0 0 28px #a467ff66)}
+    .d-launch { display:grid;grid-template-columns:repeat(2,1fr);gap:9px; }.d-launch div{border-radius:18px;background:rgba(255,255,255,.06);display:flex;flex-direction:column;justify-content:space-between;padding:15px;font-size:10px;color:rgba(255,255,255,.55)}.d-launch b{color:white;font-size:20px}
+
+    /* E — Chromatic Quiet */
+    .e { color:#f8f6ff;background:#08080c;padding:24px 4vw 105px;position:relative; }.e::before{content:"";position:fixed;inset:-40%;background:conic-gradient(from 90deg at 50% 50%,transparent,#5e3ab855,transparent,#27bba044,transparent,#ff6cba44,transparent);filter:blur(80px);animation:ambient 18s linear infinite}@keyframes ambient{to{transform:rotate(360deg)}}@media(prefers-reduced-motion:reduce){.e::before{animation:none}}
+    .e-shell{position:relative;max-width:1260px;margin:auto}.e-head{display:flex;justify-content:space-between;align-items:center}.e-brand{font-size:20px;font-weight:600;letter-spacing:-.04em}.e-status{padding:9px 13px;border:1px solid rgba(255,255,255,.1);border-radius:99px;background:rgba(255,255,255,.04);font-size:10px;color:#79ead4}
+    .e-center{min-height:74vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}.e-glyph{width:90px;height:90px;position:relative}.e-glyph::before,.e-glyph::after{content:"";position:absolute;inset:12px;border-radius:50%;border:2px solid #cab4ff;box-shadow:0 0 35px #9c77ff}.e-glyph::after{inset:25px -5px;transform:rotate(55deg);border-color:#6de7d1;box-shadow:0 0 25px #5ce0c8}
+    .e h1{font-size:clamp(78px,12vw,165px);line-height:.76;margin:20px 0 38px;background:linear-gradient(180deg,#fff,#a9a2bc 70%,#5d576c);background-clip:text;color:transparent;text-shadow:0 16px 60px #000}.e-search{width:min(780px,100%);padding:11px 11px 11px 23px;border:1px solid rgba(255,255,255,.19);border-radius:999px;background:linear-gradient(105deg,rgba(255,255,255,.16),rgba(255,255,255,.045));backdrop-filter:blur(24px);box-shadow:inset 0 1px rgba(255,255,255,.14),0 26px 70px rgba(0,0,0,.45)}.e-search button{width:49px;height:49px;border-radius:50%;border:0;background:linear-gradient(145deg,#fff,#ae8cff);color:#221638;font-size:18px}.e-links{display:flex;gap:9px;margin-top:18px}.e-links span{padding:9px 13px;border-radius:99px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);font-size:10px;color:rgba(255,255,255,.55)}
+
+    @media (max-width:900px){
+      .a-grid{grid-template-columns:1fr 1fr;grid-template-rows:auto 180px 180px}.a-main{grid-column:1/3;grid-row:auto;min-height:520px}.a-shortcuts{grid-column:1/3}.c-shell{grid-template-columns:1fr}.c-rail{display:none}.c-main{min-height:580px}.c-side{grid-template-columns:1fr 1fr;grid-template-rows:240px}.d-grid{grid-template-columns:1fr 1fr;grid-template-rows:auto 220px}.d-hero{grid-column:1/3;grid-row:auto;min-height:560px}
+    }
+    @media (max-width:560px){
+      .chooser{bottom:9px}.a{padding:12px 14px 90px}.a-nav-links,.b-head nav,.d-nav nav{display:none}.a-grid{display:block}.a-panel{margin-bottom:10px}.a-main{min-height:590px;padding:28px}.a-state,.a-orb{height:200px}.a-shortcuts{grid-template-columns:1fr 1fr}.a-main h1,.b-copy h1,.c-hero h1,.d-hero h1,.e h1{font-size:66px}.b{padding:20px 18px 90px}.b-head{grid-template-columns:1fr auto}.b-head .micro{justify-self:end}.b-rings{width:92vw}.b-foot{gap:12px;flex-wrap:wrap}.c{padding:12px 13px 90px}.c-main{padding:28px 22px;min-height:600px}.c-side{grid-template-columns:1fr;grid-template-rows:auto}.d{padding:18px 14px 90px}.d-grid{display:block}.d-tile{margin-bottom:10px}.d-hero{padding:28px;min-height:590px}.d-halo{height:240px}.d-launch{height:240px}.e{padding:18px 16px 90px}.e-center{min-height:78vh}.e-links{flex-wrap:wrap;justify-content:center}
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <article class="concept a active" data-name="Nexus">
+      <div class="a-shell"><header class="a-nav"><div class="a-logo"><span class="a-mark"></span>Synergy</div><div class="a-nav-links"><button>Library</button><button>Effects</button><button>Settings</button></div></header><div class="a-grid"><section class="a-panel a-main"><span class="micro">Concept A / Nexus</span><h1 class="synergy-word">move as<br><span>one.</span></h1><div class="search a-search"><span>⌕</span><input aria-label="Search" placeholder="Search or enter an address"><button>Connect</button></div></section><section class="a-panel a-state"><span class="micro">Network state</span><strong>Aligned</strong><small>42 ms / encrypted</small></section><section class="a-panel a-orb" aria-label="Decorative network orbit"></section><section class="a-panel a-shortcuts"><div class="a-shortcut"><span>Watch</span><b>▶</b></div><div class="a-shortcut"><span>Play</span><b>◆</b></div><div class="a-shortcut"><span>Listen</span><b>♫</b></div><div class="a-shortcut"><span>Add</span><b>＋</b></div></section></div></div>
+    </article>
+    <article class="concept b" data-name="Event Horizon">
+      <div class="b-shell"><header class="b-head"><div class="b-brand">Synergy</div><span class="micro">Concept B / Event Horizon</span><nav><span>Explore</span><span>Library</span><span>Settings</span></nav></header><section class="b-stage"><div class="b-rings"></div><div class="b-copy"><h1 class="synergy-word"><small>One interface / infinite paths</small>synergy</h1><div class="search b-search"><input aria-label="Search" placeholder="Enter the network"><button>↗</button></div></div></section><footer class="b-foot"><span>Private session</span><span>Wisp connected</span><span>Chicago / 42 ms</span></footer></div>
+    </article>
+    <article class="concept c" data-name="Flux">
+      <div class="c-shell"><aside class="c-rail"><strong>S</strong><button>⌂</button><button>◇</button><button>♫</button><button>⚙</button></aside><section class="c-main"><div class="c-wave"></div><header class="c-top"><span class="micro">Concept C / Flux</span><span class="c-live">● systems aligned</span></header><div class="c-hero"><h1 class="synergy-word">find your<br><em>flow.</em></h1><div class="search c-search"><span>⌕</span><input aria-label="Search" placeholder="Search, play, discover"><button>Open</button></div></div></section><aside class="c-side"><section class="c-metric"><span class="micro">Connection</span><h3>42 ms</h3><small>private / stable</small></section><section><span class="micro">Quick launch</span><div class="c-stack"><div>▶</div><div>◆</div><div>♫</div><div>＋</div></div></section></aside></div>
+    </article>
+    <article class="concept d" data-name="Halo Grid">
+      <div class="d-shell"><header class="d-nav"><div class="d-brand">Synergy</div><span class="micro">Concept D / Halo Grid</span><nav><button>Library</button><button>Effects</button><button>Settings</button></nav></header><div class="d-grid"><section class="d-tile d-hero"><span class="micro">The connected web</span><h1 class="synergy-word">everything,<br>together.</h1><div class="search d-search"><span>⌕</span><input aria-label="Search" placeholder="Where to next?"><button>Go</button></div></section><section class="d-tile d-halo"><span class="micro">Network halo</span></section><section class="d-tile d-launch"><div><span>Video</span><b>▶</b></div><div><span>Games</span><b>◆</b></div><div><span>Sound</span><b>♫</b></div><div><span>More</span><b>＋</b></div></section></div></div>
+    </article>
+    <article class="concept e" data-name="Chromatic Quiet">
+      <div class="e-shell"><header class="e-head"><div class="e-brand">Synergy</div><div class="e-status">● private session</div></header><section class="e-center"><div class="e-glyph" aria-label="Synergy orbital symbol"></div><span class="micro">Concept E / Chromatic Quiet</span><h1 class="synergy-word">synergy</h1><div class="search e-search"><input aria-label="Search" placeholder="Search without the noise"><button>↗</button></div><div class="e-links"><span>Video</span><span>Games</span><span>Effects</span><span>Settings</span></div></section></div>
+    </article>
+  </main>
+  <nav class="chooser" aria-label="Choose a Synergy concept"></nav>
+  <script>
+    const concepts = [...document.querySelectorAll('.concept')];
+    const chooser = document.querySelector('.chooser');
+    function show(index) {
+      const next = (index + concepts.length) % concepts.length;
+      concepts.forEach((concept, i) => concept.classList.toggle('active', i === next));
+      [...chooser.children].forEach((button, i) => button.classList.toggle('active', i === next));
+      history.replaceState(null, '', `#${next + 1}`);
+      document.title = `Synergy concept ${next + 1} — ${concepts[next].dataset.name}`;
+    }
+    concepts.forEach((concept, index) => {
+      const button = document.createElement('button');
+      button.type = 'button'; button.textContent = index + 1;
+      button.setAttribute('aria-label', `Show Synergy concept ${index + 1}: ${concept.dataset.name}`);
+      button.addEventListener('click', () => show(index)); chooser.appendChild(button);
+    });
+    document.addEventListener('keydown', event => {
+      const current = concepts.findIndex(concept => concept.classList.contains('active'));
+      if (event.key === 'ArrowRight') show(current + 1);
+      if (event.key === 'ArrowLeft') show(current - 1);
+      if (/^[1-5]$/.test(event.key)) show(Number(event.key) - 1);
+    });
+    show(Math.min(5, Math.max(1, Number(location.hash.slice(1)) || 1)) - 1);
+  </script>
+</body>
+</html>
