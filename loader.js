@@ -2,7 +2,7 @@ var _0x26aeff = 10;
 const devHosts = ["localhost", "127.0.0.1", "ngrok-free"];
 _0x26aeff = 5;
 window.devMode = devHosts.includes(location.hostname) || devHosts.includes(location.hostname.split(".").at(-2) || location.hostname), window.swPath = window.swPath || "sw.js", window.assetsBase = window.assetsBase || "https://cdn.jsdelivr.net/gh/TongSherbet/storage/";
-const serverList = ["cdn.northstreetumc.org", "cdn.vipersfutbol.com", "cdn.pcesc.org", "cdn.kcchallengevbc.com", "cdn.slcbmooc.org", "wss://girlspreples.org/wi/"];
+const serverList = ["cdn.northstreetumc.org", "cdn.pcesc.org", "cdn.kcchallengevbc.com", "cdn.slcbmooc.org", "wss://girlspreples.org/wi/"];
 function wispPath() {
   return "false" !== localStorage.ABDE ? "/adblock/" : "/";
 }

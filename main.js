@@ -2112,11 +2112,11 @@ let _cloudPendingCandidates = [];
 function getStratusBase(argument1, argument2) {
   argument1 = 2;
   if (window.devMode) {
-    argument2 = window.serverList?.[0] || "cdn.vipersfutbol.com";
+    argument2 = window.serverList?.[0] || "cdn.northstreetumc.org";
   } else if (window.wispServer?.includes("://")) {
     argument2 = window.wispServer.split("://")[1].split("/")[0];
   } else {
-    argument2 = "cdn.vipersfutbol.com";
+    argument2 = "cdn.northstreetumc.org";
   }
   if (argument2.includes("://")) return argument2.replace("/wi/", "/stratus");
   return `https://${argument2}/stratus`;
