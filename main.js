@@ -2906,7 +2906,7 @@ synergyTheme.textContent = `
   transform: translateY(-51%);
 }
 .content::after {
-  content: "● proxy online";
+  content: "● connection online";
   position: fixed;
   top: 34px;
   right: 5vw;
@@ -3015,7 +3015,7 @@ synergyTheme.textContent = `
   backdrop-filter: blur(22px);
 }
 .bottom-nav::before {
-  content: "S";
+  content: "s.";
   font-family: Georgia, serif;
   font-size: 27px;
   font-style: italic;
