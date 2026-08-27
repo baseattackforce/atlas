@@ -2918,12 +2918,16 @@ synergyTheme.textContent = `
   letter-spacing: .04em;
 }
 .wordmark {
+  display: inline-block;
   width: auto;
   max-inline-size: none;
   font-size: clamp(56px, 7vw, 102px);
   line-height: .86;
   letter-spacing: -.065em;
+  padding-inline: .09em;
+  overflow: visible;
   margin: 8px 0 32px;
+  margin-inline: -.09em;
   white-space: nowrap;
   background: linear-gradient(150deg, #fff 30%, #b89bff 105%);
   -webkit-background-clip: text;
@@ -3074,7 +3078,7 @@ synergyTheme.textContent = `
     padding-bottom: 72px;
   }
   .content::after { top: 18px; right: 18px; }
-  .wordmark { width: auto; max-inline-size: none; font-size: clamp(48px, 12vw, 66px); letter-spacing: -.04em; margin-bottom: 25px; }
+  .wordmark { display: inline-block; width: auto; max-inline-size: none; font-size: clamp(44px, 10vw, 56px); letter-spacing: -.04em; padding-inline: .09em; overflow: visible; margin-bottom: 25px; margin-inline: -.09em; }
   .tagline { text-align: center; }
   .search-wrap,
   .search-wrap.expanded { width: 100%; }
@@ -3106,7 +3110,7 @@ synergyTheme.textContent = `
 @media (max-width: 420px) {
   .content { top: 44%; }
   .content::after { display: none; }
-  .wordmark { font-size: min(15vw, 58px); }
+  .wordmark { font-size: min(14vw, 52px); }
   .shortcut { min-height: 80px; }
   .nav-item { width: 62px; }
 }
