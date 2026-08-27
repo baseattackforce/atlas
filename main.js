@@ -2922,11 +2922,11 @@ synergyTheme.textContent = `
   width: auto;
   max-inline-size: none;
   font-size: clamp(56px, 7vw, 102px);
-  line-height: 1;
+  line-height: 1.1;
   letter-spacing: -.065em;
   padding-inline: .09em;
   overflow: visible;
-  margin: 8px 0 32px;
+  margin: 8px 0 17px;
   margin-inline: -.09em;
   white-space: nowrap;
   background: linear-gradient(150deg, #fff 30%, #b89bff 105%);
