@@ -480,8 +480,8 @@ if (window.self === window.top && SETTINGS.Privacy['About:Blank Cloak']._value) 
 var _0x9b_0x9e9 = 11;
 const taglineEl = document.getElementById("tagline");
 _0x9b_0x9e9 = 13;
-taglineEl.textContent = "Synergy Technologies / private access";
-applySynergyTheme();
+taglineEl.textContent = "Atlas Technologies / private access";
+applyAtlasTheme();
 const grid = document.getElementById("shortcuts");
 SHORTCUTS.forEach(({
   "label": label,
@@ -2875,18 +2875,18 @@ _gameCardOnClick = function (g) {
   if (el) el.textContent = typeof window.WispPing === "number" ? `ping: ${window.WispPing}ms` : "ping: --";
 })();
 document.body.firstElementChild?.remove();
-function applySynergyTheme() {
-document.title = "Synergy";
-const synergyWordmark = document.querySelector(".wordmark");
-if (synergyWordmark) synergyWordmark.textContent = "synergy";
+function applyAtlasTheme() {
+document.title = "Atlas";
+const atlasWordmark = document.querySelector(".wordmark");
+if (atlasWordmark) atlasWordmark.textContent = "atlas";
 document.querySelectorAll(".screen-header-title").forEach(el => {
-  el.textContent = "Synergy";
+  el.textContent = "Atlas";
 });
-const synergyCopyright = document.querySelector(".nav-stat");
-if (synergyCopyright) synergyCopyright.textContent = "© Synergy Technologies";
-const synergyTheme = document.createElement("style");
-synergyTheme.id = "synergy-obsidian-theme";
-synergyTheme.textContent = `
+const atlasCopyright = document.querySelector(".nav-stat");
+if (atlasCopyright) atlasCopyright.textContent = "© Atlas Technologies";
+const atlasTheme = document.createElement("style");
+atlasTheme.id = "atlas-obsidian-theme";
+atlasTheme.textContent = `
 :host {
   --accent: #9f7aea;
   --accent-bright: #b79aff;
@@ -3118,10 +3118,10 @@ synergyTheme.textContent = `
   .nav-item { width: 62px; }
 }
 `;
-shadowRoot.appendChild(synergyTheme);
-const synergyRoot = shadowRoot.firstElementChild;
-if (synergyRoot) {
-  Object.assign(synergyRoot.style, {
+shadowRoot.appendChild(atlasTheme);
+const atlasRoot = shadowRoot.firstElementChild;
+if (atlasRoot) {
+  Object.assign(atlasRoot.style, {
     background: "radial-gradient(circle at 72% 16%, #3d2867 0, transparent 31%), radial-gradient(circle at 12% 88%, #123653 0, transparent 35%), #08070c",
     overflow: "visible"
   });
