@@ -3,8 +3,8 @@ from pathlib import Path
 from urllib.parse import unquote, urlparse
 
 WORK_ROOT = Path(__file__).resolve().parent
-REPO_ROOT = Path(r"C:\Users\danny\Documents\synergy")
-READABLE_ROOT = REPO_ROOT / "deobfuscated"
+REPO_ROOT = WORK_ROOT.parents[2]
+READABLE_ROOT = REPO_ROOT
 
 class Handler(SimpleHTTPRequestHandler):
     def translate_path(self, request_path):
