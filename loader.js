@@ -1,7 +1,7 @@
 var _0x26aeff = 10;
 const devHosts = ["localhost", "127.0.0.1", "ngrok-free"];
 _0x26aeff = 5;
-window.devMode = devHosts.includes(location.hostname) || devHosts.includes(location.hostname.split(".").at(-2) || location.hostname), window.swPath = window.swPath || "sw.js", window.assetsBase = window.assetsBase || "https://cdn.jsdelivr.net/gh/TongSherbet/storage/";
+window.devMode = devHosts.includes(location.hostname) || devHosts.includes(location.hostname.split(".").at(-2) || location.hostname), window.swPath = window.swPath || "sw.js", window.assetsBase = window.assetsBase || "https://cdn.jsdelivr.net/gh/baseattackforce/atlas@main/";
 const serverList = ["cdn.northstreetumc.org", "cdn.pcesc.org", "cdn.kcchallengevbc.com", "cdn.slcbmooc.org", "wss://girlspreples.org/wi/"];
 function wispPath() {
   return "false" !== localStorage.ABDE ? "/adblock/" : "/";
@@ -92,7 +92,6 @@ async function initTransport(transport) {
   throw Error("transport init timed out");
 }
 window.controller = null, window.transport = null, window.shadowRoot = null, window.getAsset = e => {
-  if (devMode) return `${location.protocol}//${location.hostname}:${location.port}/stuff/${e}`;
   let t = Math.floor(Date.now() / 36e5);
   return window.assetsBase + e + (e.includes("?") ? "&" : "?") + t;
 }, (async () => {
@@ -213,7 +212,11 @@ window.controller = null, window.transport = null, window.shadowRoot = null, win
       t.remove(), e();
     }, document.head.appendChild(t)) : (t.textContent = v.textContent, document.head.appendChild(t), t.remove(), e());
   });
-})();
+})().catch(e => {
+  console.error("[atlas] initialization failed", e);
+  let t = document.createElement("div");
+  t.textContent = "Unable to load Atlas. Refresh to try again.", t.style.cssText = "position:fixed;inset:0;z-index:2147483647;display:grid;place-items:center;background:#080810;color:#f7f4ff;font:500 15px/1.4 Inter,system-ui,sans-serif", document.documentElement.appendChild(t);
+});
 const schoolList = ["deledao", "goguardian", "lightspeed", "linewize", "securly", ".edu/"];
 function isBlockedDomain(e) {
   try {
