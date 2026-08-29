@@ -133,7 +133,7 @@ window.controller = null, window.transport = null, window.shadowRoot = null, win
     location.reload();
     return;
   }
-  r.innerText = "finding unblocked Opium server", window.wispServer || (window.wispServer = devMode ? (location.protocol.includes("s") ? "wss://" : "ws://") + location.host + "/" : await getWisp()), r.innerText = "initializing transport";
+  r.innerText = "finding unblocked Atlas server", window.wispServer || (window.wispServer = devMode ? (location.protocol.includes("s") ? "wss://" : "ws://") + location.host + "/" : await getWisp()), r.innerText = "initializing transport";
   let s = localStorage.transport || getAsset("curl/index.mjs"),
     {
       "default": l

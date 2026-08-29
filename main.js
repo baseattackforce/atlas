@@ -102,7 +102,7 @@ const SETTINGS = {
             clearTimeout(focusTimeout);
           } catch {}
           focusTimeout = null;
-          document.title = "opium";
+          document.title = "atlas";
         } else if (document.hidden) {
           document.title = "New Tab";
         }
@@ -455,7 +455,7 @@ function cloakWrapperHtml(originalUrl, argument1) {
     var originalUrl = ${JSON.stringify(originalUrl)};
     var titleChangerOnNow = ${localValue1};
     function applyTitle() {
-        document.title = (!titleChangerOnNow || document.hidden) ? 'New Tab' : 'opium';
+        document.title = (!titleChangerOnNow || document.hidden) ? 'New Tab' : 'atlas';
     }
     document.addEventListener('visibilitychange', applyTitle);
     applyTitle();
@@ -480,7 +480,7 @@ if (window.self === window.top && SETTINGS.Privacy['About:Blank Cloak']._value) 
 var _0x9b_0x9e9 = 11;
 const taglineEl = document.getElementById("tagline");
 _0x9b_0x9e9 = 13;
-taglineEl.textContent = "Atlas Technologies / private access";
+taglineEl?.remove();
 applyAtlasTheme();
 const grid = document.getElementById("shortcuts");
 SHORTCUTS.forEach(({
@@ -665,12 +665,12 @@ let shoots = [];
 _0xe_0x949 = 12;
 const homeStateEls = ["panel", "gamesScreen", "gamePlayer", "effectsScreen"].map(id => document.getElementById(id));
 function starsShouldRun() {
-  return !document.hidden && document.hasFocus() && isOpiumMenu(true);
+  return !document.hidden && document.hasFocus() && isAtlasMenu(true);
 }
-const OPIUM_EXTERNAL_SCREENS = ["panel", "gamePlayer"];
-const OPIUM_HOME_ONLY_SCREENS = ["gamesScreen", "effectsScreen"];
-function isOpiumMenu(homePageOnly = false) {
-  const localValue1 = homePageOnly ? [...OPIUM_EXTERNAL_SCREENS, ...OPIUM_HOME_ONLY_SCREENS] : OPIUM_EXTERNAL_SCREENS;
+const ATLAS_EXTERNAL_SCREENS = ["panel", "gamePlayer"];
+const ATLAS_HOME_ONLY_SCREENS = ["gamesScreen", "effectsScreen"];
+function isAtlasMenu(homePageOnly = false) {
+  const localValue1 = homePageOnly ? [...ATLAS_EXTERNAL_SCREENS, ...ATLAS_HOME_ONLY_SCREENS] : ATLAS_EXTERNAL_SCREENS;
   return !localValue1.some(id => document.getElementById(id)?.classList.contains("open"));
 }
 var _0xbf_0x5a2 = 6;
@@ -1102,7 +1102,7 @@ document.addEventListener("visibilitychange", e => {
       clearInterval(focusTimeout);
     } catch {}
     focusTimeout = null;
-    document.title = "opium";
+    document.title = "atlas";
   }
 });
 let _effectsVolume = 1;
@@ -2876,14 +2876,14 @@ _gameCardOnClick = function (g) {
 })();
 document.body.firstElementChild?.remove();
 function applyAtlasTheme() {
-document.title = "Atlas";
+document.title = "atlas";
 const atlasWordmark = document.querySelector(".wordmark");
 if (atlasWordmark) atlasWordmark.textContent = "atlas";
 document.querySelectorAll(".screen-header-title").forEach(el => {
-  el.textContent = "Atlas";
+  el.textContent = "atlas";
 });
 const atlasCopyright = document.querySelector(".nav-stat");
-if (atlasCopyright) atlasCopyright.textContent = "© Atlas Technologies";
+atlasCopyright?.remove();
 const atlasTheme = document.createElement("style");
 atlasTheme.id = "atlas-obsidian-theme";
 atlasTheme.textContent = `
@@ -3022,11 +3022,12 @@ atlasTheme.textContent = `
   backdrop-filter: blur(22px);
 }
 .bottom-nav::before {
-  content: "s.";
-  font-family: Georgia, serif;
-  font-size: 27px;
-  font-style: italic;
-  color: #f5f0ff;
+  content: "";
+  width: 28px;
+  height: 28px;
+  margin-bottom: 16px;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cpath fill='%23f5f0ff' d='M32 2 38 26 62 32 38 38 32 62 26 38 2 32 26 26Z'/%3E%3C/svg%3E") center / contain no-repeat;
+  filter: drop-shadow(0 0 7px rgba(183, 154, 255, .55));
 }
 .bottom-nav.hidden { transform: translateX(-130%); }
 .nav-buttons {
