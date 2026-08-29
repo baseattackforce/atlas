@@ -2883,7 +2883,7 @@ document.querySelectorAll(".screen-header-title").forEach(el => {
   el.textContent = "atlas";
 });
 const atlasCopyright = document.querySelector(".nav-stat");
-atlasCopyright?.remove();
+if (atlasCopyright) atlasCopyright.textContent = "Credit оpiumbest + Inspired by GUST";
 const atlasTheme = document.createElement("style");
 atlasTheme.id = "atlas-obsidian-theme";
 atlasTheme.textContent = `
