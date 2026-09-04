@@ -482,6 +482,21 @@ const taglineEl = document.getElementById("tagline");
 _0x9b_0x9e9 = 13;
 taglineEl?.remove();
 applyAtlasTheme();
+document.getElementById("tagline")?.remove();
+const atlasAiButton = [...document.querySelectorAll(".nav-item")].find(button => button.textContent.trim() === "AI");
+if (atlasAiButton) {
+  atlasAiButton.removeAttribute("onclick");
+  atlasAiButton.disabled = true;
+  atlasAiButton.setAttribute("aria-disabled", "true");
+  atlasAiButton.title = "Not available";
+}
+const atlasNavStats = document.querySelector(".nav-stats");
+if (atlasNavStats && !atlasNavStats.querySelector(".atlas-credit")) {
+  const credit = document.createElement("span");
+  credit.className = "nav-stat atlas-credit";
+  credit.textContent = "Credit оpiumbest + Inspired by GUST";
+  atlasNavStats.appendChild(credit);
+}
 const grid = document.getElementById("shortcuts");
 SHORTCUTS.forEach(({
   "label": label,
@@ -929,6 +944,9 @@ function renderSuggestions(list) {
   acBox.classList.add("has-items");
   searchWrap.classList.add("has-ac");
 }
+function updateAutocompleteSelection(items) {
+  items.forEach((el, i) => el.classList.toggle("selected", i === acSelected));
+}
 searchInput.addEventListener("input", () => {
   clearTimeout(acTimer);
   acSelected = -1;
@@ -939,17 +957,22 @@ searchInput.addEventListener("keydown", e => {
   if (e.key === "ArrowDown") {
     e.preventDefault();
     acSelected = Math.min(acSelected + 1, items.length - 1);
-    items.forEach((el, i) => el.classList.toggle("selected", i === acSelected));
-    if (acSelected >= 0) searchInput.value = acItems[acSelected];
+    updateAutocompleteSelection(items);
   } else if (e.key === "ArrowUp") {
     e.preventDefault();
     acSelected = Math.max(acSelected - 1, -1);
-    items.forEach((el, i) => el.classList.toggle("selected", i === acSelected));
-    if (acSelected >= 0) searchInput.value = acItems[acSelected];
+    updateAutocompleteSelection(items);
   } else if (e.key === "Escape") {
     collapseSearch();
   } else if (e.key === "Enter") {
-    navigate();
+    navigate(acSelected >= 0 ? acItems[acSelected] : undefined);
+  }
+});
+document.addEventListener("keydown", event => {
+  if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "k") {
+    event.preventDefault();
+    searchInput.focus();
+    searchInput.select();
   }
 });
 let homeClickCount = 0,
@@ -3067,6 +3090,9 @@ atlasTheme.textContent = `
 }
 .nav-stat:first-child { display: none; }
 .nav-stat { font-size: 7px; letter-spacing: .03em; text-align: center; }
+.atlas-credit { margin-top: 2px; color: rgba(255,255,255,.24); }
+.panel.open ~ .bottom-nav .atlas-credit { display: none; }
+.content::after { display: none; }
 .panel,
 .settings-screen,
 .games-screen,
