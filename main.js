@@ -494,7 +494,7 @@ const atlasNavStats = document.querySelector(".nav-stats");
 if (atlasNavStats && !atlasNavStats.querySelector(".atlas-credit")) {
   const credit = document.createElement("span");
   credit.className = "nav-stat atlas-credit";
-  credit.textContent = "Credit оpiumbest + Inspired by GUST";
+  credit.textContent = "Credit op*umbest + Inspired by GUST";
   atlasNavStats.appendChild(credit);
 }
 const grid = document.getElementById("shortcuts");
@@ -2974,7 +2974,7 @@ function applyAtlasTheme() {
       <button class="atlas-command-key" type="button" title="Focus search">&#8984;K</button>
       <div class="atlas-rail-wordmark">atlas</div>
       <div class="atlas-rail-context" id="atlasRailContext">Home</div>
-      <div class="atlas-credit">Credit opiumbest &middot; Inspired by GUST</div>
+      <div class="atlas-credit">Credit op*umbest &middot; Inspired by GUST</div>
     </aside>`;
   shadowRoot.appendChild(chrome);
 
