@@ -105,7 +105,7 @@ window.controller = null, window.transport = null, window.shadowRoot = null, win
       "mode": "closed"
     }),
     r = document.createElement("div");
-  r.innerText = "start", Object.assign(r.style, {
+  r.dataset.atlasLoader = "", r.innerText = "start", Object.assign(r.style, {
     "position": "fixed",
     "top": "0",
     "left": "0",
@@ -119,7 +119,19 @@ window.controller = null, window.transport = null, window.shadowRoot = null, win
     "zIndex": "999999",
     "fontSize": "20px",
     "fontFamily": "sans-serif"
-  }), t.appendChild(r), r.innerText = "loading scramjet";
+  }), t.appendChild(r);
+  let uiGate = document.createElement("style"),
+    uiRevealTimer,
+    uiRevealed = !1,
+    revealAtlasUI = () => {
+    if (uiRevealed) return;
+    uiRevealed = !0, clearTimeout(uiRevealTimer), requestAnimationFrame(() => {
+      uiGate.remove(), r.remove();
+    });
+  };
+  uiGate.id = "atlas-startup-gate", uiGate.textContent = ":host > :not([data-atlas-loader]) { visibility: hidden !important; }", t.appendChild(uiGate), document.addEventListener("atlas:theme-ready", revealAtlasUI, {
+    "once": !0
+  }), r.innerText = "loading scramjet";
   let n = getAsset("jet/jet.api.js"),
     i = getAsset("jet/jet.utils.js");
   preload(n), preload(i), await loadScript(getAsset("jet/jet.core.js")), await loadScript(n), await loadScript(i), r.innerText = "registering service worker (if you are stuck here, try CTRL + SHIFT + R)";
@@ -204,7 +216,8 @@ window.controller = null, window.transport = null, window.shadowRoot = null, win
       if (r.length) return r;
     } catch (n) {}
     return g.call(this, e);
-  }, r.remove();
+  };
+  uiRevealTimer = setTimeout(revealAtlasUI, 8000);
   let y = [...p.head.querySelectorAll("script"), ...p.body.querySelectorAll("script")];
   for (let v of y) await new Promise(e => {
     let t = document.createElement("script");

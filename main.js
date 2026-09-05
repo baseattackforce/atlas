@@ -2963,6 +2963,9 @@ function applyAtlasTheme() {
   const style = document.createElement("link");
   style.id = "atlas-tobacco-theme";
   style.rel = "stylesheet";
+  const signalThemeReady = () => document.dispatchEvent(new Event("atlas:theme-ready"));
+  style.addEventListener("load", signalThemeReady, { once: true });
+  style.addEventListener("error", signalThemeReady, { once: true });
   style.href = getAsset("atlas-tobacco.css") + (devMode ? `&dev=${Date.now()}` : '');
   shadowRoot.appendChild(style);
 
