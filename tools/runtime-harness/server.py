@@ -3,7 +3,7 @@ from pathlib import Path
 from urllib.parse import unquote, urlparse
 
 WORK_ROOT = Path(__file__).resolve().parent
-REPO_ROOT = WORK_ROOT.parents[2]
+REPO_ROOT = WORK_ROOT.parents[1]
 READABLE_ROOT = REPO_ROOT
 
 class Handler(SimpleHTTPRequestHandler):

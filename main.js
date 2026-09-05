@@ -503,9 +503,11 @@ SHORTCUTS.forEach(({
   "url": url,
   "faviconHost": faviconHost,
   "faviconUrl": faviconUrl
-}) => {
+}, index) => {
   const el = document.createElement("div");
   el.className = "shortcut";
+  el.tabIndex = 0;
+  el.setAttribute("role", "button");
   const img = document.createElement("img");
   img.className = "shortcut-icon";
   img.alt = '';
@@ -516,10 +518,29 @@ SHORTCUTS.forEach(({
     img.removeAttribute("src");
   };
   const span = document.createElement("span");
+  span.className = "shortcut-title";
   span.textContent = label;
+  const number = document.createElement("span");
+  number.className = "shortcut-number";
+  number.textContent = String(index + 1);
+  const domain = document.createElement("span");
+  domain.className = "shortcut-domain";
+  try {
+    domain.textContent = new URL(url).hostname.replace(/^www\./, "");
+  } catch {
+    domain.textContent = '';
+  }
+  el.appendChild(number);
   el.appendChild(img);
   el.appendChild(span);
+  el.appendChild(domain);
   el.onclick = () => navigate(url);
+  el.onkeydown = event => {
+    if (event.key === "Enter" || event.key === " ") {
+      event.preventDefault();
+      navigate(url);
+    }
+  };
   grid.appendChild(el);
 });
 const sidebar = document.getElementById("settingsSidebar");
@@ -532,6 +553,7 @@ const sectionEls = [];
 function setActive(cat) {
   sidebar.querySelectorAll(".sidebar-item").forEach(el => el.classList.toggle("active", el.dataset.cat === cat));
   tabsEl.querySelectorAll(".tab-item").forEach(el => el.classList.toggle("active", el.dataset.cat === cat));
+  panelsEl.querySelectorAll(".settings-panel-section").forEach(el => el.classList.toggle("active", el.dataset.section === cat));
 }
 let scrollLock = false;
 let scrollLockTimer = null;
@@ -560,16 +582,22 @@ panelsEl.addEventListener("scroll", () => {
   });
   setActive(active);
 });
+const atlasSettingsLabels = {
+  "Appearance": "General",
+  "Privacy": "Privacy",
+  "Proxy": "Connection",
+  "Advanced": "Advanced"
+};
 categories.forEach((cat, i) => {
   const sItem = document.createElement("div");
   sItem.className = "sidebar-item" + (i === 0 ? " active" : '');
-  sItem.textContent = cat;
+  sItem.textContent = atlasSettingsLabels[cat] || cat;
   sItem.dataset.cat = cat;
   sItem.onclick = () => scrollToCategory(cat);
   sidebar.appendChild(sItem);
   const tItem = document.createElement("button");
   tItem.className = "tab-item" + (i === 0 ? " active" : '');
-  tItem.textContent = cat;
+  tItem.textContent = atlasSettingsLabels[cat] || cat;
   tItem.dataset.cat = cat;
   tItem.onclick = () => scrollToCategory(cat);
   tabsEl.appendChild(tItem);
@@ -579,7 +607,7 @@ categories.forEach((cat, i) => {
   sectionEls.push(section);
   const lbl = document.createElement("div");
   lbl.className = "category-label";
-  lbl.textContent = cat;
+  lbl.textContent = atlasSettingsLabels[cat] || cat;
   section.appendChild(lbl);
   const rows = document.createElement("div");
   rows.className = "category-rows";
@@ -639,6 +667,7 @@ categories.forEach((cat, i) => {
   section.appendChild(rows);
   panelsEl.appendChild(section);
 });
+setActive(categories[0]);
 const spacer = document.createElement("div");
 spacer.className = "settings-spacer";
 panelsEl.appendChild(spacer);
@@ -697,6 +726,7 @@ function updateNavActive() {
     const localValue2 = document.getElementById(navId);
     if (localValue1 && localValue2) localValue2.classList.toggle("active", localValue1.classList.contains("open"));
   });
+  window.updateAtlasChromeState?.();
 }
 updateNavActive();
 let starsRafPending = false;
@@ -861,6 +891,9 @@ function updateLockIcon(url, argument1) {
 function navigate(url) {
   const u = resolveUrl(url || document.getElementById("searchInput").value.trim());
   if (!u) return;
+  document.getElementById("gamesScreen")?.classList.remove("open");
+  document.getElementById("effectsScreen")?.classList.remove("open");
+  document.getElementById("settingsScreen")?.classList.remove("open");
   document.getElementById("panel").classList.add("open");
   document.getElementById("bottomNav").classList.add("hidden");
   document.getElementById("addrInput").value = u;
@@ -971,8 +1004,10 @@ searchInput.addEventListener("keydown", e => {
 document.addEventListener("keydown", event => {
   if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "k") {
     event.preventDefault();
-    searchInput.focus();
-    searchInput.select();
+    const panelOpen = document.getElementById("panel")?.classList.contains("open");
+    const target = panelOpen ? document.getElementById("addrInput") : searchInput;
+    target.focus();
+    target.select();
   }
 });
 let homeClickCount = 0,
@@ -1085,7 +1120,13 @@ document.getElementById("addrInput").addEventListener("keydown", e => {
   if (e.key === "Enter") navigate(e.target.value.trim());
 });
 function toggleSettings() {
-  document.getElementById("settingsScreen").classList.toggle("open");
+  const screen = document.getElementById("settingsScreen");
+  const opening = !screen.classList.contains("open");
+  if (opening) {
+    document.getElementById("gamesScreen")?.classList.remove("open");
+    document.getElementById("effectsScreen")?.classList.remove("open");
+  }
+  screen.classList.toggle("open", opening);
 }
 const fsEnter = `<path d="M8 3H5a2 2 0 0 0-2 2v3M21 8V5a2 2 0 0 0-2-2h-3M3 16v3a2 2 0 0 0 2 2h3M16 21h3a2 2 0 0 0 2-2v-3"/>`;
 var _0x7863da = 6;
@@ -1365,6 +1406,8 @@ async function getEffects(pageNum = 1, keyword = null) {
 }
 const _effectsVirt = _makeGridVirtualizer("effectsGridWrap", "effectsGridSizer", "effectsGrid", e => _buildEffectButton(e.title, e.src), () => _loadEffectsPage());
 function openEffects() {
+  document.getElementById("gamesScreen")?.classList.remove("open");
+  document.getElementById("settingsScreen")?.classList.remove("open");
   document.getElementById("effectsScreen").classList.add("open");
   if (!_effectsLoaded) {
     _effectsReload(null);
@@ -1442,12 +1485,17 @@ function _buildEffectButton(title, src, argument1, argument2, argument3, argumen
   localValue2.appendChild(localValue4);
   localValue2.appendChild(localValue5);
   const localValue6 = document.createElement("span");
+  localValue6.className = "effect-title";
   localValue6.textContent = title;
   const localValue7 = title.length;
   const localValue8 = localValue7 <= 6 ? 14 : localValue7 <= 12 ? 12 : localValue7 <= 20 ? 11 : localValue7 <= 30 ? 10 : 9;
   localValue6.style.fontSize = localValue8 + "px";
   localValue1.appendChild(localValue2);
   localValue1.appendChild(localValue6);
+  const localValue9 = document.createElement("span");
+  localValue9.className = "effect-action";
+  localValue9.textContent = "Play";
+  localValue1.appendChild(localValue9);
   localValue1.onclick = () => _playEffect(localValue1, src);
   if (_currentAudio && _currentAudio._effectSrc === src) localValue1.classList.add("playing");
   return localValue1;
@@ -1467,7 +1515,7 @@ async function _loadEffectsPage() {
       _effectsExhausted = true;
       if (_effectsPage === 1) {
         _effectsVirt.enterFlow();
-        localValue2.innerHTML = "<div class=\"effects-loading\">error loading, refresh and try again</div>";
+        localValue2.innerHTML = "<div class=\"effects-loading\">Unable to load. Refresh and try again.</div>";
       }
       _effectsLoading = false;
       return;
@@ -1784,6 +1832,14 @@ function _buildGameCard(g, argument1, argument2) {
   localValue4.textContent = g.displayName;
   localValue3.appendChild(localValue4);
   localValue1.appendChild(localValue3);
+  const localValue7 = document.createElement("span");
+  localValue7.className = "game-card-source";
+  localValue7.textContent = g.source === "cloud" ? "Cloud" : g.source === "lumin" ? "Atlas" : String(g.source || "Game").toUpperCase();
+  localValue1.appendChild(localValue7);
+  const localValue8 = document.createElement("span");
+  localValue8.className = "game-card-action";
+  localValue8.textContent = "Open";
+  localValue1.appendChild(localValue8);
   localValue1.onclick = _gameCardOnClick(g);
   return localValue1;
 }
@@ -1893,6 +1949,8 @@ async function _gamesReload(keyword, argument1) {
   });
 }
 function openGames() {
+  document.getElementById("effectsScreen")?.classList.remove("open");
+  document.getElementById("settingsScreen")?.classList.remove("open");
   document.getElementById("gamesScreen").classList.add("open");
   if (!_gamesLoaded) {
     _gamesReload(null);
@@ -2899,258 +2957,161 @@ _gameCardOnClick = function (g) {
 })();
 document.body.firstElementChild?.remove();
 function applyAtlasTheme() {
-document.title = "atlas";
-const atlasWordmark = document.querySelector(".wordmark");
-if (atlasWordmark) atlasWordmark.textContent = "atlas";
-document.querySelectorAll(".screen-header-title").forEach(el => {
-  el.textContent = "atlas";
-});
-const atlasCopyright = document.querySelector(".nav-stat");
-if (atlasCopyright) atlasCopyright.textContent = "Credit оpiumbest + Inspired by GUST";
-const atlasTheme = document.createElement("style");
-atlasTheme.id = "atlas-obsidian-theme";
-atlasTheme.textContent = `
-:host {
-  --accent: #9f7aea;
-  --accent-bright: #b79aff;
-  --accent-dim: #7459d5;
-  --accent-glow: rgba(159, 122, 234, 0.35);
-}
-#stars { opacity: .74; }
-.content {
-  position: fixed;
-  left: 132px;
-  right: 5vw;
-  top: 50%;
-  width: auto;
-  padding: 0;
-  align-items: flex-start;
-  overflow: visible;
-  transform: translateY(-51%);
-}
-.content::after {
-  content: "● connection online";
-  position: fixed;
-  top: 34px;
-  right: 5vw;
-  padding: 8px 12px;
-  border: 1px solid rgba(102, 230, 192, .13);
-  border-radius: 999px;
-  background: rgba(42, 181, 132, .08);
-  color: #79e6ba;
-  font-size: 10px;
-  letter-spacing: .04em;
-}
-.wordmark {
-  display: inline-block;
-  width: auto;
-  max-inline-size: none;
-  font-size: clamp(56px, 7vw, 102px);
-  line-height: 1.1;
-  letter-spacing: -.065em;
-  text-transform: lowercase;
-  padding-inline: .09em;
-  padding-bottom: .15em;
-  overflow: visible;
-  margin: 0 0 22px;
-  margin-inline: -.09em;
-  white-space: nowrap;
-  background: linear-gradient(150deg, #fff 30%, #b89bff 105%);
-  -webkit-background-clip: text;
-  background-clip: text;
-}
-.tagline {
-  order: -1;
-  margin: 0 0 8px;
-  font-family: Inter, sans-serif;
-  font-style: normal;
-  font-size: 10px;
-  font-weight: 500;
-  letter-spacing: .2em;
-  text-transform: uppercase;
-  color: rgba(255,255,255,.38);
-}
-.search-wrap,
-.search-wrap.expanded {
-  width: min(720px, 100%);
-}
-.search-bar {
-  min-height: 62px;
-  padding: 0 12px 0 20px;
-  gap: 12px;
-  border: 1px solid rgba(255,255,255,.14);
-  border-radius: 19px;
-  background: rgba(255,255,255,.065);
-  box-shadow: inset 0 1px rgba(255,255,255,.035), 0 25px 70px rgba(0,0,0,.25);
-  backdrop-filter: blur(20px);
-}
-.search-wrap.expanded .search-bar {
-  border-color: rgba(183,154,255,.5);
-  border-radius: 19px;
-  background: rgba(255,255,255,.085);
-}
-.search-wrap.expanded.has-ac .search-bar { border-radius: 19px 19px 0 0; }
-.search-bar input { font-size: 14px; padding: 18px 0; }
-.autocomplete {
-  border-color: rgba(183,154,255,.5);
-  border-radius: 0 0 16px 16px;
-  background: rgba(10,9,17,.97);
-  backdrop-filter: blur(20px);
-}
-.shortcuts {
-  --sc-cols: 6;
-  width: min(850px, 100%);
-  gap: 10px;
-  margin-top: 26px;
-}
-.shortcut {
-  min-height: 104px;
-  align-items: flex-start;
-  justify-content: space-between;
-  padding: 15px;
-  gap: 13px;
-  border: 1px solid rgba(255,255,255,.085);
-  border-radius: 17px;
-  background: rgba(255,255,255,.038);
-  box-shadow: inset 0 1px rgba(255,255,255,.025);
-}
-.shortcut:hover {
-  background: rgba(159,122,234,.1);
-  border-color: rgba(159,122,234,.45);
-  transform: translateY(-3px);
-}
-.shortcut-icon { width: 28px; height: 28px; border-radius: 8px; }
-.shortcut span {
-  height: auto;
-  min-height: 28px;
-  text-align: left;
-  font-size: 11px;
-  line-height: 1.25;
-  color: rgba(255,255,255,.78);
-}
-.bottom-nav {
-  top: 18px;
-  bottom: 72px;
-  left: 18px;
-  right: auto;
-  width: 68px;
-  padding: 18px 0 14px;
-  flex-direction: column;
-  align-items: center;
-  justify-content: flex-start;
-  border: 1px solid rgba(255,255,255,.1);
-  border-radius: 25px;
-  background: rgba(255,255,255,.04);
-  box-shadow: inset 0 1px rgba(255,255,255,.03), 0 20px 55px rgba(0,0,0,.22);
-  backdrop-filter: blur(22px);
-}
-.bottom-nav::before {
-  content: "";
-  width: 28px;
-  height: 28px;
-  margin-bottom: 16px;
-  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cpath fill='%23f5f0ff' d='M32 2 38 26 62 32 38 38 32 62 26 38 2 32 26 26Z'/%3E%3C/svg%3E") center / contain no-repeat;
-  filter: drop-shadow(0 0 7px rgba(183, 154, 255, .55));
-}
-.bottom-nav.hidden { transform: translateX(-130%); }
-.nav-buttons {
-  width: 100%;
-  margin-top: auto;
-  flex-direction: column;
-  align-items: center;
-  gap: 8px;
-}
-.nav-item {
-  width: 46px;
-  height: 46px;
-  padding: 0;
-  justify-content: center;
-  gap: 0;
-  border-radius: 14px;
-  font-size: 0;
-  color: rgba(255,255,255,.42);
-}
-.nav-item:hover { background: rgba(255,255,255,.055); }
-.nav-item.active { color: #cdb9ff; background: rgba(159,122,234,.17); }
-.nav-item::before {
-  top: 50%;
-  left: 3px;
-  width: 3px;
-  height: 16px;
-  border-radius: 3px;
-  transform: translateY(-50%) scaleY(.35);
-}
-.nav-item.active::before { transform: translateY(-50%) scaleY(1); }
-.nav-item svg { width: 18px; height: 18px; }
-.nav-stats {
-  order: 3;
-  width: 100%;
-  padding: 10px 0 0;
-  align-items: center;
-}
-.nav-stat:first-child { display: none; }
-.nav-stat { font-size: 7px; letter-spacing: .03em; text-align: center; }
-.atlas-credit { margin-top: 2px; color: rgba(255,255,255,.24); }
-.panel.open ~ .bottom-nav .atlas-credit { display: none; }
-.content::after { display: none; }
-.panel,
-.settings-screen,
-.games-screen,
-.effects-screen,
-.game-player { font-family: Inter, sans-serif; }
-@media (max-width: 700px) {
-  .content {
-    left: 18px;
-    right: 18px;
-    top: 46%;
-    align-items: center;
-    transform: translateY(-50%);
-    padding-bottom: 72px;
+  document.title = "atlas";
+  document.querySelector(".wordmark")?.remove();
+
+  const style = document.createElement("link");
+  style.id = "atlas-tobacco-theme";
+  style.rel = "stylesheet";
+  style.href = getAsset("atlas-tobacco.css") + (devMode ? `&dev=${Date.now()}` : '');
+  shadowRoot.appendChild(style);
+
+  const chrome = document.createElement("div");
+  chrome.id = "atlasChrome";
+  chrome.innerHTML = `
+    <div class="atlas-frame" aria-hidden="true"></div>
+    <aside class="atlas-rail">
+      <button class="atlas-command-key" type="button" title="Focus search">&#8984;K</button>
+      <div class="atlas-rail-wordmark">atlas</div>
+      <div class="atlas-rail-context" id="atlasRailContext">Home</div>
+      <div class="atlas-credit">Credit opiumbest &middot; Inspired by GUST</div>
+    </aside>`;
+  shadowRoot.appendChild(chrome);
+
+  const content = document.querySelector(".content");
+  const searchWrap = document.getElementById("searchWrap");
+  const shortcuts = document.getElementById("shortcuts");
+  if (content?.parentElement) {
+    content.parentElement.style.background = "linear-gradient(90deg, rgba(197, 123, 46, .035), transparent 16%), #160e09";
   }
-  .content::after { top: 18px; right: 18px; }
-  .wordmark { display: inline-block; width: auto; max-inline-size: none; font-size: clamp(44px, 10vw, 56px); letter-spacing: -.04em; padding-inline: .09em; overflow: visible; margin-bottom: 25px; margin-inline: -.09em; }
-  .tagline { text-align: center; }
-  .search-wrap,
-  .search-wrap.expanded { width: 100%; }
-  .search-bar { min-height: 56px; }
-  .shortcuts { --sc-cols: 3; width: 100%; gap: 8px; margin-top: 18px; }
-  .shortcut { min-height: 86px; padding: 12px; }
-  .bottom-nav {
-    top: auto;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    width: auto;
-    height: 70px;
-    padding: 0 10px;
-    flex-direction: row;
-    justify-content: center;
-    border-width: 1px 0 0;
-    border-radius: 0;
-    background: rgba(8,8,14,.94);
+  if (content && searchWrap && shortcuts) {
+    const searchHeading = document.createElement("div");
+    searchHeading.className = "atlas-search-heading";
+    searchHeading.innerHTML = `<span class="atlas-caret">&rsaquo;</span><span>Search or enter address</span><kbd>&#8984;K</kbd>`;
+    content.insertBefore(searchHeading, searchWrap);
+
+    const recent = document.createElement("div");
+    recent.className = "atlas-recent";
+    recent.innerHTML = `<span>Recent</span>`;
+    [
+      ["Twitch directory", "https://twitch.tv/directory"],
+      ["YouTube subscriptions", "https://youtube.com/feed/subscriptions"],
+      ["Geometry Dash", "https://webdashers.dev/"]
+    ].forEach(([label, url]) => {
+      const button = document.createElement("button");
+      button.type = "button";
+      button.textContent = label;
+      button.onclick = () => navigate(url);
+      recent.appendChild(button);
+    });
+    searchWrap.after(recent);
+
+    const destinationHeading = document.createElement("div");
+    destinationHeading.className = "atlas-destinations-heading";
+    destinationHeading.innerHTML = `<strong>Destinations</strong><span>Press Alt + 1&ndash;9 to jump</span><span>All ${SHORTCUTS.length}</span>`;
+    shortcuts.before(destinationHeading);
   }
-  .bottom-nav::before,
-  .nav-stats { display: none; }
-  .bottom-nav.hidden { transform: translateY(110%); }
-  .nav-buttons { width: auto; margin: 0; flex-direction: row; gap: 4px; }
-  .nav-item { width: 70px; height: 58px; gap: 4px; font-size: 8px; border-radius: 12px; }
-  .nav-item::before { top: 4px; left: 50%; width: 4px; height: 4px; transform: translateX(-50%) scale(.4); }
-  .nav-item.active::before { transform: translateX(-50%) scale(1); }
-}
-@media (max-width: 420px) {
-  .content { top: 44%; }
-  .content::after { display: none; }
-  .wordmark { font-size: min(14vw, 52px); }
-  .shortcut { min-height: 80px; }
-  .nav-item { width: 62px; }
-}
-`;
-shadowRoot.appendChild(atlasTheme);
-const atlasRoot = shadowRoot.firstElementChild;
-if (atlasRoot) {
-  Object.assign(atlasRoot.style, {
-    background: "radial-gradient(circle at 72% 16%, #3d2867 0, transparent 31%), radial-gradient(circle at 12% 88%, #123653 0, transparent 35%), #08070c",
-    overflow: "visible"
+
+  const navButtons = document.querySelector(".nav-buttons");
+  if (navButtons) {
+    const createNavButton = (id, label, handler) => {
+      const button = document.createElement("button");
+      button.className = "nav-item atlas-text-nav";
+      button.id = id;
+      button.type = "button";
+      button.textContent = label;
+      button.onclick = handler;
+      return button;
+    };
+    navButtons.prepend(
+      createNavButton("navHome", "Home", () => {
+        document.getElementById("settingsScreen")?.classList.remove("open");
+        closeGames();
+        closeEffects();
+        document.getElementById("panel")?.classList.remove("open");
+        document.getElementById("bottomNav")?.classList.remove("hidden");
+      }),
+      createNavButton("navBrowse", "Browse", () => {
+        document.getElementById("gamesScreen")?.classList.remove("open");
+        document.getElementById("effectsScreen")?.classList.remove("open");
+        document.getElementById("settingsScreen")?.classList.remove("open");
+        const panel = document.getElementById("panel");
+        panel?.classList.add("open");
+        document.getElementById("bottomNav")?.classList.add("hidden");
+        const address = document.getElementById("addrInput");
+        address?.focus();
+        address?.select();
+      })
+    );
+  }
+
+  const gamesButton = document.getElementById("navGames");
+  const effectsButton = document.getElementById("navEffects");
+  const aiButton = [...document.querySelectorAll(".nav-item")].find(button => button.textContent.trim() === "AI");
+  if (gamesButton) gamesButton.dataset.label = "Library";
+  if (effectsButton) effectsButton.dataset.label = "Sound";
+  if (aiButton) aiButton.dataset.label = "Atlas AI";
+  const settingsButton = document.getElementById("navSettings");
+  settingsButton?.setAttribute("data-label", "Settings");
+  if (settingsButton && aiButton) navButtons?.insertBefore(settingsButton, aiButton);
+
+  const gamesHeader = document.querySelector("#gamesScreen .screen-header-left");
+  const effectsHeader = document.querySelector("#effectsScreen .screen-header-left");
+  const settingsHeader = document.querySelector("#settingsScreen .screen-header-left");
+  if (gamesHeader) gamesHeader.innerHTML = `<span class="screen-header-title">Library</span><span class="screen-header-sub">Games that run inside Atlas.</span>`;
+  if (effectsHeader) effectsHeader.innerHTML = `<span class="screen-header-title">Sound effects</span><span class="screen-header-sub">Play a sound without leaving your session.</span>`;
+  if (settingsHeader) settingsHeader.innerHTML = `<span class="screen-header-title">Settings</span>`;
+
+  const volumeFooter = document.querySelector(".effects-footer");
+  const volumeSlider = document.getElementById("volumeSlider");
+  if (volumeFooter && volumeSlider) {
+    const label = document.createElement("span");
+    label.className = "effects-volume-label";
+    label.textContent = "Master";
+    const output = document.createElement("output");
+    output.className = "effects-volume-output";
+    output.id = "effectsVolumeOutput";
+    output.value = "100";
+    output.textContent = "100";
+    volumeFooter.prepend(label);
+    volumeFooter.appendChild(output);
+    volumeSlider.addEventListener("input", () => {
+      const value = String(Math.round(parseFloat(volumeSlider.value) * 100));
+      output.value = value;
+      output.textContent = value;
+    });
+  }
+
+  const commandKey = chrome.querySelector(".atlas-command-key");
+  commandKey.onclick = () => {
+    const panel = document.getElementById("panel");
+    const input = panel?.classList.contains("open") ? document.getElementById("addrInput") : document.getElementById("searchInput");
+    input?.focus();
+    input?.select();
+  };
+
+  window.updateAtlasChromeState = () => {
+    const panelOpen = document.getElementById("panel")?.classList.contains("open");
+    const libraryOpen = document.getElementById("gamesScreen")?.classList.contains("open");
+    const soundOpen = document.getElementById("effectsScreen")?.classList.contains("open");
+    const settingsOpen = document.getElementById("settingsScreen")?.classList.contains("open");
+    const playerOpen = document.getElementById("gamePlayer")?.classList.contains("open");
+    const context = settingsOpen ? "Settings" : soundOpen ? "Sound" : libraryOpen ? "Library" : panelOpen ? "Browsing" : "Home";
+    const contextEl = document.getElementById("atlasRailContext");
+    if (contextEl) contextEl.textContent = context;
+    chrome.classList.toggle("atlas-home", context === "Home");
+    chrome.classList.toggle("atlas-player-open", playerOpen);
+    document.getElementById("bottomNav")?.classList.toggle("atlas-player-open", playerOpen);
+    document.getElementById("navHome")?.classList.toggle("active", context === "Home");
+    document.getElementById("navBrowse")?.classList.toggle("active", panelOpen && !settingsOpen && !libraryOpen && !soundOpen);
+  };
+  window.updateAtlasChromeState();
+
+  document.addEventListener("keydown", event => {
+    if (!event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) return;
+    const index = event.key === "0" ? 9 : Number(event.key) - 1;
+    if (index < 0 || index > 8 || !SHORTCUTS[index]) return;
+    event.preventDefault();
+    navigate(SHORTCUTS[index].url);
   });
-}
 }
