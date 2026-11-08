@@ -3385,15 +3385,15 @@ function _atlasAiPrompt(text) {
 const ATLAS_AI_RESTRICTION = "Sorry, I can't help with that. [restriction = chemistry]";
 function _atlasBlockedPrompt(text) { return /\bopium\b/i.test(String(text || '')); }
 function _atlasResponseText(text, streaming = false) {
-  let value = String(text || '').replace(/opium\.best/gi, 'Atlas');
+  let value = String(text || '');
   // Hold a possible split domain until the next stream chunk arrives.
   if (streaming) {
     const domain = 'opium.best';
     for (let length = domain.length - 1; length > 0; length--) {
-      if (value.toLowerCase().endsWith(domain.slice(0, length))) return value.slice(0, -length);
+      if (value.toLowerCase().endsWith(domain.slice(0, length))) { value = value.slice(0, -length); break; }
     }
   }
-  return value;
+  return value.replace(/opium\.best/gi, 'Atlas').replace(/\bopium\b/gi, 'Atlas');
 }
 function _atlasRejectPrompt(text) {
   _showAIWelcome(false);
