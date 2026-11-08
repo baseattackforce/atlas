@@ -910,4 +910,5 @@
 .stick-toggle { padding: 6px 10px; border: 1px solid var(--atlas-line); border-radius: 4px; color: var(--atlas-text); cursor: pointer; }
 .cm-modal-card { background: var(--atlas-surface); border-color: var(--atlas-line); }
 .cm-modal-header, .cm-footer { border-color: var(--atlas-line); }
-.ai-reasoning { display: none !important; }
+.ai-reasoning-summary { cursor: default; }
+.ai-reasoning-body, .ai-reasoning-chevron { display: none !important; }

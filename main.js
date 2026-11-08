@@ -3521,7 +3521,11 @@ function _onStreamStart(e) {
   n && n.appendChild(_streamShell.messageDiv), _scrollChatToBottom();
 }
 function _onStreamThinking(e) {
-  if (_streamShell && !_streamFirstTokenAt) _streamFirstTokenAt = performance.now();
+  if (!_streamShell) return;
+  if (!_streamFirstTokenAt) _streamFirstTokenAt = performance.now();
+  _streamShell.reasoningDetails.classList.remove('hidden');
+  _streamShell.reasoningLabel.textContent = 'Reasoning\u2026';
+  _streamShell.waitDiv.classList.add('hidden');
 }
 function _onStreamContent(e) {
   if (!_streamShell)
@@ -3553,6 +3557,7 @@ function _onStreamDone() {
     const e = s.messages.findIndex(e => e.id === o), r = {
         id: o,
         role: 'assistant',
+        hasReasoning: !!_streamShell && !_streamShell.reasoningDetails.classList.contains('hidden'),
         content: t,
         reasoning: n || void 0,
         media: a || void 0
@@ -3636,11 +3641,13 @@ function _renderUserMessage(e, t, n) {
 function _createAssistantShell() {
   const e = document.createElement('div');
   e.className = 'ai-message assistant';
-  const t = document.createElement('details');
+  const t = document.createElement('div');
   t.className = 'ai-reasoning hidden';
-  const n = document.createElement('summary');
+  t.setAttribute('role', 'status');
+  const n = document.createElement('div');
   n.className = 'ai-reasoning-summary', n.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3a6 6 0 0 0-6 6c0 1.887.833 3.32 2.09 4.264.55.417.91 1.05.91 1.736v.5a1 1 0 0 0 1 1h4a1 1 0 0 0 1-1v-.5c0-.686.36-1.319.91-1.736A6.001 6.001 0 0 0 18 9a6 6 0 0 0-6-6z"/><path d="M9.663 17h4.673"/></svg><span class="ai-reasoning-label">Reasoning</span><svg class="ai-reasoning-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg>';
   const a = n.querySelector('.ai-reasoning-label'), o = document.createElement('div');
+  n.querySelector('.ai-reasoning-chevron')?.remove();
   o.className = 'ai-reasoning-body', t.appendChild(n), t.appendChild(o);
   const s = document.createElement('div');
   s.className = 'ai-message-text';
@@ -3680,8 +3687,10 @@ function _appendMedia(e, t, n) {
   e.appendChild(a);
 }
 function _renderAssistantMessage(e) {
+  const hadReasoning = !!(e.hasReasoning || e.reasoning);
   e = {...e, content: _atlasResponseText(e.content), reasoning: ''};
   const t = document.getElementById('aiMessages'), n = _createAssistantShell();
+  if (hadReasoning) n.reasoningDetails.classList.remove('hidden');
   return n.messageDiv.dataset.msgId = e.id, e.reasoning && (n.reasoningDetails.classList.remove('hidden'), n.reasoningBody.textContent = e.reasoning), n.waitDiv.classList.add('hidden'), _mountTextDiv(n), _renderMarkdown(n.textDiv, e.content), e.media && _appendMedia(n.textDiv, e.media.kind, e.media.url), _addCopyAction(n.actionsDiv, () => e.media ? e.media.url : e.content), _aiReadOnly || _addRetryAction(n.actionsDiv, () => _retryMessage(e.id)), t.appendChild(n.messageDiv), _scrollChatToBottom(), n.messageDiv;
 }
 function _showThinkingIndicator() {
