@@ -3383,18 +3383,16 @@ function _atlasAiPrompt(text) {
     'Use Atlas AI as your product name when introducing yourself. This identifies the application, not the underlying model or service provider.\n\nUser request:\n' + text;
 }
 const ATLAS_AI_RESTRICTION = "Sorry, I can't help with that. [restriction = chemistry]";
-function _atlasBlockedPrompt(text) { return /\bopium\b/i.test(String(text || '')); }
-function _atlasResponseText(text, streaming = false) {
-  let value = String(text || '');
-  // Hold a possible split domain until the next stream chunk arrives.
-  if (streaming) {
-    const domain = 'opium.best';
-    for (let length = domain.length - 1; length > 0; length--) {
-      if (value.toLowerCase().endsWith(domain.slice(0, length))) { value = value.slice(0, -length); break; }
-    }
-  }
-  return value.replace(/opium\.best/gi, 'Atlas').replace(/\bopium\b/gi, 'Atlas');
+function _atlasBlockedPrompt(text) {
+  const lookalikes = {'0':'o','1':'i','о':'o','ο':'o','р':'p','ρ':'p','і':'i','ι':'i','υ':'u','м':'m'};
+  const normalized = String(text || '').normalize('NFKD').toLowerCase()
+    .replace(/[\p{M}\p{Cf}]/gu, '')
+    .replace(/[01оοрρіιυм]/gu, character => lookalikes[character]);
+  // Separators may be spaces, punctuation or symbols, but not other letters.
+  return /(?:^|[^\p{L}\p{N}_])o[\p{P}\p{Z}\p{S}\s_]*p[\p{P}\p{Z}\p{S}\s_]*i[\p{P}\p{Z}\p{S}\s_]*u[\p{P}\p{Z}\p{S}\s_]*m(?:s)?(?=$|[^\p{L}\p{N}_])/u.test(normalized);
 }
+// Responses remain verbatim. Product identity is supplied by prompt context.
+function _atlasResponseText(text) { return String(text || ''); }
 function _atlasRejectPrompt(text) {
   _showAIWelcome(false);
   const user = _renderUserMessage(_newId(), text);
@@ -3499,7 +3497,7 @@ function _makeStreamRenderer(e) {
 }
 const _streamRenderer = _makeStreamRenderer(() => {
   const e = _streamShell;
-  e && (_streamReasoning && (e.reasoningBody.textContent = _atlasResponseText(_streamReasoning, _aiStreaming)), _streamContent && _renderMarkdown(e.textDiv, _atlasResponseText(_streamContent, _aiStreaming)), _scrollChatToBottom());
+  e && (_streamContent && _renderMarkdown(e.textDiv, _streamContent), _scrollChatToBottom());
 });
 function _onStreamStart(e) {
   _streamRenderer.cancel(), _aiCurrentChatId = e.conversationId, _streamContent = '', _streamReasoning = '', _streamUsage = null, _streamMedia = null, _streamStartedAt = performance.now(), _streamFirstTokenAt = 0, _streamTitle = e.title || '', _streamAsstId = _newId();
@@ -3523,10 +3521,7 @@ function _onStreamStart(e) {
   n && n.appendChild(_streamShell.messageDiv), _scrollChatToBottom();
 }
 function _onStreamThinking(e) {
-  if (!_streamShell)
-    return;
-  const t = !_streamReasoning;
-  t && (_streamFirstTokenAt || (_streamFirstTokenAt = performance.now()), _streamShell.waitDiv.classList.add('hidden'), _streamShell.statusDiv.classList.add('hidden'), _streamShell.reasoningLabel.textContent = 'Reasoning\u2026'), _streamReasoning += e, _streamShell.reasoningDetails.classList.remove('hidden'), t ? _streamRenderer.flush() : _streamRenderer.schedule();
+  if (_streamShell && !_streamFirstTokenAt) _streamFirstTokenAt = performance.now();
 }
 function _onStreamContent(e) {
   if (!_streamShell)
@@ -3685,7 +3680,7 @@ function _appendMedia(e, t, n) {
   e.appendChild(a);
 }
 function _renderAssistantMessage(e) {
-  e = {...e, content: _atlasResponseText(e.content), reasoning: _atlasResponseText(e.reasoning)};
+  e = {...e, content: _atlasResponseText(e.content), reasoning: ''};
   const t = document.getElementById('aiMessages'), n = _createAssistantShell();
   return n.messageDiv.dataset.msgId = e.id, e.reasoning && (n.reasoningDetails.classList.remove('hidden'), n.reasoningBody.textContent = e.reasoning), n.waitDiv.classList.add('hidden'), _mountTextDiv(n), _renderMarkdown(n.textDiv, e.content), e.media && _appendMedia(n.textDiv, e.media.kind, e.media.url), _addCopyAction(n.actionsDiv, () => e.media ? e.media.url : e.content), _aiReadOnly || _addRetryAction(n.actionsDiv, () => _retryMessage(e.id)), t.appendChild(n.messageDiv), _scrollChatToBottom(), n.messageDiv;
 }
