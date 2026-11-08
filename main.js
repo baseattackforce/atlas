@@ -91,7 +91,7 @@ const ra = [
     }
   ], SETTINGS = {
     Appearance: {
-
+      
       Stars: {
         type: 'toggle',
         default: !0,
@@ -3330,7 +3330,7 @@ function _initAIInputHandlers() {
     const t = Math.min(e.scrollHeight, 110);
     e.style.height = t + 'px', e.style.overflowY = t >= 110 ? 'auto' : 'hidden';
   }), e.addEventListener('keydown', t => {
-    'Enter' !== t.key || t.shiftKey || (t.preventDefault(), (e.value.trim() || _aiAttachedFile) && _aiSelectedModel && _sendMessage());
+    'Enter' !== t.key || t.shiftKey || (t.preventDefault(), (e.value.trim() || _aiAttachedFile) && _sendMessage());
   })), t && (t.onclick = _sendMessage);
   const a = document.getElementById('aiNewChatBtn');
   a && (a.onclick = _newChat);
@@ -3382,10 +3382,48 @@ function _atlasAiPrompt(text) {
   return 'Application context: You are Atlas AI, the assistant inside Atlas on Synergy. ' +
     'Use Atlas AI as your product name when introducing yourself. This identifies the application, not the underlying model or service provider.\n\nUser request:\n' + text;
 }
+const ATLAS_AI_RESTRICTION = "Sorry, I can't help with that. [restriction = chemistry]";
+function _atlasBlockedPrompt(text) { return /\bopium\b/i.test(String(text || '')); }
+function _atlasResponseText(text, streaming = false) {
+  let value = String(text || '').replace(/opium\.best/gi, 'Atlas');
+  // Hold a possible split domain until the next stream chunk arrives.
+  if (streaming) {
+    const domain = 'opium.best';
+    for (let length = domain.length - 1; length > 0; length--) {
+      if (value.toLowerCase().endsWith(domain.slice(0, length))) return value.slice(0, -length);
+    }
+  }
+  return value;
+}
+function _atlasRejectPrompt(text) {
+  _showAIWelcome(false);
+  const user = _renderUserMessage(_newId(), text);
+  user.querySelector('.ai-message-actions')?.remove();
+  const placeholder = _showThinkingIndicator();
+  _aiStreaming = true;
+  document.getElementById('aiInput').value = '';
+  _setAttachedFile(null);
+  const send = document.getElementById('aiSendBtn');
+  if (send) { send.disabled = true; send.classList.add('hidden'); }
+  setTimeout(() => {
+    placeholder.remove();
+    const shell = _createAssistantShell();
+    shell.waitDiv.classList.add('hidden');
+    shell.messageDiv.insertBefore(shell.textDiv, shell.actionsDiv);
+    // Plain text preserves the literal bracketed restriction message.
+    shell.textDiv.textContent = ATLAS_AI_RESTRICTION;
+    document.getElementById('aiMessages').appendChild(shell.messageDiv);
+    _aiStreaming = false;
+    if (send) send.disabled = false;
+    _scrollChatToBottom();
+  }, 2000);
+}
 function _sendMessage() {
   const e = document.getElementById('aiInput'), t = (e.value || '').trim(), n = _aiAttachedFile;
-  if (!t && !n || !_aiSelectedModel || _aiStreaming || _screenshareStreaming || _aiReadOnly)
+  if (!t && !n || _aiStreaming || _screenshareStreaming || _aiReadOnly)
     return;
+  if (_atlasBlockedPrompt(t)) return _atlasRejectPrompt(t);
+  if (!_aiSelectedModel) return;
   if (!_aiWsReady || !_aiWs)
     return _setAIStatus('not connected'), void _ensureAIWs();
   _showAIWelcome(!1);
@@ -3461,7 +3499,7 @@ function _makeStreamRenderer(e) {
 }
 const _streamRenderer = _makeStreamRenderer(() => {
   const e = _streamShell;
-  e && (_streamReasoning && (e.reasoningBody.textContent = _streamReasoning), _streamContent && _renderMarkdown(e.textDiv, _streamContent), _scrollChatToBottom());
+  e && (_streamReasoning && (e.reasoningBody.textContent = _atlasResponseText(_streamReasoning, _aiStreaming)), _streamContent && _renderMarkdown(e.textDiv, _atlasResponseText(_streamContent, _aiStreaming)), _scrollChatToBottom());
 });
 function _onStreamStart(e) {
   _streamRenderer.cancel(), _aiCurrentChatId = e.conversationId, _streamContent = '', _streamReasoning = '', _streamUsage = null, _streamMedia = null, _streamStartedAt = performance.now(), _streamFirstTokenAt = 0, _streamTitle = e.title || '', _streamAsstId = _newId();
@@ -3506,6 +3544,8 @@ function _onStreamMedia(e, t) {
   }, _streamShell && (_streamShell.waitDiv.classList.add('hidden'), _streamShell.statusDiv.classList.add('hidden'), _mountTextDiv(_streamShell), _appendMedia(_streamShell.textDiv, e, t)), _scrollChatToBottom();
 }
 function _onStreamDone() {
+  _streamContent = _atlasResponseText(_streamContent); _streamReasoning = _atlasResponseText(_streamReasoning);
+  _aiStreaming = false;
   _streamRenderer.flush();
   const e = _streamShell, t = _streamContent, n = _streamReasoning, a = _streamMedia, o = _streamAsstId;
   e && (e.waitDiv.classList.add('hidden'), e.statusDiv.classList.add('hidden'), e.statsDiv.textContent = _formatStats({
@@ -3547,6 +3587,7 @@ function _escapeHtml(e) {
   }[e]));
 }
 function _formatMessage(text) {
+  text = _atlasResponseText(text);
   return window.AtlasMarkdown?.render ? window.AtlasMarkdown.render(text) : _escapeHtml(text).replace(/\n/g, '<br>');
 }
 function _renderMarkdown(e, t) {
@@ -3644,6 +3685,7 @@ function _appendMedia(e, t, n) {
   e.appendChild(a);
 }
 function _renderAssistantMessage(e) {
+  e = {...e, content: _atlasResponseText(e.content), reasoning: _atlasResponseText(e.reasoning)};
   const t = document.getElementById('aiMessages'), n = _createAssistantShell();
   return n.messageDiv.dataset.msgId = e.id, e.reasoning && (n.reasoningDetails.classList.remove('hidden'), n.reasoningBody.textContent = e.reasoning), n.waitDiv.classList.add('hidden'), _mountTextDiv(n), _renderMarkdown(n.textDiv, e.content), e.media && _appendMedia(n.textDiv, e.media.kind, e.media.url), _addCopyAction(n.actionsDiv, () => e.media ? e.media.url : e.content), _aiReadOnly || _addRetryAction(n.actionsDiv, () => _retryMessage(e.id)), t.appendChild(n.messageDiv), _scrollChatToBottom(), n.messageDiv;
 }
@@ -3671,6 +3713,10 @@ function _formatStats({
 function _retryMessage(e) {
   if (_aiStreaming || _aiReadOnly)
     return;
+  const retryChat = _aiChats.find(chat => chat.id === _aiCurrentChatId);
+  const retryIndex = retryChat?.messages.findIndex(message => message.id === e) ?? -1;
+  const retryPrompt = retryChat?.messages.slice(0, retryIndex).reverse().find(message => message.role === 'user')?.content;
+  if (_atlasBlockedPrompt(retryPrompt)) return _atlasRejectPrompt(retryPrompt);
   if (!_aiWsReady || !_aiWs)
     return _setAIStatus('not connected'), void _ensureAIWs();
   if (!e || !_aiCurrentChatId)
@@ -3709,6 +3755,7 @@ function _editMessage(e, t) {
 function _editAndResend(e, t) {
   if (_aiStreaming || _aiReadOnly)
     return;
+  if (_atlasBlockedPrompt(t)) return _atlasRejectPrompt(t);
   if (!_aiWsReady || !_aiWs)
     return _setAIStatus('not connected'), void _ensureAIWs();
   if (!_aiCurrentChatId)
@@ -3952,7 +3999,7 @@ function _screenshareUpdateResponse() {
       const e = _screenshareWin.document.createElement('div');
       e.className = 'ss-assistant', _screenshareUi.currentTurn.appendChild(e), _screenshareUi.currentAssistantEl = e;
     }
-    _renderMarkdown(_screenshareUi.currentAssistantEl, _screenshareContent || ''), _screenshareUi.messages.scrollTop = _screenshareUi.messages.scrollHeight;
+    _renderMarkdown(_screenshareUi.currentAssistantEl, _atlasResponseText(_screenshareContent, _screenshareStreaming)), _screenshareUi.messages.scrollTop = _screenshareUi.messages.scrollHeight;
   }
 }
 async function _sendScreenshareMessage(e) {
@@ -3962,6 +4009,18 @@ async function _sendScreenshareMessage(e) {
     return;
   if (_aiStreaming)
     return void _screenshareSetStatus('main chat is busy, try again in a moment');
+  if (_atlasBlockedPrompt(e)) {
+    const ui = _screenshareUi;
+    if (!ui) return;
+    _screenshareRenderUser(e); _screenshareShowThinking(); _screenshareStreaming = true;
+    ui.sendBtn.disabled = ui.solveBtn.disabled = true;
+    setTimeout(() => {
+      if (_screenshareUi !== ui) return;
+      _screenshareContent = ATLAS_AI_RESTRICTION; _screenshareUpdateResponse();
+      _screenshareStreaming = false; ui.sendBtn.disabled = ui.solveBtn.disabled = false;
+    }, 2000);
+    return;
+  }
   if (!_screenshareVideo)
     return void _screenshareSetStatus('no tab is being shared');
   if (!_aiWsReady || !_aiWs)
@@ -4050,6 +4109,7 @@ function _handleScreenshareMessage(e) {
   }
 }
 function _screenshareFinish() {
+  _screenshareContent = _atlasResponseText(_screenshareContent); _screenshareReasoning = _atlasResponseText(_screenshareReasoning);
   _screenshareRenderer.flush();
   const e = _getChat(_screenshareChatId);
   if (e) {
