@@ -1518,7 +1518,7 @@ function _opmOpen(e) {
   if (t && t.url !== n) {
     if (a)
       return selectTab(a.id);
-    _opmAnim = {
+    _opmAnim = e === 'invites' ? null : {
       p: e,
       open: !0
     }, _opmGo(t, n);
@@ -7980,7 +7980,7 @@ function applyAtlasTheme() {
     const settingsOpen = document.getElementById('settingsScreen')?.classList.contains('open');
     const playerOpen = document.getElementById('gamePlayer')?.classList.contains('open');
     const aiOpen = document.getElementById('aiScreen')?.classList.contains('open');
-    const context = aiOpen ? 'AI' : settingsOpen ? 'Settings' : soundOpen ? 'Sound' : libraryOpen ? 'Library' : activeTab()?.url ? (_opmKind(activeTab().url)==='movies' || _opmKind(activeTab().url)==='movie' ? 'Movies' : 'Browsing') : 'Home';
+    const context = aiOpen ? 'AI' : settingsOpen ? 'Settings' : soundOpen ? 'Sound' : libraryOpen ? 'Library' : _opmKind(activeTab()?.url)==='invites' ? 'Invite Friends' : activeTab()?.url ? (_opmKind(activeTab().url)==='movies' || _opmKind(activeTab().url)==='movie' ? 'Movies' : 'Browsing') : 'Home';
     const contextEl = document.getElementById('atlasRailContext');
     if (contextEl)
       contextEl.textContent = context;
