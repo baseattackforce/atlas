@@ -3391,8 +3391,20 @@ function _atlasBlockedPrompt(text) {
   // Separators may be spaces, punctuation or symbols, but not other letters.
   return /(?:^|[^\p{L}\p{N}_])o[\p{P}\p{Z}\p{S}\s_]*p[\p{P}\p{Z}\p{S}\s_]*i[\p{P}\p{Z}\p{S}\s_]*u[\p{P}\p{Z}\p{S}\s_]*m(?:s)?(?=$|[^\p{L}\p{N}_])/u.test(normalized);
 }
-// Responses remain verbatim. Product identity is supplied by prompt context.
-function _atlasResponseText(text) { return String(text || ''); }
+// Replace only the provider domain; ordinary subject-matter words stay intact.
+function _atlasResponseText(text, streaming = false) {
+  const domain = String.fromCharCode(111, 112, 105, 117, 109, 46, 98, 101, 115, 116);
+  let value = String(text || '').replace(new RegExp(domain.replace('.', '\\.'), 'gi'), 'Atlas');
+  // Hold a possible domain suffix until the next chunk or completion so it
+  // cannot briefly appear when the provider splits it across stream events.
+  if (streaming) {
+    const lower = value.toLowerCase();
+    for (let size = Math.min(domain.length - 1, value.length); size > 0; size--) {
+      if (lower.endsWith(domain.slice(0, size))) return value.slice(0, -size);
+    }
+  }
+  return value;
+}
 function _atlasRejectPrompt(text) {
   _showAIWelcome(false);
   const user = _renderUserMessage(_newId(), text);
@@ -3497,7 +3509,7 @@ function _makeStreamRenderer(e) {
 }
 const _streamRenderer = _makeStreamRenderer(() => {
   const e = _streamShell;
-  e && (_streamContent && _renderMarkdown(e.textDiv, _streamContent), _scrollChatToBottom());
+  e && (_streamContent && _renderMarkdown(e.textDiv, _atlasResponseText(_streamContent, _aiStreaming)), _scrollChatToBottom());
 });
 function _onStreamStart(e) {
   _streamRenderer.cancel(), _aiCurrentChatId = e.conversationId, _streamContent = '', _streamReasoning = '', _streamUsage = null, _streamMedia = null, _streamStartedAt = performance.now(), _streamFirstTokenAt = 0, _streamTitle = e.title || '', _streamAsstId = _newId();
