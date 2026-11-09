@@ -198,7 +198,7 @@ const SETTINGS = {
         'Guest passes': {
             type: 'button',
             label: 'Manage invites',
-            action: () => { allowUnload = true; window.top.location.href = new URL('/invites.html', window.location.origin).href; }
+            action: () => openInvites()
         }
     },
     Advanced: {
@@ -1228,6 +1228,7 @@ function _tabFavNode(e) {
   }, o.src = a, o;
 }
 const OPM_PAGES = {
+    invites: { title: 'Invite Friends', screen: 'invitesScreen', nav: 'navInvites' },
     games: {
       title: 'Library',
       screen: 'gamesScreen',
@@ -1249,6 +1250,7 @@ const OPM_PAGES = {
       nav: 'navAI'
     }
   }, OPM_UNLOAD_MS = 180000, OPM_MAX_TABS = 8, _OPM_SCREENS = {
+    invites: [_invitesShow, _invitesHide],
     games: [
       _gamesShow,
       _gamesHide
@@ -7818,6 +7820,10 @@ function _renderShortcuts() {
     countLabel.textContent = `All ${ count }`;
 }
 
+function openInvites(){ _opmOpen('invites'); }
+function _invitesShow(){const screen=document.getElementById('invitesScreen'), frame=document.getElementById('invitesFrame');if(!frame.getAttribute('src')) frame.setAttribute('src',new URL('/invites.html?embedded=1',window.location.origin).href);screen.classList.add('open');}
+function _invitesHide(){document.getElementById('invitesScreen')?.classList.remove('open');}
+
 function _activateAtlasScreen(id){
   document.getElementById('settingsScreen')?.classList.remove('open');
   const page={gamesScreen:'games',effectsScreen:'effects',moviesScreen:'movies',aiScreen:'ai'}[id];
@@ -7887,14 +7893,12 @@ function applyAtlasTheme() {
     destinationHeading.className = 'atlas-destinations-heading';
     destinationHeading.innerHTML = `<strong>Destinations</strong><span>Press Alt + 1&ndash;9 to jump</span><span id="atlasDestinationCount">All ${ SHORTCUTS.length + _bookmarks.length }</span>`;
     shortcuts.before(destinationHeading);
-    const inviteFriends = document.createElement('button');
-    inviteFriends.id = 'atlasInviteFriends';
-    inviteFriends.className = 'atlas-invite-friends';
-    inviteFriends.type = 'button';
-    inviteFriends.textContent = 'Invite Friends';
-    inviteFriends.onclick = () => { allowUnload = true; window.top.location.href = new URL('/invites.html', window.location.origin).href; };
-    content.appendChild(inviteFriends);
+
   }
+  const invitesScreen = document.createElement('section');
+  invitesScreen.id='invitesScreen'; invitesScreen.className='invites-screen';
+  const invitesFrame=document.createElement('iframe'); invitesFrame.id='invitesFrame'; invitesFrame.title='Invite Friends';
+  invitesScreen.appendChild(invitesFrame); document.getElementById('tabViews').appendChild(invitesScreen);
   const navButtons = document.querySelector('.nav-buttons');
   if (navButtons) {
     const createNavButton = (id, label, handler) => {
@@ -7906,6 +7910,7 @@ function applyAtlasTheme() {
       button.onclick = handler;
       return button;
     };
+    navButtons.appendChild(createNavButton('navInvites','Invite Friends',openInvites));
     navButtons.prepend(createNavButton('navHome', 'Home', () => {
       _activateAtlasScreen(null);
     }), createNavButton('navBrowse', 'Browse', () => {

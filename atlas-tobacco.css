@@ -970,4 +970,5 @@
 .shortcut .shortcut-delete svg { display:block; width:12px; height:12px; }
 .shortcut .shortcut-edit:hover,.shortcut .shortcut-delete:hover { color:var(--atlas-amber); }
 
-.atlas-invite-friends{position:absolute;top:8px;right:0;margin:0;padding:6px 14px;border:1px solid var(--atlas-amber);border-radius:5px;background:rgba(197,123,46,.12);color:var(--atlas-amber);font:500 13px Inter,sans-serif;cursor:pointer}.atlas-invite-friends:hover{background:rgba(197,123,46,.22)}.atlas-invite-friends:focus-visible{outline:2px solid var(--atlas-amber);outline-offset:3px}
+
+#tabViews>.invites-screen{display:none;position:absolute;inset:0;z-index:2;background:var(--atlas-surface)}#tabViews>.invites-screen.open{display:block}#invitesFrame{display:block;width:100%;height:100%;border:0;background:var(--atlas-surface)}
