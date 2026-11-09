@@ -85,15 +85,24 @@ function testWlspDomain(e) {
   });
 }
 async function getWlsp() {
-  const e = o('WID') ? +o('WID') : NaN, r = [...t.keys()];
-  if (Number.isInteger(e) && t[e] && !n(t[e])) { r.splice(r.indexOf(e), 1); r.unshift(e); }
-  for (const e of r) {
-    const r = await testWlspDomain(t[e]);
-    if (null !== r)
-      return n(t[e]) || o('WID', e), window.WlspPing = r, window.WlspIsBackup = n(t[e]), a(t[e]);
+  const cached = o('WID') ? +o('WID') : NaN, order = [...t.keys()];
+  if (Number.isInteger(cached) && t[cached] && !n(t[cached])) { order.splice(order.indexOf(cached),1); order.unshift(cached); }
+  try {
+    const winner = await Promise.any(order.map(async index => {
+      const ping = await testWlspDomain(t[index]);
+      if (ping === null) throw new Error('relay unavailable');
+      return {index,ping};
+    }));
+    window.WlspPing = winner.ping;
+    window.WlspIsBackup = n(t[winner.index]);
+    if (!window.WlspIsBackup) o('WID',winner.index);
+    return a(t[winner.index]);
+  } catch {
+    window.WlspIsBackup = n(t.at(-1));
+    return a(t.at(-1));
   }
-  return window.WlspIsBackup = n(t.at(-1)), a(t.at(-1));
 }
+
 const s = () => window.assetsBase;
 async function initTransport(e) {
   for (let t = 0; t < 1000; t++) {
