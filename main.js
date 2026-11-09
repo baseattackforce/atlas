@@ -1,46 +1,92 @@
-// Functional port of tongsherbet/storage@050d21c0d66b641c420bb03bc7fe5965cd26b696, with Synergy's existing Atlas theme.
-const sjEncode = e => new URL('./~/', location.href).pathname + controller.config.codec.encode(e), SHORTCUTS = [{
-  "label": "YouTube",
-  "url": "https://youtube.com/"
-}, {
-  "label": "TikTok",
-  "url": "https://www.tiktok.com/foryou"
-}, {
-  "label": 'Geforce Now',
-  "url": 'https://play.geforcenow.com/mall/'
-}, {
-  "label": 'Roblox',
-  "faviconHost": "https://www.roblox.com/",
-  "url": "https://nowgg.fun/apps/a/19900/b.html"
-}, {
-  "label": "Geometry Dash",
-  "url": "https://webdashers.dev/",
-  "faviconUrl": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQdw5uFI0cIdPEEfg8nXpx-UeHx2SRH5tG-e3OhSB0dfQ&s"
-}, {
-  "label": 'Kick',
-  "url": 'https://kick.com/'
-}, {
-  "label": "Twitch",
-  "url": "https://twitch.tv"
-}, {
-  "label": "Snapchat",
-  "url": "https://www.snapchat.com/web"
-}, {
-  "label": 'Instagram',
-  "url": "https://instagram.com"
-}, {
-  "label": "Discord",
-  "url": "https://discord.com/app"
-}, {
-  "label": "Movies",
-  "url": "https://zstream.mov/",
-  "faviconUrl": "https://cdn-icons-png.flaticon.com/512/10351/10351880.png"
-}, {
-  "label": "Music",
-  "url": "https://monochrome.tf/",
-  "faviconUrl": "https://cdn-icons-png.flaticon.com/512/461/461146.png"
-}];
-const ra = [
+var atlasNavigationReady = false;
+for (const [e, t] of [
+    [
+      'color-scheme',
+      'dark'
+    ],
+    [
+      'theme-color',
+      '#050508'
+    ]
+  ])
+  document.querySelector(`meta[name="${ e }"]`) || document.head.appendChild(Object.assign(document.createElement('meta'), {
+    name: e,
+    content: t
+  }));
+try {
+  const e = navigator;
+  if (/\bCrOS\b/.test(e.userAgent) || e.deviceMemory && e.deviceMemory <= 4 || e.hardwareConcurrency && e.hardwareConcurrency <= 4) {
+    const e = Object.assign(document.createElement('style'), {
+      id: 'ui-lite',
+      textContent: '.game-card-placeholder,.effect-btn.skeleton,.mv-poster,.mv-feat.skel,.mv-ep.skel .mv-ep-img,.ai-shine{animation:none!important}'
+    });
+    ('undefined' != typeof shadowRoot && shadowRoot || document.head).appendChild(e);
+  }
+} catch {
+}
+const sjEncode = e => new URL('./~/', location.href).pathname + controller.config.codec.encode(e), imgProxy = e => {
+    if (!e || /^(data|blob):/i.test(e))
+      return e;
+    try {
+      const t = new URL(e, location.href);
+      return [
+        location.origin,
+        new URL(getBase()).origin,
+        new URL(_repoUrl('')).origin
+      ].includes(t.origin) ? e : getBase() + '/img?' + btoa(t.href);
+    } catch {
+      return e;
+    }
+  }, SHORTCUTS = [
+    {
+      'label': 'YouTube',
+      'url': 'https://youtube.com/'
+    },
+    {
+      'label': 'TikTok',
+      'url': 'https://www.tiktok.com/foryou'
+    },
+    {
+      'label': 'Geforce Now',
+      'url': 'https://play.geforcenow.com/mall/'
+    },
+    {
+      'label': 'Roblox',
+      'faviconHost': 'https://www.roblox.com/',
+      'url': 'https://nowgg.fun/apps/a/19900/b.html'
+    },
+    {
+      'label': 'Geometry Dash',
+      'url': 'https://webdashers.dev/',
+      'faviconUrl': 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQdw5uFI0cIdPEEfg8nXpx-UeHx2SRH5tG-e3OhSB0dfQ&s'
+    },
+    {
+      'label': 'Kick',
+      'url': 'https://kick.com/'
+    },
+    {
+      'label': 'Twitch',
+      'url': 'https://twitch.tv'
+    },
+    {
+      'label': 'Snapchat',
+      'url': 'https://www.snapchat.com/web'
+    },
+    {
+      'label': 'Instagram',
+      'url': 'https://instagram.com'
+    },
+    {
+      'label': 'Discord',
+      'url': 'https://discord.com/app'
+    },
+    {label:'Movies',onclick:openMovies,faviconHost:'https://www.themoviedb.org/'},
+    {
+      'label': 'Music',
+      'url': 'https://monochrome.tf/',
+      'faviconUrl': 'https://cdn-icons-png.flaticon.com/512/461/461146.png'
+    }
+  ], MOVIES_ON = !0, ra = [
     {
       name: 'Google',
       url: 'https://www.google.com/search?q='
@@ -86,109 +132,76 @@ const ra = [
       stars: '255,206,150'
     },
     {
+      name: 'Thanksgiving',
+      stars: '255,220,170'
+    },
+    {
       name: 'Christmas',
       stars: '214,230,255'
     }
-  ], SETTINGS = {
+  ];
+function _clearCache() {}
+function _refetchFresh() {}
+function _unregisterWorkers() {}
+const SETTINGS = {
     Appearance: {
-      
-      Stars: {
-        type: 'toggle',
-        default: !0,
-        callback: e => {
-          starsEnabled = e;
-        }
-      },
-      'Shooting Stars': {
-        type: 'toggle',
-        default: !0,
-        callback: e => {
-          shootingStarsEnabled = e;
-        }
-      },
-      'Prevent Close': {
-        type: 'toggle',
-        default: !0,
-        callback: e => {
-          preventCloseEnabled = e;
-        }
-      },
-      'Title Changer': {
-        type: 'toggle',
-        default: !0,
-        callback: (e, t) => {
-          if (titleChangerEnabled = e, !t)
-            if (e)
-              document.hidden && (document.title = 'New Tab');
-            else {
-              try {
-                clearTimeout(focusTimeout);
-              } catch {
-              }
-              focusTimeout = null, document.title = 'atlas';
+        Stars: {
+            type: 'toggle',
+            default: !0,
+            callback: e => {
+                starsEnabled = e;
+            }
+        },
+        'Shooting Stars': {
+            type: 'toggle',
+            default: !0,
+            callback: e => {
+                shootingStarsEnabled = e;
             }
         }
-      }
     },
     Privacy: {
-      'About:Blank Cloak': {
-        type: 'toggle',
-        default: !1,
-        callback: (e, t) => {
-          t || e && triggerCloak();
+        'About:Blank Cloak': {
+            type: 'toggle',
+            default: !1,
+            callback: (e, t) => {
+                t || e && window.__openCloak && (allowUnload = !0, window.__openCloak());
+            }
+        },
+        'Prevent Close': {
+            type: 'toggle',
+            default: !0,
+            callback: e => {
+                preventCloseEnabled = e;
+            }
+        },
+        'Clientsided Ad Block': {
+            type: 'toggle',
+            default: !0,
+            callback: e => {
+            }
         }
-      },
-      'Clientsided Ad Block': {
-        type: 'toggle',
-        default: !0,
-        callback: e => {
-        }
-      }
     },
     Prxy: {
-      Transport: {
-        type: 'dropdown',
-        default: DEFAULT_TRANSPORT,
-        options: [
-          {
-            name: 'libcurl',
-            src: 'curl/index.mjs'
-          },
-          {
-            name: 'epoxy',
-            src: 'pox/index.mjs'
-          }
-        ],
-        callback: async e => {
-          try {
-            if ((localStorage.TRNSPRT || 'curl/index.mjs') === e.src)
-              return void (localStorage.TRNSPRT = e.src);
-            localStorage.TRNSPRT = e.src;
-            const {default: t} = await import(getAsset(e.src));
-            transport = new t({ wisp: window.wlspServer }), await initTransport(transport), controller.setTransport(transport);
-          } catch {
-          }
+        'Search Engine': {
+            type: 'dropdown',
+            default: {
+                name: 'DuckDuckGo',
+                url: 'https://duckduckgo.com/?q='
+            },
+            options: ra,
+            callback: e => {
+            }
         }
-      },
-      'Search Engine': {
-        type: 'dropdown',
-        default: {
-          name: 'DuckDuckGo',
-          url: 'https://duckduckgo.com/?q='
-        },
-        options: ra,
-        callback: e => {
-        }
-      }
     },
     Advanced: {
-      'Force Update/Clear Data': {
-        type: 'button',
-        label: 'Clear',
-        action: clearAtlasData
-      }
+        'Clear Atlas Data': {
+            type: 'button',
+            label: 'Clear',
+            action: clearAtlasData
+        }
     }
-  }, EXTENSIONS = [
+}, EXTENSIONS = [
     {
       name: 'Youtube Ad Blocker',
       domain: [
@@ -210,6 +223,15 @@ const ra = [
       domain: '*.ip.nowgg.fun',
       code: 'window.alert=()=>{}',
       prompt: !1
+    },
+    {
+      name: 'AtlasBLOX launcher',
+      domain: [
+        'roblox.com',
+        '*.roblox.com'
+      ],
+      prompt: !1,
+      code: ''
     }
   ], _extApproved = new Set(), _extDismissed = new Set();
 function _domainMatches(e, t) {
@@ -224,18 +246,15 @@ function _domainMatches(e, t) {
 function _extMatchesDomain(e, t) {
   return (Array.isArray(e.domain) ? e.domain : [e.domain]).some(e => _domainMatches(e, t));
 }
-function _runExtension(e) {
+function _runExtension(e, t = frame) {
   try {
-    frame.element.contentWindow.eval(e?.code?.toString());
+    t.element.contentWindow.eval(e?.code?.toString());
   } catch {
   }
 }
-function _showExtPrompt(e, t) {
-  const n = '_ep' + t;
-  if (document.getElementById(n))
-    return;
+function _buildExtPrompt(e, t, n) {
   const a = document.createElement('div');
-  a.id = n, a.className = 'ext-prompt';
+  a.className = 'ext-prompt', a.dataset.tab = String(n.id), a.dataset.idx = String(t);
   const o = document.createElement('div');
   o.className = 'ext-prompt-eyebrow', o.textContent = 'Extension available';
   const s = document.createElement('div');
@@ -251,24 +270,68 @@ function _showExtPrompt(e, t) {
   const d = () => {
     a.classList.remove('open'), a.addEventListener('transitionend', () => a.remove(), { once: !0 }), setTimeout(() => a.remove(), 350);
   };
-  c.onclick = () => {
-    d(), _extApproved.add(t), _runExtension(e);
+  return c.onclick = () => {
+    d(), _extApproved.add(t), n._extPending = null, _runExtension(e, n.frame);
   }, l.onclick = () => {
-    d(), _extDismissed.add(t);
-  }, i.appendChild(c), i.appendChild(l), a.appendChild(o), a.appendChild(s), a.appendChild(r), a.appendChild(i), (shadowRoot || document.body).appendChild(a), requestAnimationFrame(() => a.classList.add('open'));
+    d(), _extDismissed.add(t), n._extPending = null;
+  }, i.appendChild(c), i.appendChild(l), a.appendChild(o), a.appendChild(s), a.appendChild(r), a.appendChild(i), a;
 }
-function _checkExtensions(e) {
-  let t;
-  try {
-    t = new URL(e).hostname;
-  } catch (e) {
+function _syncExtPrompt() {
+  const e = shadowRoot || document.body;
+  if (!e)
     return;
+  const t = e.querySelector('.ext-prompt'), n = activeTab(), a = n && n._extPending;
+  if (t) {
+    if (a && t.dataset.tab === String(n.id) && t.dataset.idx === String(a.idx))
+      return;
+    t.remove();
   }
-  t && EXTENSIONS.forEach((e, n) => {
-    !1 !== e.enabled && _extMatchesDomain(e, t) && (_extApproved.has(n) || !1 === e.prompt ? _runExtension(e) : _extDismissed.has(n) || _showExtPrompt(e, n));
-  });
+  if (!a)
+    return;
+  const o = _buildExtPrompt(a.ext, a.idx, n);
+  e.appendChild(o), requestAnimationFrame(() => o.classList.add('open'));
 }
-let frame = null, starsEnabled = !0, shootingStarsEnabled = !0, preventCloseEnabled = !0, titleChangerEnabled = !0, STAR_RGB = '255,255,255';
+function _checkExtensions(e, t) {
+  if (!t)
+    return;
+  let n;
+  try {
+    n = new URL(e).hostname;
+  } catch (e) {
+    n = '';
+  }
+  let a = null;
+  n && EXTENSIONS.forEach((e, o) => {
+    !1 !== e.enabled && _extMatchesDomain(e, n) && (_extApproved.has(o) || !1 === e.prompt ? _runExtension(e, t.frame) : _extDismissed.has(o) || null !== a || (a = {
+      ext: e,
+      idx: o
+    }));
+  }), t._extPending = a, t.id === activeTabId && _syncExtPrompt();
+}
+function makeObfuscateText(){return text=>String(text||'');}
+const obfuscateText = makeObfuscateText();
+document.title = 'New Tab', ((() => {
+  window.__nativeOpen = window.open;
+  const e = window.open.bind(window);
+  window.open = function (t, n, a) {
+    try {
+      const o = String(null == t ? '' : t);
+      if (((() => {
+          try {
+            return window.self !== window.top;
+          } catch (e) {
+            return !0;
+          }
+        })()) && /^https?:\/\//i.test(o) && !/(?:\/\/|\.)(?:dsc\.gg|discord\.(?:gg|com))(?:[/:?#]|$)/i.test(o) && 'function' == typeof window.__cloakOpen)
+        return window.__cloakOpen(o) || e(t, n, a);
+    } catch (e) {
+    }
+    return e(t, n, a);
+  }, window.__guardedOpen = window.open;
+})());
+let frame = null;
+const tabs = [];
+let activeTabId = 0, tabSeq = 0, starsEnabled = !0, shootingStarsEnabled = !0, preventCloseEnabled = !0, STAR_RGB = '255,255,255';
 var allowUnload = !1;
 window.addEventListener('keydown', e => {
 });
@@ -293,95 +356,102 @@ function saveSettings() {
     });
   }), localStorage.setItem('SETTINGS', JSON.stringify(e));
 }
-function cloakAboutBlank() {
-  if (window.self !== window.top)
-    return !0;
-  const e = window.open('about:blank', '_blank');
-  return !!e && (allowUnload = !0, e.document.open(), e.document.write(cloakWrapperHtml(window.location.href)), e.document.close(), location.replace('https://clever.com/'), setTimeout(() => {
-    allowUnload = !1;
-  }, 1000), !0);
-}
 Object.entries(SETTINGS).forEach(([e, t]) => {
   Object.entries(t).forEach(([t, n]) => {
     n._set = void 0 !== saved[e]?.[t], n._value = n._set ? saved[e][t] : n.default, n.callback && n.callback(n._value, !0);
   });
 });
-let cloakPending = !1;
-function triggerCloak() {
-  if (cloakAboutBlank())
-    return;
-  if (cloakPending)
-    return;
-  cloakPending = !0;
-  const e = () => {
-    cloakAboutBlank() && (document.removeEventListener('click', e, !0), document.removeEventListener('keydown', e, !0), document.removeEventListener('pointerdown', e, !0), cloakPending = !1);
-  };
-  document.addEventListener('click', e, !0), document.addEventListener('keydown', e, !0), document.addEventListener('pointerdown', e, !0);
-}
-function cloakWrapperHtml(e) {
-  const t = !!SETTINGS.Appearance['Title Changer']._value;
-  return `<!DOCTYPE html>\n<html>\n<head>\n<meta charset="UTF-8" />\n<meta name="viewport" content="width=device-width, initial-scale=1.0" />\n<title>New Tab</title>\n<style>html,body{margin:0;padding:0;height:100vh;overflow:hidden}iframe{border:0}</style>\n</head>\n<body>\n<iframe id="cloakFrame" width="100%" height="100%" src="${ window.location.href }"></iframe>\n<script>\n(function () {\n    var originalUrl = ${ JSON.stringify(e) };\n    var titleChangerOnNow = ${ t };\n    function applyTitle() {\n        document.title = (!titleChangerOnNow || document.hidden) ? 'New Tab' : 'Atlas';\n    }\n    document.addEventListener('visibilitychange', applyTitle);\n    applyTitle();\n    window.addEventListener('storage', function (e) {\n        if (e.key !== 'SETTINGS') return;\n        var s; try { s = JSON.parse(localStorage.getItem('SETTINGS') || '{}'); } catch (err) { s = {}; }\n        titleChangerOnNow = !!(s.Appearance && s.Appearance['Title Changer']);\n        applyTitle();\n        if (!(s.Privacy && s.Privacy['About:Blank Cloak'])) {\n            try { document.getElementById('cloakFrame').contentWindow.allowUnload = true; } catch (e) {}\n            window.location.href = originalUrl;\n        }\n    });\n})();\n<\/script>\n</body>\n</html>`;
-}
-window.self === window.top && SETTINGS.Privacy['About:Blank Cloak']._value && triggerCloak();
-document.getElementById('tagline')?.remove();
+const taglineEl = document.getElementById('tagline'), taglineLink = document.createElement('a');
+taglineLink.href = 'https://tinyurl.com/joinsynergyx', taglineLink.target = '_blank', taglineLink.rel = 'noopener noreferrer', taglineLink.textContent = 'Synergy', taglineEl.appendChild(taglineLink);
 let _oDBPromise = null, _oMigratePromise = null;
 const grid = document.getElementById('shortcuts');
 let _bookmarks = [];
-function _makeShortcutAccessible(element, label) {
-  element.setAttribute('role', 'button');
-  element.setAttribute('tabindex', '0');
-  element.setAttribute('aria-label', label);
-  element.addEventListener('keydown', event => {
-    if (event.target === element && (event.key === 'Enter' || event.key === ' ')) {
-      event.preventDefault(); element.click();
+const _shortcutId = e => e.url || e.label, _hostOf = e => {
+    try {
+      return new URL(e).hostname;
+    } catch (e) {
+      return '';
     }
-  });
+  }, _faviconFor = e => 'https://www.google.com/s2/favicons?domain=' + _hostOf(e) + '&sz=128';
+function _shortcutView(e) {
+  return {
+    id: _shortcutId(e),
+    label: e.label,
+    url: e.url || '',
+    onclick: e.onclick,
+    favicon: e.faviconUrl || _faviconFor(e.faviconHost || e.url)
+  };
+}
+const _EDIT_SVG = '<svg viewBox="0 0 24 24"><circle cx="12" cy="5.5" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="12" cy="18.5" r="1.6"/></svg>';
+function _shortcutButton(e, t, n, a) {
+  const o = document.createElement('button');
+  return o.className = e, o.type = 'button', o.title = t, o.innerHTML = n, o.onclick = e => {
+    e.stopPropagation(), a();
+  }, o;
+}
+function _shortcutTile(e, t) {
+  const n = document.createElement('div');
+  n.className = 'shortcut';
+  const a = document.createElement('img');
+  a.className = 'shortcut-icon', a.alt = '', a.loading = 'lazy', a.decoding = 'async', a.src = imgProxy(e), a.onerror = () => {
+    a.removeAttribute('src');
+  };
+  const o = document.createElement('div');
+  o.className = 'shortcut-tile', o.appendChild(a);
+  const s = document.createElement('span');
+  return s.textContent = t, n.appendChild(o), n.appendChild(s), n.tile = o, n;
 }
 function _renderShortcuts() {
-  grid.innerHTML = '', SHORTCUTS.forEach(({
-    label: e,
-    url: t,
-    faviconHost: n,
-    faviconUrl: a,
-    onclick: o
-  }) => {
-    const s = document.createElement('div');
-    s.className = 'shortcut';
-    _makeShortcutAccessible(s, e);
-    const r = document.createElement('img');
-    r.className = 'shortcut-icon', r.alt = '', r.loading = 'lazy', r.decoding = 'async', r.src = sjEncode(a || 'https://www.google.com/s2/favicons?domain=' + new URL(n || t).hostname + '&sz=128'), r.onerror = () => {
-      r.removeAttribute('src');
-    };
-    const i = document.createElement('span');
-    i.className = 'shortcut-title';
-    i.textContent = e;
-    const number = document.createElement('span'), domain = document.createElement('span');
-    number.className = 'shortcut-number'; number.textContent = String(grid.children.length + 1).padStart(2, '0');
-    domain.className = 'shortcut-domain'; domain.textContent = t ? new URL(t).hostname.replace(/^www\./, '') : 'Atlas';
-    s.append(number, i, domain); s.onclick = o ? () => o() : () => navigate(t); grid.appendChild(s);
+  grid.innerHTML = '', SHORTCUTS.forEach(e => {
+    const t = _shortcutView(e), n = _shortcutTile(t.favicon, t.label);
+    n.onclick = t.onclick ? () => t.onclick() : () => navigate(t.url), grid.appendChild(n);
   }), _bookmarks.forEach(e => {
-    const t = document.createElement('div');
-    t.className = 'shortcut';
-    _makeShortcutAccessible(t, e.label);
-    const n = document.createElement('img');
-    n.className = 'shortcut-icon', n.alt = '', n.loading = 'lazy', n.decoding = 'async', n.src = e.faviconUrl, n.onerror = () => {
-      n.removeAttribute('src');
-    };
-    const a = document.createElement('span');
-    a.className = 'shortcut-title'; a.textContent = e.label;
-    const number = document.createElement('span');
-    number.className = 'shortcut-number'; number.textContent = String(grid.children.length + 1).padStart(2, '0');
-    const o = document.createElement('button');
-    o.className = 'shortcut-delete', o.type = 'button', o.title = 'Remove bookmark', o.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>', o.onclick = async t => {
-      t.stopPropagation(), await _bookmarksReady, _bookmarks = _bookmarks.filter(t => t.id !== e.id), _renderShortcuts(), _updateBookmarkIcon(document.getElementById('addrInput').value.trim()), _deleteBookmark(e.id);
-    }, t.appendChild(number), t.appendChild(a), t.appendChild(o), t.onclick = () => navigate(e.url), grid.appendChild(t);
+    const t = _shortcutTile(/^https?:/.test(e.faviconUrl) ? e.faviconUrl : _faviconFor(e.url), e.label);
+    t.tile.appendChild(_shortcutButton('shortcut-edit', 'Edit shortcut', _EDIT_SVG, () => _openShortcutDialog(e))), t.onclick = () => navigate(e.url), grid.appendChild(t);
   });
-  const count = SHORTCUTS.length + _bookmarks.length;
-  grid.style.gridTemplateRows = `repeat(${Math.ceil(count / 2)}, minmax(38px, 1fr))`;
-  const countLabel = document.getElementById('atlasDestinationCount');
-  if (countLabel) countLabel.textContent = `All ${count}`;
 }
-_renderShortcuts();
+let _scEditing = null;
+const _scEl = e => document.getElementById(e);
+function _scError(e) {
+  const t = _scEl('scErr');
+  t.textContent = e, t.hidden = !1;
+}
+function _scNormalizeUrl(e) {
+  const t = /^[a-z][\w+.-]*:\/\//i.test(e) ? e : e && /\./.test(e) && !/\s/.test(e) ? 'https://' + e : '';
+  try {
+    return /^https?:$/.test(new URL(t).protocol) ? t : '';
+  } catch (e) {
+    return '';
+  }
+}
+function _openShortcutDialog(e) {
+  e && (_scEditing = e, _scEl('scTitle').textContent = 'Edit shortcut', _scEl('scName').value = e.label, _scEl('scUrl').value = e.url, _scEl('scRemove').hidden = !1, _scEl('scErr').hidden = !0, _scEl('scDialog').showModal(), _scEl('scName').focus());
+}
+_scEl('scCancel').onclick = () => _scEl('scDialog').close(), _scEl('scDialog').addEventListener('click', e => {
+  e.target === e.currentTarget && e.currentTarget.close();
+}), _scEl('scRemove').onclick = async () => {
+  const e = _scEditing;
+  _scEl('scDialog').close(), e && (await _bookmarksReady, _bookmarks = _bookmarks.filter(t => t.id !== e.id), _deleteBookmark(e.id), _renderShortcuts(), _updateBookmarkIcon(_scEl('addrInput').value.trim()));
+}, _scEl('scForm').addEventListener('submit', async e => {
+  e.preventDefault();
+  const t = _scEditing;
+  if (!t)
+    return _scEl('scDialog').close();
+  const n = _scNormalizeUrl(_scEl('scUrl').value.trim());
+  if (!n)
+    return _scError('Enter a web address, like example.com');
+  const a = _scEl('scName').value.trim() || _hostOf(n).replace(/^www\./, '');
+  if (await _bookmarksReady, _pageKey(n) !== _pageKey(t.url) && (_bookmarks.some(e => _pageKey(e.url) === _pageKey(n)) || _defaultShortcutFor(n)))
+    return _scError('That site is already one of your shortcuts');
+  const o = _hostOf(n) === _hostOf(t.url) && /^https?:/.test(t.faviconUrl || ''), s = {
+      ...t,
+      id: n,
+      url: n,
+      label: a,
+      faviconUrl: o ? t.faviconUrl : _faviconFor(n)
+    };
+  _bookmarks = _bookmarks.map(e => e.id === t.id ? s : e), t.id !== s.id && _deleteBookmark(t.id), _saveBookmark(s), _scEl('scDialog').close(), _renderShortcuts(), _updateBookmarkIcon(_scEl('addrInput').value.trim());
+}), _renderShortcuts();
 const _bookmarksReady = _loadAllBookmarks().then(e => {
     _bookmarks = e, _renderShortcuts(), _updateBookmarkIcon(document.getElementById('addrInput').value.trim());
   }), sidebar = document.getElementById('settingsSidebar'), tabsEl = document.getElementById('settingsTabs'), panelsEl = document.getElementById('settingsPanels'), categories = Object.keys(SETTINGS), sectionEls = [];
@@ -389,6 +459,7 @@ function setActive(e) {
   sidebar.querySelectorAll('.sidebar-item').forEach(t => t.classList.toggle('active', t.dataset.cat === e)), tabsEl.querySelectorAll('.tab-item').forEach(t => t.classList.toggle('active', t.dataset.cat === e));
   sectionEls.forEach(section => section.classList.toggle('active', section.dataset.section === e));
 }
+let scrollLock = !1, scrollLockTimer = null;
 function scrollToCategory(e) {
   setActive(e);
   panelsEl.scrollTop = 0;
@@ -433,7 +504,6 @@ categories.forEach((e, t) => {
   }), o.appendChild(r), panelsEl.appendChild(o);
 });
 const spacer = document.createElement('div');
-setActive(categories[0]);
 function setVh() {
   document.documentElement.style.setProperty('--vh', 0.01 * window.innerHeight + 'px');
 }
@@ -463,25 +533,24 @@ const homeStateEls = [
   'panel',
   'gamesScreen',
   'gamePlayer',
-  'effectsScreen'
+  'effectsScreen',
+  'moviesScreen',
+  'mvPlayer',
+  'aiScreen'
 ].map(e => document.getElementById(e));
-let _starsResumeAt = 0;
 function starsShouldRun() {
-  return !document.hidden && document.hasFocus() && isAtlasMenu(!0) && performance.now() >= _starsResumeAt;
+  return !document.hidden && document.hasFocus() && isAtlasMenu(!0) && !_mvPlayerOpen() && !document.getElementById('aiScreen')?.classList.contains('open');
 }
-const ATLAS_EXTERNAL_SCREENS = [
-    'panel',
-    'gamePlayer'
-  ], ATLAS_HOME_ONLY_SCREENS = [
+const Atlas_EXTERNAL_SCREENS = ['gamePlayer'], Atlas_HOME_ONLY_SCREENS = [
     'gamesScreen',
     'effectsScreen',
-    'aiScreen'
+    'moviesScreen'
   ];
 function isAtlasMenu(e = !1) {
-  return !(e ? [
-    ...ATLAS_EXTERNAL_SCREENS,
-    ...ATLAS_HOME_ONLY_SCREENS
-  ] : ATLAS_EXTERNAL_SCREENS).some(e => document.getElementById(e)?.classList.contains('open'));
+  if (_mvPlayerOpen())
+    return !!e;
+  const t = _opmKind(activeTab()?.url || '');
+  return 'web' !== t && 'game' !== t && (!t || !e);
 }
 globalThis.isAtlasMenu = isAtlasMenu;
 const navActiveMap = [
@@ -490,24 +559,23 @@ const navActiveMap = [
     'navGames'
   ],
   [
+    'moviesScreen',
+    'navMovies'
+  ],
+  [
     'effectsScreen',
     'navEffects'
   ],
   [
     'settingsScreen',
     'navSettings'
-  ],
-  [
-    'aiScreen',
-    'navAI'
   ]
 ];
-function updateNavActive() {
-  navActiveMap.forEach(([e, t]) => {
-    const n = document.getElementById(e), a = document.getElementById(t);
-    n && a && a.classList.toggle('active', n.classList.contains('open'));
-  });
-
+function updateNavActive(){
+  if (!atlasNavigationReady) return;
+  const kind=_opmKind(activeTab()?.url||'');
+  for(const [page,info] of Object.entries(OPM_PAGES))document.getElementById(info.nav)?.classList.toggle('active',page===kind || page==='movies'&&kind==='movie');
+  document.getElementById('navSettings')?.classList.toggle('active',document.getElementById('settingsScreen')?.classList.contains('open'));
   window.updateAtlasChromeState?.();
 }
 updateNavActive();
@@ -551,8 +619,7 @@ const screenClassObserver = new MutationObserver(() => {
   }), settingsScreenEl = document.getElementById('settingsScreen');
 [
   ...homeStateEls,
-  settingsScreenEl,
-  document.getElementById('aiScreen')
+  settingsScreenEl
 ].forEach(e => {
   e && screenClassObserver.observe(e, {
     attributes: !0,
@@ -583,7 +650,7 @@ function getSearchEngine() {
   return SETTINGS.Prxy?.['Search Engine']?._value?.url || 'https://duckduckgo.com/?q=';
 }
 function resolveUrl(e) {
-  return e ? e.startsWith('http://') || e.startsWith('https://') ? e : e.includes('.') && !e.includes(' ') ? 'https://' + e : getSearchEngine() + encodeURIComponent(e) : null;
+  return e ? /^Atlas:/i.test(e) ? getSearchEngine() + encodeURIComponent(e) : e.startsWith('http://') || e.startsWith('https://') ? e : e.includes('.') && !e.includes(' ') ? 'https://' + e : getSearchEngine() + encodeURIComponent(e) : null;
 }
 function updateLockIcon(e) {
   const t = document.getElementById('lockIcon');
@@ -625,86 +692,95 @@ function _showBlockerPicker(e) {
     e.target === t && o();
   }), document.addEventListener('keydown', s, !0), (shadowRoot || document.body).appendChild(t), requestAnimationFrame(() => t.classList.add('open'));
 }
-// The retained Atlas chrome is a tab bar: only the selected feature may cover
-// the viewport. Keep loaded browser/game data, but close peer feature panels.
-function _activateAtlasScreen(id) {
-  if (id !== 'gamesScreen' && document.getElementById('gamesScreen')?.classList.contains('open')) closeGames();
-  if (id !== 'effectsScreen' && document.getElementById('effectsScreen')?.classList.contains('open')) closeEffects();
-  if (id !== 'aiScreen' && document.getElementById('aiScreen')?.classList.contains('open')) closeAI();
-  for (const peer of ['panel', 'settingsScreen']) {
-    if (peer !== id) document.getElementById(peer)?.classList.remove('open');
-  }
-  document.getElementById('bottomNav')?.classList.toggle('hidden', id === 'panel');
-}
 function navigate(e) {
   const t = resolveUrl(e || document.getElementById('searchInput').value.trim());
-  t && (_activateAtlasScreen('panel'), document.getElementById('panel').classList.add('open'), document.getElementById('addrInput').value = t, updateLockIcon(t), _updateBookmarkIcon(t), startFrameLoading(), frame.go(t), collapseSearch());
+  if (!t)
+    return;
+  collapseSearch();
+  for (const e of [
+      'addrInput',
+      'searchInput'
+    ])
+    document.getElementById(e)?.blur();
+  const n = activeTab();
+  if (n) {
+    if ('web' !== _opmKind(t) || 'web' !== _opmKind(n.url) || !n.el)
+      return _opmGo(n, t);
+    document.getElementById('addrInput').value = t, updateLockIcon(t), _updateBookmarkIcon(t), _tabHost(t) !== _tabHost(n.url) && (n.favicon = ''), n.url = n.hist[n.hi] = t, n.title = _tabHost(t) || t, _updateHomeView(), startFrameLoading(), n.frame.go(t), _opmSave();
+  }
 }
 updateStarsActive(), 'complete' === document.readyState ? _showAdsNotice() : window.addEventListener('load', _showAdsNotice, { once: !0 });
 const searchWrap = document.getElementById('searchWrap'), searchInput = document.getElementById('searchInput'), acBox = document.getElementById('autocomplete');
-let acSelected = -1, acItems = [], acTimer = null;
-function expandSearch() {
-  searchWrap.classList.add('expanded');
-}
-function collapseSearch() {
-  clearTimeout(acTimer), cancelAutocompletes(), searchWrap.classList.remove('expanded'), searchWrap.classList.remove('has-ac'), acBox.classList.remove('has-items'), acBox.innerHTML = '', acItems = [], acSelected = -1;
-}
-searchInput.addEventListener('focus', expandSearch), (shadowRoot || document).addEventListener('click', e => {
-  searchWrap.contains(e.target) || collapseSearch();
-});
-let acSeq = 0, acAbort = null;
-function cancelAutocompletes() {
-  acSeq++, acAbort && acAbort.abort(), acAbort = null;
-}
-async function fetchAutocompletes(e) {
-  if (cancelAutocompletes(), !e)
-    return acBox.innerHTML = '', acBox.classList.remove('has-items'), void searchWrap.classList.remove('has-ac');
-  const t = acSeq, n = new AbortController();
-  acAbort = n;
+async function fetchSuggestions(e, t) {
   try {
-    let a;
-    try {
-      const t = await fetch(sjEncode(`https://suggestqueries.google.com/complete/search?output=toolbar&hl=en&q=${ encodeURIComponent(e) }`), { signal: n.signal });
-      if (a = [...new DOMParser().parseFromString(await t.text(), 'application/xml').querySelectorAll('suggestion')].slice(0, 8).map(e => e.getAttribute('data')), !a.length)
-        throw new Error('empty');
-    } catch (t) {
-      if (n.signal.aborted)
-        throw t;
-      const o = await fetch(sjEncode(`https://duckduckgo.com/ac/?kl=wt-wt&q=${ encodeURIComponent(e) }`), { signal: n.signal });
-      a = (await o.json()).slice(0, 8).map(e => e.phrase);
-    }
-    if (t !== acSeq)
-      return;
-    renderSuggestions(a);
-  } catch (e) {
-    if (t !== acSeq)
-      return;
-    acBox.innerHTML = '', acBox.classList.remove('has-items'), searchWrap.classList.remove('has-ac');
+    const n = await fetch(sjEncode(`https://suggestqueries.google.com/complete/search?output=toolbar&hl=en&q=${ encodeURIComponent(e) }`), { signal: t }), a = [...new DOMParser().parseFromString(await n.text(), 'application/xml').querySelectorAll('suggestion')].slice(0, 8).map(e => e.getAttribute('data'));
+    if (a.length)
+      return a;
+    throw new Error('empty');
+  } catch (n) {
+    if (t.aborted)
+      throw n;
+    const a = await fetch(sjEncode(`https://duckduckgo.com/ac/?kl=wt-wt&q=${ encodeURIComponent(e) }`), { signal: t });
+    return (await a.json()).slice(0, 8).map(e => e.phrase);
   }
 }
-function renderSuggestions(e) {
-  if (acBox.innerHTML = '', acItems = e, acSelected = -1, !e.length)
-    return acBox.classList.remove('has-items'), void searchWrap.classList.remove('has-ac');
-  e.forEach(e => {
-    const t = document.createElement('div');
-    t.className = 'ac-item';
-    const n = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-    n.setAttribute('viewBox', '0 0 24 24');
-    const a = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-    a.setAttribute('cx', '11'), a.setAttribute('cy', '11'), a.setAttribute('r', '8');
-    const o = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-    o.setAttribute('d', 'm21 21-4.35-4.35'), n.appendChild(a), n.appendChild(o), t.appendChild(n), t.appendChild(document.createTextNode(e)), t.onmousedown = t => {
-      t.preventDefault(), searchInput.value = e, navigate(e);
-    }, acBox.appendChild(t);
-  }), acBox.classList.add('has-items'), searchWrap.classList.add('has-ac');
+function attachAutocomplete(e, t, n, a) {
+  let o = -1, s = [], r = null, i = 0, c = null;
+  const l = () => {
+      i++, c && c.abort(), c = null;
+    }, d = () => {
+      n.innerHTML = '', n.classList.remove('has-items'), t.classList.remove('has-ac'), s = [], o = -1;
+    }, m = () => {
+      clearTimeout(r), l(), d(), t.classList.remove('expanded');
+    }, u = async r => {
+      if (l(), !r)
+        return void d();
+      const m = i, u = new AbortController();
+      c = u;
+      try {
+        const c = await fetchSuggestions(r, u.signal);
+        m === i && (r => {
+          if (n.innerHTML = '', s = r, o = -1, !r.length)
+            return void d();
+          for (const t of r) {
+            const o = document.createElement('div');
+            o.className = 'ac-item';
+            const s = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+            s.setAttribute('viewBox', '0 0 24 24');
+            const r = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+            r.setAttribute('cx', '11'), r.setAttribute('cy', '11'), r.setAttribute('r', '8');
+            const i = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+            i.setAttribute('d', 'm21 21-4.35-4.35'), s.appendChild(r), s.appendChild(i), o.appendChild(s), o.appendChild(document.createTextNode(t)), o.onmousedown = n => {
+              n.preventDefault(), e.value = t, a(t);
+            }, n.appendChild(o);
+          }
+          n.classList.add('has-items'), t.classList.add('has-ac');
+          const i = document.getElementById('bottomNav'), c = i && !i.classList.contains('hidden') ? i.getBoundingClientRect() : null, l = (c && c.height ? c.top : window.innerHeight) - 12;
+          for (; n.children.length > 3 && t.getBoundingClientRect().bottom + n.offsetHeight > l;)
+            n.lastElementChild.remove();
+          s = s.slice(0, n.children.length);
+        })(c);
+      } catch (e) {
+        m === i && d();
+      }
+    };
+  return e.addEventListener('focus', () => t.classList.add('expanded')), e.addEventListener('blur', () => m()), e.addEventListener('input', () => {
+    clearTimeout(r), o = -1, r = setTimeout(() => u(e.value.trim()), 180);
+  }), e.addEventListener('keydown', t => {
+    const r = n.querySelectorAll('.ac-item');
+    'ArrowDown' === t.key ? (t.preventDefault(), o = Math.min(o + 1, r.length - 1), r.forEach((e, t) => e.classList.toggle('selected', t === o)), o >= 0 && (e.value = s[o])) : 'ArrowUp' === t.key ? (t.preventDefault(), o = Math.max(o - 1, -1), r.forEach((e, t) => e.classList.toggle('selected', t === o)), o >= 0 && (e.value = s[o])) : 'Escape' === t.key ? m() : 'Enter' === t.key && a(e.value.trim());
+  }), { collapse: m };
 }
-searchInput.addEventListener('input', () => {
-  clearTimeout(acTimer), acSelected = -1, acTimer = setTimeout(() => fetchAutocompletes(searchInput.value.trim()), 180);
-}), searchInput.addEventListener('keydown', e => {
-  const t = acBox.querySelectorAll('.ac-item');
-  'ArrowDown' === e.key ? (e.preventDefault(), acSelected = Math.min(acSelected + 1, t.length - 1), t.forEach((e, t) => e.classList.toggle('selected', t === acSelected)), acSelected >= 0 && (searchInput.value = acItems[acSelected])) : 'ArrowUp' === e.key ? (e.preventDefault(), acSelected = Math.max(acSelected - 1, -1), t.forEach((e, t) => e.classList.toggle('selected', t === acSelected)), acSelected >= 0 && (searchInput.value = acItems[acSelected])) : 'Escape' === e.key ? collapseSearch() : 'Enter' === e.key && navigate();
+const _searchAc = attachAutocomplete(searchInput, searchWrap, acBox, e => navigate(e)), _addrWrap = document.querySelector('.addr-wrap'), _addrAc = attachAutocomplete(document.getElementById('addrInput'), _addrWrap, document.getElementById('addrAutocomplete'), e => {
+    document.getElementById('addrInput').readOnly || navigate(e);
+  });
+function collapseSearch() {
+  _searchAc.collapse(), _addrAc.collapse();
+}
+(shadowRoot || document).addEventListener('click', e => {
+  searchWrap.contains(e.target) || _searchAc.collapse(), _addrWrap && !_addrWrap.contains(e.target) && _addrAc.collapse();
 });
-let homeClickCount = 0, homeResetTimer = null, gameCloseClickCount = 0, gameCloseResetTimer = null;
+let gameCloseClickCount = 0, gameCloseResetTimer = null;
 function resetGameCloseConfirm() {
   gameCloseClickCount = 0, clearTimeout(gameCloseResetTimer);
   const e = document.getElementById('gamePlayerClose'), t = document.getElementById('gamePlayerCloseWrap'), n = document.getElementById('gameCloseCountdown');
@@ -720,25 +796,20 @@ function _armOrConfirmClose(e) {
 function handleGamePlayerClose() {
   _armOrConfirmClose(closeGamePlayer);
 }
-function resetHomeConfirm() {
-  homeClickCount = 0, clearTimeout(homeResetTimer);
-  const e = document.getElementById('homeBtn'), t = document.getElementById('homeBtnWrap'), n = document.getElementById('homeCountdown');
-  e.classList.remove('confirm'), t.classList.remove('confirming'), n.classList.add('no-anim'), n.offsetHeight, n.classList.remove('no-anim');
-}
 function handleHome() {
-  if (homeClickCount++, 1 === homeClickCount) {
-    const e = document.getElementById('homeBtn'), t = document.getElementById('homeBtnWrap');
-    e.classList.add('confirm'), t.classList.add('confirming'), homeResetTimer = setTimeout(resetHomeConfirm, 5000);
-  } else
-    resetHomeConfirm(), closePanel();
+  _goHome();
 }
-function closePanel() {
-  document.getElementById('panel').classList.remove('open'), document.getElementById('bottomNav').classList.remove('hidden'), document.getElementById('addrInput').value = '', updateLockIcon(null), _updateBookmarkIcon(null);
-  try {
-    frame.element.src = 'about:blank';
-  } catch {
-  }
-  stopFrameLoading(), document.fullscreenElement && document.exitFullscreen();
+function _goHome() {
+  const e = activeTab();
+  if (!e || !e.url)
+    return;
+  const t = () => {
+    _fsInner() && document.exitFullscreen().catch(() => {
+    }), _opmGo(e, '');
+  };
+  if (_opmLeaving(e))
+    return _opmConfirm('homeBtnWrap', t);
+  t();
 }
 let frameLoading = !1, frameLoadingCleanup = null;
 function _runFrameLoadingCleanup() {
@@ -748,10 +819,14 @@ function _runFrameLoadingCleanup() {
   frameLoadingCleanup = null, e();
 }
 function startFrameLoading() {
-  _runFrameLoadingCleanup(), frameLoading = !0, document.getElementById('reloadBtn').classList.add('loading');
+  _runFrameLoadingCleanup(), frameLoading = !0;
+  const e = activeTab();
+  e && (e.loading = !0, renderTabs());
 }
 function stopFrameLoading() {
-  frameLoading = !1, _runFrameLoadingCleanup(), document.getElementById('reloadBtn').classList.remove('loading');
+  frameLoading = !1, _runFrameLoadingCleanup();
+  const e = activeTab();
+  e && e.loading && (e.loading = !1, _syncTabPage(e), renderTabs());
 }
 function stepFrameHistory(e) {
   if (frame)
@@ -771,31 +846,35 @@ function stepFrameHistory(e) {
     }
 }
 function goBack() {
-  stepFrameHistory(-1);
+  _opmStep(-1);
 }
 function goForward() {
-  stepFrameHistory(1);
+  _opmStep(1);
 }
 function reload() {
+  const e = activeTab();
+  if (!e)
+    return;
+  if ('web' !== _opmKind(e.url))
+    return _opmReload(e);
+  if (!e.el)
+    return _opmEnter(e);
   if (frameLoading) {
     try {
-      frame.element.contentWindow.stop();
+      e.el.contentWindow.stop();
     } catch (e) {
     }
     stopFrameLoading();
   } else
     try {
-      startFrameLoading(), frame.reload();
+      startFrameLoading(), e.frame.reload();
     } catch (e) {
       stopFrameLoading();
     }
 }
-document.getElementById('addrInput').addEventListener('keydown', e => {
-  'Enter' === e.key && navigate(e.target.value.trim());
-});
 const _GENIE = {
-  openMs: 460,
-  closeMs: 320,
+  openMs: 560,
+  closeMs: 380,
   open: [
     [
       0,
@@ -803,19 +882,19 @@ const _GENIE = {
       0
     ],
     [
-      0.3,
-      0.14,
+      0.18,
+      0.07,
+      0.3
+    ],
+    [
+      0.5,
+      0.66,
+      2.3
+    ],
+    [
+      0.7,
+      0.9,
       0.5
-    ],
-    [
-      0.55,
-      0.55,
-      1.5
-    ],
-    [
-      0.8,
-      0.93,
-      0.9
     ],
     [
       1,
@@ -823,7 +902,31 @@ const _GENIE = {
       0
     ]
   ],
-  steps: 18,
+  close: [
+    [
+      0,
+      0,
+      0.2
+    ],
+    [
+      0.3,
+      0.2,
+      1.2
+    ],
+    [
+      0.7,
+      0.84,
+      1.3
+    ],
+    [
+      1,
+      1,
+      0
+    ]
+  ],
+  lift: 22,
+  hopMs: 520,
+  steps: 28,
   rows: 9,
   capPts: 8,
   tilt: -34,
@@ -840,13 +943,13 @@ function _curve(e) {
     let n = 0;
     for (; n < e.length - 2 && t > e[n + 1][0];)
       n++;
-    const [a, o, s] = e[n], [r, i, c] = e[n + 1], l = r - a, d = (t - a) / l, u = d * d, m = u * d;
-    return (2 * m - 3 * u + 1) * o + (m - 2 * u + d) * l * s + (-2 * m + 3 * u) * i + (m - u) * l * c;
+    const [a, o, s] = e[n], [r, i, c] = e[n + 1], l = r - a, d = (t - a) / l, m = d * d, u = m * d;
+    return (2 * u - 3 * m + 1) * o + (u - 2 * m + d) * l * s + (-2 * u + 3 * m) * i + (u - m) * l * c;
   };
 }
 const _genieOpenCurve = _curve(_GENIE.open), _genieEase = {
     open: _genieOpenCurve,
-    close: e => 1 - _genieOpenCurve(1 - e)
+    close: _curve(_GENIE.close)
   }, _genieState = new WeakMap(), _glerp = (e, t, n) => e + (t - e) * n, _gss = (e, t, n) => {
     const a = Math.min(1, Math.max(0, (n - e) / (t - e)));
     return a * a * (3 - 2 * a);
@@ -861,221 +964,1354 @@ const _genieOpenCurve = _curve(_GENIE.open), _genieEase = {
   };
 function _genieIsLite() {
   const e = _genieLs('GENIE');
-  return 'lite' === e || 'full' !== e && ('1' === _genieLs('GENIE_LITE') || (navigator.hardwareConcurrency || 4) <= 2);
+  if ('lite' === e)
+    return !0;
+  if ('full' === e)
+    return !1;
+  try {
+    if (tabs.length > 1 || activeTab()?.url)
+      return !0;
+  } catch (e) {
+  }
+  return '1' === _genieLs('GENIE_LITE') || (navigator.hardwareConcurrency || 4) <= 2;
 }
-const _genieOpacity = (e, t) => (t ? _gss(0, 0.05, e) : _gss(0.02, 0.12, e)).toFixed(3);
+const _genieOpacity = (e, t) => (t ? _gss(0, 0.05, e) : _gss(0.02, 0.12, e)).toFixed(3), _genieLift = e => _gss(0, 0.12, e) * (1 - _gss(0.16, 0.42, e));
 function _genieFrameFull(e, t, n) {
   const {
       W: a,
       H: o,
-      ox: s,
-      oy: r,
-      w0: i,
-      h0: c
-    } = t, l = Math.pow(_gss(0, 1, e), 1.35), d = _gss(0.15, 1, e), u = _gss(0.5, 1, e), m = _gss(0.45, 1, e), h = 1 - _gss(0.05, 0.55, e), p = _glerp(s - i, 0, d), g = _glerp(s + i, a, d), _ = _glerp(r - c, 0, l), f = _glerp(r + 6, o, m), y = Math.max(1, g - p), v = Math.max(1, f - _), E = (p + g) / 2, S = y / 2, w = _glerp(0.9 * i, a / 2, u), C = _glerp(s, a / 2, u), b = h * Math.min(S, 0.45 * v), k = _ + b, I = (e, t) => ((e - p) / y * 100).toFixed(1) + '% ' + ((t - _) / v * 100).toFixed(1) + '%', M = [];
+      ox: s
+    } = t, r = _genieLift(e), i = t.oy - _GENIE.lift * r, c = t.w0 * (1 - 0.12 * r), l = t.h0 * (1 + 0.3 * r), d = Math.max(0, e - 1), m = 1 + d, u = Math.pow(_gss(0, 1, e), 1.35), p = _gss(0.15, 1, e), _ = _gss(0.5, 1, e), h = _gss(0.45, 1, e), g = 1 - _gss(0.05, 0.55, e), f = _glerp(s - c, 0, p), v = _glerp(s + c, a, p), y = _glerp(i - l, 0, u), b = _glerp(t.oy + 6 - 0.45 * _GENIE.lift * r, o, h), w = Math.max(1, v - f), E = Math.max(1, b - y), S = (f + v) / 2, k = w / 2, C = _glerp(0.9 * c, a / 2, _), T = _glerp(s, a / 2, _), M = g * Math.min(k, 0.45 * E), x = y + M, L = (e, t) => ((e - f) / w * 100).toFixed(1) + '% ' + ((t - y) / E * 100).toFixed(1) + '%', I = [];
   for (let e = 0; e <= _GENIE.capPts; e++) {
     const t = e / _GENIE.capPts, n = 2 * t - 1;
-    M.push(I(p + t * y, _ + b * (1 - Math.sqrt(Math.max(0, 1 - n * n)))));
+    I.push(L(f + t * w, y + M * (1 - Math.sqrt(Math.max(0, 1 - n * n)))));
   }
-  const L = _GENIE.rows, A = (e, t) => {
-      const n = e / L, a = n * n * (3 - 2 * n), o = _glerp(S, w, a), s = _glerp(E, C, a);
-      return I(s + t * o, k + n * (f - k));
+  const A = _GENIE.rows, P = (e, t) => {
+      const n = e / A, a = n * n * (3 - 2 * n), o = _glerp(k, C, a), s = _glerp(S, T, a);
+      return L(s + t * o, x + n * (b - x));
     };
-  for (let e = 0; e <= L; e++)
-    M.push(A(e, 1));
-  for (let e = L; e >= 0; e--)
-    M.push(A(e, -1));
+  for (let e = 0; e <= A; e++)
+    I.push(P(e, 1));
+  for (let e = A; e >= 0; e--)
+    I.push(P(e, -1));
   return {
-    transform: 'translate(' + p.toFixed(1) + 'px, ' + _.toFixed(1) + 'px) scale(' + (y / a).toFixed(4) + ', ' + (v / o).toFixed(4) + ')',
-    clipPath: 'polygon(' + M.join(', ') + ')',
+    transform: 'translate(' + (f - a * d / 2).toFixed(1) + 'px, ' + (y - o * d / 2).toFixed(1) + 'px) scale(' + (w / a * m).toFixed(4) + ', ' + (E / o * m).toFixed(4) + ')',
+    clipPath: 'polygon(' + I.join(', ') + ')',
     opacity: _genieOpacity(e, n)
   };
 }
 function _genieFrameLite(e, t, n) {
   const {
       W: a,
-      H: o,
-      w0: s,
-      h0: r
-    } = t, i = Math.pow(_gss(0, 1, e), 1.35), c = _gss(0.15, 1, e), l = Math.min(1, 2 * s / a), d = Math.min(1, (r + 6) / o), u = _GENIE.tilt * Math.sin(Math.PI * e);
+      H: o
+    } = t, s = _genieLift(e), r = t.w0 * (1 - 0.12 * s), i = t.h0 * (1 + 0.3 * s), c = Math.max(1, e), l = Math.pow(_gss(0, 1, e), 1.35), d = _gss(0.15, 1, e), m = Math.min(1, 2 * r / a), u = Math.min(1, (i + 6) / o), p = _GENIE.tilt * Math.sin(Math.PI * Math.min(1, e)) * (1 - _gss(0.4, 0.85, e));
   return {
-    transform: 'perspective(' + _GENIE.persp + 'px) rotateX(' + u.toFixed(2) + 'deg) scale(' + (l + (1 - l) * c).toFixed(4) + ', ' + (d + (1 - d) * i).toFixed(4) + ')',
+    transform: 'translateY(' + (-_GENIE.lift * s).toFixed(1) + 'px) perspective(' + _GENIE.persp + 'px) rotateX(' + p.toFixed(2) + 'deg) scale(' + ((m + (1 - m) * d) * c).toFixed(4) + ', ' + ((u + (1 - u) * l) * c).toFixed(4) + ')',
     opacity: _genieOpacity(e, n)
   };
 }
 const _genieTint = e => (0.85 * (1 - _gss(0.05, 0.9, e))).toFixed(3);
 function _genieProbe(e, t, n, a) {
   let o = 0, s = 0, r = 0;
-  const i = c => {
+  const i = t => {
     if (_genieState.get(e) === a)
-      if (o++, 3 === o && (s = c), o >= 3 + _GENIE.probeFrames) {
-        r = c;
-        (r - s) / _GENIE.probeFrames > _GENIE.slowMs && (_genieLs('GENIE_LITE', '1'), _genie(e, t, n));
+      if (o++, 3 === o && (s = t), o >= 3 + _GENIE.probeFrames) {
+        r = t;
+        (r - s) / _GENIE.probeFrames > _GENIE.slowMs && _genieLs('GENIE_LITE', '1');
       } else
         requestAnimationFrame(i);
   };
   requestAnimationFrame(i);
 }
-function _genie(e, t, n) { /* Retain Atlas's existing transitions instead of importing upstream animation effects. */ }
-function toggleSettings() {
-  const e = document.getElementById('settingsScreen'), t = !e.classList.contains('open');
-  if (t) _activateAtlasScreen('settingsScreen');
-  e.classList.toggle('open', t), _genie(e.querySelector('.settings-inner'), 'navSettings', t);
+const _genieHops = new WeakMap();
+function _genieHop(e, t) {
+  if (!e || !e.animate)
+    return;
+  const n = _genieHops.get(e);
+  n && n.cancel();
+  const a = 'cubic-bezier(0.22, 1, 0.36, 1)', o = 'cubic-bezier(0.55, 0, 0.9, 0.6)', s = e => 'translateY(' + e + 'px)', r = t ? [
+      {
+        transform: s(0),
+        easing: a
+      },
+      {
+        transform: s(-10),
+        offset: 0.28,
+        easing: o
+      },
+      {
+        transform: s(0),
+        offset: 0.55,
+        easing: a
+      },
+      {
+        transform: s(-3.5),
+        offset: 0.74,
+        easing: o
+      },
+      { transform: s(0) }
+    ] : [
+      { transform: s(0) },
+      {
+        transform: s(0),
+        offset: 0.72
+      },
+      {
+        transform: s(2.5),
+        offset: 0.88,
+        easing: a
+      },
+      { transform: s(0) }
+    ], i = e.animate(r, { duration: t ? _GENIE.hopMs : _GENIE.closeMs });
+  _genieHops.set(e, i), i.onfinish = i.oncancel = () => {
+    _genieHops.get(e) === i && _genieHops.delete(e);
+  };
 }
-const fsEnter = '<path d="M8 3H5a2 2 0 0 0-2 2v3M21 8V5a2 2 0 0 0-2-2h-3M3 16v3a2 2 0 0 0 2 2h3M16 21h3a2 2 0 0 0 2-2v-3"/>', fsExit = '<path d="M8 3v3a2 2 0 0 1-2 2H3M21 8h-3a2 2 0 0 1-2-2V3M3 16h3a2 2 0 0 1 2 2v3M16 21v-3a2 2 0 0 1 2-2h3"/>', bmOutline = '<path d="M7.84 4.1a.178.178 0 0 1 .32 0l.634 1.285a.18.18 0 0 0 .134.098l1.42.206c.145.021.204.2.098.303L9.42 6.993a.18.18 0 0 0-.051.158l.242 1.414a.178.178 0 0 1-.258.187l-1.27-.668a.18.18 0 0 0-.165 0l-1.27.668a.178.178 0 0 1-.257-.187l.242-1.414a.18.18 0 0 0-.05-.158l-1.03-1.001a.178.178 0 0 1 .098-.303l1.42-.206a.18.18 0 0 0 .134-.098z"/><path d="M2 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v13.5a.5.5 0 0 1-.777.416L8 13.101l-5.223 2.815A.5.5 0 0 1 2 15.5zm2-1a1 1 0 0 0-1 1v12.566l4.723-2.482a.5.5 0 0 1 .554 0L13 14.566V2a1 1 0 0 0-1-1z"/>', bmFilled = '<path fill-rule="evenodd" d="M2 15.5V2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v13.5a.5.5 0 0 1-.74.439L8 13.069l-5.26 2.87A.5.5 0 0 1 2 15.5M8.16 4.1a.178.178 0 0 0-.32 0l-.634 1.285a.18.18 0 0 1-.134.098l-1.42.206a.178.178 0 0 0-.098.303L6.58 6.993c.042.041.061.1.051.158L6.39 8.565a.178.178 0 0 0 .258.187l1.27-.668a.18.18 0 0 1 .165 0l1.27.668a.178.178 0 0 0 .257-.187L9.368 7.15a.18.18 0 0 1 .05-.158l1.028-1.001a.178.178 0 0 0-.098-.303l-1.42-.206a.18.18 0 0 1-.134-.098z"/>';
+function _genie(e, t, n) {
+}
+function toggleSettings() {
+ const screen=document.getElementById('settingsScreen');screen.classList.toggle('open');updateNavActive();
+}
+
+function _defaultShortcutFor(e) {
+  const t = _pageKey(e);
+  return t && SHORTCUTS.find(e => e.url && _pageKey(e.url) === t) || null;
+}
+const fsEnter = '<path d="M8 3H5a2 2 0 0 0-2 2v3M21 8V5a2 2 0 0 0-2-2h-3M3 16v3a2 2 0 0 0 2 2h3M16 21h3a2 2 0 0 0 2-2v-3"/>', fsExit = '<path d="M8 3v3a2 2 0 0 1-2 2H3M21 8h-3a2 2 0 0 1-2-2V3M3 16h3a2 2 0 0 1 2 2v3M16 21v-3a2 2 0 0 1 2-2h3"/>', bmOutline = '<path d="M7.84 4.1a.178.178 0 0 1 .32 0l.634 1.285a.18.18 0 0 0 .134.098l1.42.206c.145.021.204.2.098.303L9.42 6.993a.18.18 0 0 0-.051.158l.242 1.414a.178.178 0 0 1-.258.187l-1.27-.668a.18.18 0 0 0-.165 0l-1.27.668a.178.178 0 0 1-.257-.187l.242-1.414a.18.18 0 0 0-.05-.158l-1.03-1.001a.178.178 0 0 1 .098-.303l1.42-.206a.18.18 0 0 0 .134-.098z"/><path d="M2 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v13.5a.5.5 0 0 1-.777.416L8 13.101l-5.223 2.815A.5.5 0 0 1 2 15.5zm2-1a1 1 0 0 0-1 1v12.566l4.723-2.482a.5.5 0 0 1 .554 0L13 14.566V2a1 1 0 0 0-1-1z"/>', bmFilled = '<path fill-rule="evenodd" d="M2 15.5V2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v13.5a.5.5 0 0 1-.74.439L8 13.069l-5.26 2.87A.5.5 0 0 1 2 15.5M8.16 4.1a.178.178 0 0 0-.32 0l-.634 1.285a.18.18 0 0 1-.134.098l-1.42.206a.178.178 0 0 0-.098.303L6.58 6.993c.042.041.061.1.051.158L6.39 8.565a.178.178 0 0 0 .258.187l1.27-.668a.18.18 0 0 1 .165 0l1.27.668a.178.178 0 0 0 .257-.187L9.368 7.15a.18.18 0 0 1 .05-.158l1.028-1.001a.178.178 0 0 0-.098-.303l-1.42-.206a.18.18 0 0 1-.134-.098z"/>', _pageKey = e => {
+    try {
+      const t = new URL(e);
+      return t.hostname.replace(/^www\./, '') + t.pathname.replace(/\/+$/, '') + t.search;
+    } catch {
+      return '';
+    }
+  };
 function _updateBookmarkIcon(e) {
   const t = document.getElementById('bookmarkIcon'), n = document.getElementById('bookmarkBtn');
   if (!t || !n)
     return;
-  const a = !!e && _bookmarks.some(t => t.id === e);
-  t.innerHTML = a ? bmFilled : bmOutline, n.title = a ? 'Remove bookmark' : 'Bookmark this page';
+  const a = !!e && !!_defaultShortcutFor(e), o = a || !!e && _bookmarks.some(t => t.id === e);
+  t.innerHTML = o ? bmFilled : bmOutline, n.title = a ? 'Built-in shortcut' : o ? 'Remove bookmark' : 'Bookmark this page', n.classList.toggle('builtin', a);
 }
 async function toggleBookmark() {
   const e = document.getElementById('addrInput').value.trim();
-  if (!e)
-    return;
-  await _bookmarksReady;
-  if (_bookmarks.find(t => t.id === e))
-    return _bookmarks = _bookmarks.filter(t => t.id !== e), _deleteBookmark(e), _updateBookmarkIcon(e), void _renderShortcuts();
-  let t = '';
-  try {
-    t = new URL(e).hostname;
-  } catch (e) {
+  if (/^https?:\/\//i.test(e) && !_defaultShortcutFor(e)) {
+    if (await _bookmarksReady, _bookmarks.some(t => t.id === e))
+      _bookmarks = _bookmarks.filter(t => t.id !== e), _deleteBookmark(e);
+    else {
+      const t = _hostOf(e);
+      let n = t;
+      try {
+        n = activeTab().el.contentDocument.title || t;
+      } catch (e) {
+      }
+      const a = {
+        id: e,
+        url: e,
+        label: n || e,
+        faviconUrl: _faviconFor(e),
+        bookmark: !0,
+        ts: Date.now()
+      };
+      _bookmarks.push(a), _saveBookmark(a);
+    }
+    _updateBookmarkIcon(e), _renderShortcuts();
   }
-  let n = t;
-  try {
-    n = frame.element.contentDocument.title || t;
-  } catch (e) {
-  }
-  const a = {
-    id: e,
-    url: e,
-    label: n || e,
-    faviconUrl: sjEncode('https://www.google.com/s2/favicons?domain=' + t + '&sz=128'),
-    bookmark: !0,
-    ts: Date.now()
-  };
-  _bookmarks.push(a), _saveBookmark(a), _updateBookmarkIcon(e), _renderShortcuts();
 }
 function toggleFullscreen() {
-  const e = document.getElementById('frame');
-  document.fullscreenElement ? document.exitFullscreen() : e.requestFullscreen();
+  if (_fsInner())
+    return void document.exitFullscreen().catch(() => {
+    });
+  const e = activeTab(), t = _opmKind(e ? e.url : ''), n = 'movie' === t ? 'movies' : t;
+  if ('game' === t)
+    return toggleGameFullscreen();
+  if ('movie' === t && _mvPlayerOpen())
+    return _mpFull();
+  const a = 'web' === t ? e.el : OPM_PAGES[n] ? document.getElementById(OPM_PAGES[n].screen) : document.documentElement;
+  try {
+    a && a.requestFullscreen().catch(() => {
+    });
+  } catch (e) {
+  }
 }
 document.addEventListener('fullscreenchange', () => {
-  document.getElementById('fsIcon').innerHTML = document.fullscreenElement ? fsExit : fsEnter;
-}), frame = controller.createFrame(document.getElementById('frame'), {
-  plugins: [
+  document.getElementById('fsIcon').innerHTML = _fsInner() ? fsExit : fsEnter;
+});
+const _fsEl = () => 'undefined' != typeof shadowRoot && shadowRoot && shadowRoot.fullscreenElement || document.fullscreenElement, _fsInner = () => {
+    const e = _fsEl();
+    return e && e !== document.documentElement ? e : null;
+  }, _opmTopDoc = ((() => {
+    try {
+      return window.top !== window && window.top.document ? window.top.document : document;
+    } catch (e) {
+      return document;
+    }
+  })());
+function toggleBrowserFullscreen() {
+  const e = _opmTopDoc;
+  e.fullscreenElement !== e.documentElement ? e.documentElement.requestFullscreen().catch(() => {
+  }) : e.exitFullscreen().catch(() => {
+  });
+}
+function panicExit() {
+  allowUnload = !0;
+  try {
+    _opmSaveNow();
+  } catch (e) {
+  }
+  try {
+    window.top.onbeforeunload = null, window.top.location.replace('https://clever.com/');
+  } catch (e) {
+    location.replace('https://clever.com/');
+  }
+}
+function activeTab() {
+  return tabs.find(e => e.id === activeTabId) || null;
+}
+const _tabHost = e => {
+    try {
+      return new URL(e).hostname.replace(/^www\./, '');
+    } catch {
+      return '';
+    }
+  }, _isWebUrl = e => /^https?:\/\//i.test(e || ''), _tabFallbackIcon = e => {
+    const t = _tabHost(e);
+    return t ? imgProxy('https://www.google.com/s2/favicons?domain=' + t + '&sz=64') : '';
+  };
+function _pageFavicon(e) {
+  try {
+    const t = [...e.el.contentDocument.querySelectorAll('link[rel~="icon" i], link[rel="apple-touch-icon" i]')], n = t.find(e => !/apple/i.test(e.getAttribute('rel'))) || t[0], a = n && n.href;
+    if (!a || a.length > 2048)
+      return '';
+    if (/^(data|blob):/i.test(a))
+      return a;
+    const o = new URL(a, location.href);
+    return o.origin === location.origin ? o.href : imgProxy(o.href);
+  } catch {
+    return '';
+  }
+}
+function _syncTabPage(e) {
+  if (!e.el || e.loading || 'web' !== _opmKind(e.url))
+    return !1;
+  let t = !1, n = '';
+  try {
+    n = (e.el.contentDocument?.title || '').trim();
+  } catch {
+  }
+  n && n !== e.title && (e.title = n, t = !0);
+  const a = _pageFavicon(e);
+  return a && a !== e.favicon && (e.favicon = a, t = !0), t;
+}
+function _tabHomeIcon() {
+  const e = 'http://www.w3.org/2000/svg', t = document.createElementNS(e, 'svg');
+  t.setAttribute('class', 'ptab-o'), t.setAttribute('viewBox', '-56 -531 620 620'), t.setAttribute('aria-hidden', 'true');
+  const n = document.createElementNS(e, 'use');
+  return n.setAttribute('href', '#Atlas-o-art'), t.appendChild(n), t;
+}
+function _tabFavNode(e) {
+  const t = () => Object.assign(document.createElement('span'), { className: 'ptab-dot' });
+  if ('web' !== _opmKind(e.url))
+    return t();
+  const n = _tabFallbackIcon(e.url), a = e.favicon || n;
+  if (!a)
+    return t();
+  const o = document.createElement('img');
+  return o.alt = '', o.onerror = () => {
+    n && a !== n && !o.dataset.fell ? (o.dataset.fell = '1', o.src = n) : o.replaceWith(t());
+  }, o.src = a, o;
+}
+const OPM_PAGES = {
+    games: {
+      title: 'Library',
+      screen: 'gamesScreen',
+      nav: 'navGames'
+    },
+    movies: {
+      title: 'Movies',
+      screen: 'moviesScreen',
+      nav: 'navMovies'
+    },
+    effects: {
+      title: 'Sound',
+      screen: 'effectsScreen',
+      nav: 'navEffects'
+    },
+    ai: {
+      title: 'Atlas AI',
+      screen: 'aiScreen',
+      nav: 'navAI'
+    }
+  }, OPM_UNLOAD_MS = 180000, OPM_MAX_TABS = 8, _OPM_SCREENS = {
+    games: [
+      _gamesShow,
+      _gamesHide
+    ],
+    movies: [
+      _moviesShow,
+      _moviesHide
+    ],
+    effects: [
+      _effectsShow,
+      _effectsHide
+    ],
+    ai: [
+      _aiShow,
+      _aiHide
+    ]
+  }, _opmHooks = new Set(), _opmClosed = [];
+let _cloudTab = null, _mvTab = null, _mvPending = null, _opmAnim = null, _opmReady = !1, _opmArm = null;
+function _opmKind(e) {
+  if (!e)
+    return '';
+  if (/^https?:\/\//i.test(e))
+    return 'web';
+  const t = /^Atlas:\/\/([a-z]+)(?:\/(.*))?$/i.exec(e), n = t && t[1].toLowerCase();
+  return n && OPM_PAGES[n] ? t[2] && 'games' === n ? 'game' : t[2] && 'movies' === n ? 'movie' : n : '';
+}
+function _opmTitle(e) {
+  const t = _opmKind(e.url);
+  return 'web' === t ? _tabHost(e.url) || e.url : 'game' === t ? e.game && e.game.name || OPM_PAGES.games.title : 'movie' === t ? e.mvTitle || OPM_PAGES.movies.title : t ? OPM_PAGES[t].title : 'New Tab';
+}
+const _opmMenuTab = (e, t) => OPM_PAGES[_opmKind(e)] && tabs.find(n => n !== t && n.url === e) || null, _opmFull = () => tabs.length >= OPM_MAX_TABS, _opmSafeUrl = e => /^Atlas:\/\/games\/cloud\//.test(e) ? 'Atlas://games' : e, _SPK = '<path d="M11 4.702a.705.705 0 0 0-1.203-.498L6.413 7.587A1.4 1.4 0 0 1 5.416 8H3a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h2.416a1.4 1.4 0 0 1 .997.413l3.383 3.384A.705.705 0 0 0 11 19.298z"/>', _SND = {
+    a: '<svg viewBox="0 0 24 24">' + _SPK + '<path d="M16 9a5 5 0 0 1 0 6"/><path d="M19.364 18.364a9 9 0 0 0 0-12.728"/></svg>',
+    m: '<svg viewBox="0 0 24 24">' + _SPK + '<path d="m22 9-6 6"/><path d="m16 9 6 6"/></svg>'
+  };
+let _opmDrag = null;
+function _tabBtnMake(e) {
+  const t = document.createElement('button');
+  t.type = 'button', t.className = 'ptab', t.setAttribute('role', 'tab'), t.draggable = !0;
+  const n = e => Object.assign(document.createElement('span'), { className: e }), a = n('ptab-fav'), o = n('ptab-snd'), s = n('ptab-title'), r = n('ptab-x');
+  r.title = 'Close tab', r.addEventListener('click', t => {
+    t.stopPropagation(), closeTab(e.id);
+  }), o.addEventListener('click', t => {
+    t.stopPropagation(), _opmMute(e, !e.muted);
+  }), t.append(a, o, s, r), t.addEventListener('click', () => selectTab(e.id)), t.addEventListener('auxclick', t => {
+    1 === t.button && (t.preventDefault(), closeTab(e.id));
+  }), t.addEventListener('contextmenu', t => {
+    t.preventDefault(), t.stopPropagation(), _opmMenu(e, t.clientX, t.clientY);
+  }), t.addEventListener('dragstart', n => {
+    _opmDrag = e, t.classList.add('dragging');
+    try {
+      n.dataTransfer.effectAllowed = 'move', n.dataTransfer.setData('text/plain', '');
+    } catch (e) {
+    }
+  }), t.addEventListener('dragend', () => {
+    _opmDrag = null, t.classList.remove('dragging'), _opmSave();
+  }), t.addEventListener('dragover', n => {
+    const a = _opmDrag;
+    if (!a || a === e || a.pinned !== e.pinned)
+      return;
+    n.preventDefault();
+    const o = t.getBoundingClientRect(), s = tabs.indexOf(a), r = tabs.indexOf(e) + (n.clientX > o.left + o.width / 2 ? 1 : 0), i = r > s ? r - 1 : r;
+    i !== s && (tabs.splice(s, 1), tabs.splice(i, 0, a), renderTabs());
+  }), t.addEventListener('drop', e => e.preventDefault());
+  const i = {
+    b: t,
+    fav: a,
+    snd: o,
+    title: s,
+    favSig: '',
+    sndSig: ''
+  };
+  return _tabBtns.set(e.id, i), i;
+}
+const _tabBtns = new Map();
+function renderTabs() {
+  const e = document.getElementById('tabs');
+  if (!e)
+    return;
+  const t = new Set();
+  let n = 0;
+  for (const a of tabs) {
+    t.add(a.id);
+    const o = _tabBtns.get(a.id) || _tabBtnMake(a), s = a.id === activeTabId, r = o.b.classList, i = _opmKind(a.url);
+    r.toggle('active', s), r.toggle('pinned', !!a.pinned), r.toggle('unloaded', !!a.unloaded && !s), r.toggle('muted', !!a.muted), r.toggle('audible', !!a.audible && !a.muted), o.b.setAttribute('aria-selected', String(s));
+    const c = 'i:' + (a.favicon || '') + '|' + ('web' === i ? _tabHost(a.url) : i);
+    o.favSig !== c && (o.favSig = c, o.fav.replaceChildren(_tabFavNode(a)));
+    const l = a.muted ? 'm' : a.audible ? 'a' : '';
+    o.sndSig !== l && (o.sndSig = l, o.snd.innerHTML = _SND[l] || '', o.snd.title = a.muted ? 'Unmute tab' : 'Mute tab');
+    const d = a.title || 'New Tab';
+    o.title.textContent !== d && (o.title.textContent = d, o.b.title = d), e.children[n] !== o.b && e.insertBefore(o.b, e.children[n] || null), n++;
+  }
+  for (const [e, n] of _tabBtns)
+    t.has(e) || (n.b.remove(), _tabBtns.delete(e));
+  const a = document.querySelector('.ptab-new');
+  a && (a.disabled = _opmFull(), a.title = a.disabled ? OPM_MAX_TABS + ' tabs max' : 'New tab');
+  const o = document.getElementById('reloadBtn'), s = !!activeTab()?.loading;
+  o && (o.classList.toggle('loading', s), o.title = s ? 'Stop' : 'Reload'), _opmNav();
+}
+function _createTab(e, t) {
+  const n = {
+    id: ++tabSeq,
+    frame: null,
+    el: null,
+    url: '',
+    title: 'New Tab',
+    favicon: '',
+    loading: !1,
+    hist: [''],
+    hi: 0,
+    pinned: !1,
+    muted: !1,
+    audible: !1,
+    heardAt: 0,
+    last: Date.now(),
+    unloaded: !1,
+    gw: null,
+    gf: null,
+    game: null,
+    gameGen: 0,
+    wb: 0,
+    wf: 0
+  };
+  if (t) {
+    const e = Array.isArray(t.hist) && t.hist.length, a = (e ? t.hist : [t.url]).map(e => 'string' != typeof e || e && !_opmKind(e) ? '' : _opmSafeUrl(e)), o = Math.max(0, a.length - 50), s = e ? Math.min(a.length - 1, Math.max(0, 0 | t.hi)) : 0;
+    n.hist = a.slice(o), n.hi = Math.max(0, s - o), n.url = n.hist[n.hi], n.pinned = !!t.pinned, n.muted = !!t.muted, n.title = n.url === t.url && 'string' == typeof t.title && t.title.slice(0, 300) || _opmTitle(n), n.unloaded = [
+      'web',
+      'game',
+      'movie'
+    ].includes(_opmKind(n.url));
+  }
+  return e && _tabFrame(n, e), tabs.push(n), n;
+}
+const _OpmAudioPlugin = ((() => {
+  try {
+    return class extends $jetController.ManagedPlugin {
+      constructor(e) {
+        super('opm-audio', []), this.t = e;
+      }
+      install(e) {
+        this.tap(e.hooks.init.post, e => {
+          _audioHook(e.window, () => this.t), _opmKeysIn(e.window);
+        });
+      }
+    };
+  } catch (e) {
+    return null;
+  }
+})());
+function _tabFrame(e, t) {
+  t || ((t = document.createElement('iframe')).className = 'atlas-web-frame ptab-hidden', document.getElementById('tabViews').prepend(t));
+  let n = null;
+  const a = [
     new $jetUtils.HttpCachePlugin(),
-    new $jetUtils.UrlWatcherPlugin(e => {
-      document.getElementById('addrInput').value = e, updateLockIcon(e), _updateBookmarkIcon(e), _checkExtensions(e);
+    new $jetUtils.UrlWatcherPlugin(t => {
+      n && e.frame === n && _onTabUrl(e, t);
     })
-  ]
-}), controller.id = 'OPM', controller.rpc.id = 'tabchannel-OPM', controller.prefix = controller.config.prefix, frame.prefix = controller.prefix, frame.fetchHandler.context = frame.context, frame.fetchHandler.context.hooks = { rewriter: frame.fetchHandler.hooks.rewriter }, controller.setupMessagePort(), frame.element.addEventListener('load', stopFrameLoading);
+  ];
+  return _OpmAudioPlugin && a.push(new _OpmAudioPlugin(e)), n = controller.createFrame(t, { plugins: a }), n.prefix = controller.prefix, n.fetchHandler.context = n.context, n.fetchHandler.context.hooks = { rewriter: n.fetchHandler.hooks.rewriter }, Object.assign(e, {
+    frame: n,
+    el: t,
+    wb: 0,
+    wf: 0,
+    wfirst: !0,
+    trav: !1,
+    fresh: !0
+  }), t.addEventListener('load', () => {
+    e.el === t && _onTabLoad(e);
+  }), e.id === activeTabId && (frame = n), n;
+}
+function _tabDropFrame(e) {
+  const t = e.el, n = e.frame;
+  if (!t)
+    return;
+  e.id === activeTabId && (_runFrameLoadingCleanup(), frameLoading = !1), e.el = e.frame = null, e.loading = !1, frame === n && (frame = null);
+  try {
+    t.src = 'about:blank';
+  } catch {
+  }
+  t.remove();
+  const a = controller.frames.indexOf(n);
+  a > 0 && controller.frames.splice(a, 1);
+}
+function _onTabUrl(e, t) {
+  tabs.includes(e) && _isWebUrl(t) && (t !== e.url ? (e.wfirst ? e.wfirst = !1 : e.trav ? e.trav = !1 : (e.wb++, e.wf = 0), _tabHost(t) !== _tabHost(e.url) && (e.favicon = '')) : e.wfirst = !1, e.url = e.hist[e.hi] = t, e.title && 'New Tab' !== e.title || (e.title = _tabHost(t) || t), e.id === activeTabId && (document.getElementById('addrInput').value = t, updateLockIcon(t), _updateBookmarkIcon(t)), _checkExtensions(t, e), _syncTabPage(e), e.id === activeTabId && _updateHomeView(), renderTabs(), _opmSave());
+}
+function _onTabLoad(e) {
+  if (tabs.includes(e)) {
+    e.id === activeTabId && stopFrameLoading(), e.loading = !1;
+    try {
+      window.__guardedOpen && (e.el.contentWindow.open = window.__guardedOpen);
+    } catch (e) {
+    }
+    e.scrollBack && (e.scrollBack = !1, _restoreTabScroll(e)), _syncTabPage(e), renderTabs();
+  }
+}
+function _saveTabScroll(e) {
+  try {
+    const t = e.el.contentWindow;
+    t && (e.scroll = [
+      t.scrollX,
+      t.scrollY
+    ]);
+  } catch (e) {
+  }
+}
+function _restoreTabScroll(e) {
+  if (!e.scroll || !e.el)
+    return;
+  const [t, n] = e.scroll, a = () => {
+      try {
+        e.el.contentWindow?.scrollTo(t, n);
+      } catch (e) {
+      }
+    };
+  a(), requestAnimationFrame(a);
+}
+function selectTab(e) {
+  const t = tabs.find(t => t.id === e);
+  if (!t)
+    return;
+  const n = activeTab();
+  n && n !== t && (_saveTabScroll(n), n.last = Date.now(), frameLoadingCleanup && (n.loading = !1), n === _cloudTab && document.pointerLockElement && document.exitPointerLock?.()), _opmDisarm(), _opmMenuClose(), _runFrameLoadingCleanup(), activeTabId = e, t.last = Date.now(), _opmEnter(t), frame = t.frame, _opmBar(t), frameLoading = t.loading, _updateHomeView(), t.el && _restoreTabScroll(t), renderTabs(), _tabBtns.get(activeTabId)?.b.scrollIntoView({
+    block: 'nearest',
+    inline: 'nearest'
+  }), t.url || setTimeout(() => document.getElementById('addrInput').focus(), 0), _opmSave();
+}
+function _tabHasLiveSurface(e) {
+  try {
+    return !!e.el.contentDocument?.querySelector('canvas, video');
+  } catch (e) {
+    return !1;
+  }
+}
+function _hideTabEl(e) {
+  const t = _tabHasLiveSurface(e);
+  e.el.classList.toggle('ptab-dim', t), e.el.classList.toggle('ptab-hidden', !t);
+}
+function _showTabEl(e) {
+  e.el.classList.remove('ptab-hidden', 'ptab-dim');
+}
+function _updateHomeView() {
+  const e = activeTab(), t = e ? _opmKind(e.url) : '', n = !t;
+  for (const n of tabs)
+    n.el && (n === e && 'web' === t ? _showTabEl(n) : _hideTabEl(n)), n.gw && n.gw.classList.toggle('on', n === e && 'game' === t);
+  const a = document.getElementById('gamePlayer');
+  a && (a.classList.toggle('open', 'game' === t), a.classList.toggle('cloud-front', 'game' === t && _cloudTab === e));
+  for (const e in OPM_PAGES)
+    _opmScreen(e, t === e || 'movies' === e && 'movie' === t);
+  const o = document.getElementById('mvPlayer');
+  if (o && o.classList.contains('open')) {
+    const n = 'movie' === t && _mvTab === e;
+    o.classList.contains('bg') === n && (o.classList.toggle('bg', !n), _mpSolo(n));
+  }
+  const s = !n && _opmAnim && _opmAnim.open;
+  s && setTimeout(_updateHomeView, _GENIE.openMs + 60), document.getElementById('homePage')?.classList.toggle('home-hidden', !n && !s);
+  const r = document.getElementById('panel');
+  r && (r.classList.toggle('browsing', !n), r.classList.toggle('opm-page', !!t && 'web' !== t), r.classList.toggle('opm-game', 'game' === t), r.classList.toggle('opm-cloud', 'game' === t && _cloudTab === e)), document.getElementById('bottomNav')?.classList.toggle('hidden', !n), 'function' == typeof updateStarsActive && updateStarsActive(), _syncExtPrompt(), _opmNav(), updateNavActive();
+}
+function _opmScreen(e, t) {
+  const n = document.getElementById(OPM_PAGES[e].screen);
+  n && t !== n.classList.contains('open') && (_OPM_SCREENS[e][t ? 0 : 1](), _opmAnim && _opmAnim.p === e && _opmAnim.open === t && _genie(n, OPM_PAGES[e].nav, t));
+}
+function _opmOpen(e) {
+  const t = activeTab(), n = 'Atlas://' + e, a = _opmMenuTab(n, t);
+  if (t && t.url !== n) {
+    if (a)
+      return selectTab(a.id);
+    _opmAnim = {
+      p: e,
+      open: !0
+    }, _opmGo(t, n);
+  }
+}
+function _opmClose(e) {
+  const t = activeTab();
+  t && _opmKind(t.url) === e && (t.hi > 0 && !t.hist[t.hi - 1] ? (t.hi--, _opmSet(t)) : _opmGo(t, ''));
+}
+function _opmGo(e, t, n) {
+  n ? e.hist[e.hi] = t : (e.hist.splice(e.hi + 1, 1 / 0, t), e.hi = e.hist.length - 1, e.hist.length > 50 && (e.hist.shift(), e.hi--)), _opmSet(e);
+}
+function _opmSet(e, t) {
+  const n = e.url, a = e.hist[e.hi], o = _opmKind(n), s = _opmKind(a), r = e.id === activeTabId;
+  _opmDisarm(), r && OPM_PAGES[o] && !s && (_opmAnim = {
+    p: o,
+    open: !1
+  }), e.url = a, t || ('web' === o && _tabDropFrame(e), 'game' === o && n !== a && _opmGameEnd(e), 'movie' === o && n !== a && _mvTab === e && (_mvTab = null, _mpClose()), 'effects' === o && 'effects' !== s && _fxStop(e)), e.title = _opmTitle(e), 'web' === s && _tabHost(n) === _tabHost(a) || (e.favicon = ''), e.loading = !1, r ? (frameLoading = !1, t || _opmEnter(e), _opmBar(e), s && document.getElementById('addrInput').blur()) : t || (e.unloaded = [
+    'web',
+    'game',
+    'movie'
+  ].includes(s)), _updateHomeView(), _opmAnim = null, renderTabs(), _opmSave();
+}
+function _opmEnter(e) {
+  e.unloaded = !1;
+  const t = _opmKind(e.url);
+  'web' !== t || e.el && !e.fresh ? 'game' !== t || e.game && e.game.url === e.url ? 'movie' !== t || _mvTab === e && _mpLive() || _opmMovieOpen(e) : _opmGameStart(e) : (e.el || _tabFrame(e), e.fresh = !1, e.loading = !0, e.id === activeTabId && (frameLoading = !0), e.frame.go(e.url));
+}
+function _opmBar(e) {
+  const t = _opmKind(e.url), n = 'web' === t, a = document.getElementById('addrInput');
+  a.value = e.url, a.readOnly = !!t && !n, updateLockIcon(n ? e.url : null), _updateBookmarkIcon(n ? e.url : null);
+}
+function _opmReload(e) {
+  const t = _opmKind(e.url);
+  if (e.id === activeTabId) {
+    if ('web' === t)
+      return reload();
+    if ('game' !== t)
+      return 'movie' === t ? _mvTab === e && _mpLive() ? _mpRetry() : _opmEnter(e) : void ('games' === t ? _gamesReload(_gamesKeyword) : 'movies' === t ? _mvLoadHome(!0) : 'effects' === t && _effectsReload(_effectsKeyword));
+    e.game && e.game.cloud || (_opmGameEnd(e), _opmEnter(e));
+  } else if (e.el)
+    try {
+      e.frame.reload();
+    } catch (e) {
+    }
+  else
+    'game' === t && e.game && !e.game.cloud && (_opmGameEnd(e), e.unloaded = !0, renderTabs());
+}
+function _opmFrameCan(e, t) {
+  try {
+    const n = e.el.contentWindow.navigation;
+    if (n && 'boolean' == typeof n.canGoBack)
+      return t < 0 ? n.canGoBack : n.canGoForward;
+  } catch (e) {
+  }
+  return t < 0 ? e.wb > 0 : e.wf > 0;
+}
+function _opmCan(e, t) {
+  return !!e && (!('web' !== _opmKind(e.url) || !e.el || !_opmFrameCan(e, t)) || (t < 0 ? e.hi > 0 : e.hi < e.hist.length - 1));
+}
+function _opmNav() {
+  const e = activeTab(), t = document.getElementById('backBtn'), n = document.getElementById('fwdBtn');
+  t && (t.disabled = !_opmCan(e, -1)), n && (n.disabled = !_opmCan(e, 1));
+}
+function _opmStep(e) {
+  const t = activeTab();
+  if (!t)
+    return;
+  if ('web' === _opmKind(t.url) && t.el && _opmFrameCan(t, e))
+    return e < 0 ? (t.wb--, t.wf++) : (t.wb++, t.wf--), t.trav = !0, stepFrameHistory(e);
+  const n = t.hi + e;
+  if (n < 0 || n >= t.hist.length)
+    return;
+  const a = _opmMenuTab(t.hist[n], t);
+  if (a)
+    return selectTab(a.id);
+  const o = () => {
+    t.hi = n, _opmSet(t);
+  };
+  if (e < 0 && _opmLeaving(t))
+    return _opmConfirm('backBtnWrap', o);
+  o();
+}
+function _opmLeaving(e) {
+  return !!('game' === _opmKind(e.url) && e.game && (e.game.cloud ? _cloudSession : e.gf && e.gf.classList.contains('visible')));
+}
+function _opmConfirm(e, t) {
+  const n = document.getElementById(e);
+  return n ? _opmArm && _opmArm.w === n ? (_opmDisarm(), t()) : (_opmDisarm(), n.classList.add('confirming'), void (_opmArm = {
+    w: n,
+    timer: setTimeout(_opmDisarm, 5000)
+  })) : t();
+}
+function _opmDisarm() {
+  _opmArm && (clearTimeout(_opmArm.timer), _opmArm.w.classList.remove('confirming'), _opmArm = null);
+}
+const _gameSlug = e => 'lumin' === e.source ? e.id : 'cloud' === e.source ? e.key : e._norm || _normalizeGameName(e.name), _gameUrl = e => 'Atlas://games/' + e.source + '/' + _gameSlug(e);
+async function _gameFind(e) {
+  const t = /^Atlas:\/\/games\/([^/]+)\/(.+)$/.exec(e);
+  return t ? 'cloud' === t[1] ? (_cloudGames.length || (_cloudGames = await loadCloudGames()), _cloudGames.find(e => e.key === t[2]) || null) : (await _loadGamesCatalog(), _gamesState.all.find(e => e.source === t[1] && _gameSlug(e) === t[2]) || null) : null;
+}
+function _opmGameWrap(e) {
+  const t = e.gw = document.createElement('div');
+  return t.className = 'opm-gw', t.innerHTML = '<div class="game-player-loading">loading\u2026</div>', document.getElementById('gamePlayer').appendChild(t), t;
+}
+async function _opmGameStart(e) {
+  _opmGameEnd(e);
+  const t = e.url, n = e.gameGen, a = _opmGameWrap(e);
+  e.game = {
+    url: t,
+    name: '',
+    src: '',
+    cloud: !1
+  }, _updateHomeView();
+  let o = null;
+  try {
+    o = await _gameFind(t);
+  } catch (e) {
+  }
+  if (n === e.gameGen)
+    if (o) {
+      if (Object.assign(e.game, {
+          name: o.name,
+          src: o.source
+        }), e.title = o.name, renderTabs(), _opmSave(), 'cloud' !== o.source)
+        return _gameLaunch(o, e);
+      if (a.remove(), e.gw = null, e.game.cloud = !0, _cloudTab && _cloudTab !== e) {
+        const e = _cloudTab;
+        _opmGameEnd(e), _opmEvict(e, 'Atlas://games');
+      }
+      _cloudTab = e, _updateHomeView(), startCloudGame(o.key, o.name);
+    } else
+      a.firstChild.textContent = 'game not found';
+}
+function _opmGameEnd(e) {
+  e.gameGen = (e.gameGen || 0) + 1;
+  const t = e.game;
+  if (e.game = null, e.gw) {
+    try {
+      e.gf && (e.gf.src = 'about:blank');
+    } catch (e) {
+    }
+    e.gw.remove();
+  }
+  if (e.gw = e.gf = null, t && t.cloud && _cloudTab === e && (_cloudTab = null, endCloudGame(), closeGamePlayer()), t && 'lumin' === t.src && !tabs.some(t => t !== e && t.game && 'lumin' === t.game.src))
+    try {
+      Lumin.endGame();
+    } catch (e) {
+    }
+  tabs.some(t => t !== e && t.gw) || _stopGamepadDetection();
+}
+function _opmEvict(e, t) {
+  e.game = null, e.hist[e.hi] = _opmMenuTab(t, e) ? '' : t, _opmSet(e, !0);
+}
+const _mpLive = () => !!document.getElementById('mvPlayer')?.classList.contains('open');
+function _opmMovieStart(e, t, n) {
+  const a = activeTab(), o = _opmKind(a ? a.url : ''), s = _mvPending || ('movies' === o || 'movie' === o ? a : _mvTab) || a;
+  if (_mvPending = null, document.getElementById('mvPlayer')?.classList.remove('bg'), !s)
+    return;
+  const r = 'Atlas://movies/' + e.type + '/' + e.tid + ('tv' === e.type ? '/' + t + '/' + n : '');
+  if (_mvTab && _mvTab !== s) {
+    const e = _mvTab;
+    _mvTab = null, 'movie' === _opmKind(e.url) && _opmEvict(e, 'Atlas://movies');
+  }
+  if (_mvTab = s, s.mvTitle = e.title, s.url === r)
+    return s.title = e.title, renderTabs();
+  'movie' === _opmKind(s.url) ? s.hist[s.hi] = r : (s.hist.splice(s.hi + 1, 1 / 0, r), s.hi = s.hist.length - 1), _opmSet(s, !0);
+}
+function _opmMovieClosed() {
+  document.getElementById('mvPlayer')?.classList.remove('bg');
+  const e = _mvTab;
+  _mvTab = null, e && tabs.includes(e) && 'movie' === _opmKind(e.url) && (_opmMenuTab('Atlas://movies', e) ? e.hist[e.hi] = '' : e.hi > 0 && 'Atlas://movies' === e.hist[e.hi - 1] ? e.hi-- : e.hist[e.hi] = 'Atlas://movies', _opmSet(e, !0));
+}
+async function _opmMovieOpen(e) {
+  const t = e.url, n = /^Atlas:\/\/movies\/(movie|tv)\/(\d+)(?:\/(\d+)\/(\d+))?$/.exec(t);
+  try {
+    await _mvLoadLib();
+  } catch (s) {
+  }
+  if (e.url !== t || e.id !== activeTabId)
+    return;
+  const a = n && _mv.lib.get(n[1] + ':' + n[2]);
+  if (!a)
+    return e.hist[e.hi] = _opmMenuTab('Atlas://movies', e) ? '' : 'Atlas://movies', _opmSet(e);
+  const o = +n[3] || a.s || 1, s = +n[4] || a.e || 1, r = a.eps && a.eps[_mvEpKey(o, s)];
+  e.mvTitle = a.title, _mvPending = e, _mpStart(a, o, s, r && r.name);
+}
+function _fxStop(e) {
+  _currentAudio && _currentAudio._opmTab === e && (_currentAudio.pause(), _currentAudio = null, _clearPlayingBtns());
+}
+function _hasAudio(e) {
+  return e.srcObject ? !(!e.srcObject.getAudioTracks || !e.srcObject.getAudioTracks().length) : 'boolean' == typeof e.mozHasAudio ? e.mozHasAudio : e.webkitAudioDecodedByteCount > 0 || (e.audioTracks ? e.audioTracks.length > 0 || 'AUDIO' === e.tagName : 'number' != typeof e.webkitAudioDecodedByteCount);
+}
+function _audioHook(e, t) {
+  try {
+    if (!e || e.__opmAud)
+      return;
+    e.__opmAud = 1;
+    const n = e => {
+        const n = t(e);
+        return !(!n || !n.muted);
+      }, a = new WeakMap(), o = new Set(), s = new Map(), r = e.HTMLMediaElement && e.HTMLMediaElement.prototype, i = r && Object.getOwnPropertyDescriptor(r, 'muted'), c = !!(i && i.get && i.set), l = e => a.has(e) ? a.get(e) : i.get.call(e), d = e => {
+        a.has(e) || a.set(e, i.get.call(e)), i.set.call(e, a.get(e) || n(e));
+      };
+    if (c) {
+      Object.defineProperty(r, 'muted', {
+        configurable: !0,
+        enumerable: i.enumerable,
+        get() {
+          return l(this);
+        },
+        set(e) {
+          a.set(this, !!e), i.set.call(this, !!e || n(this));
+        }
+      });
+      const e = r.play;
+      r.play = function () {
+        o.add(this);
+        try {
+          d(this);
+        } catch (e) {
+        }
+        return e.apply(this, arguments);
+      };
+    }
+    const m = e.AudioNode && e.AudioNode.prototype, u = e.AudioDestinationNode;
+    if (m && u) {
+      const t = m.connect, a = m.disconnect, o = e.OfflineAudioContext, r = e => e instanceof u && !(o && e.context instanceof o), i = e => {
+          let a = s.get(e);
+          if (!a) {
+            const o = e.createGain(), r = e.createGain(), i = e.createAnalyser();
+            i.fftSize = 32768, t.call(o, r), t.call(r, e.destination), t.call(o, i), r.gain.value = n(e) ? 0 : 1, s.set(e, a = {
+              pre: o,
+              g: r,
+              an: i,
+              buf: new Float32Array(i.fftSize)
+            });
+          }
+          return a;
+        };
+      m.connect = function (e) {
+        if (r(e))
+          try {
+            const n = [...arguments];
+            return n[0] = i(e.context).pre, t.apply(this, n), e;
+          } catch (e) {
+          }
+        return t.apply(this, arguments);
+      }, m.disconnect = function (e) {
+        const t = r(e) && s.get(e.context);
+        if (t) {
+          const e = [...arguments];
+          return e[0] = t.pre, a.apply(this, e);
+        }
+        return a.apply(this, arguments);
+      };
+    }
+    const p = () => {
+      const t = new Set(o);
+      try {
+        e.document.querySelectorAll('video,audio').forEach(e => t.add(e));
+      } catch (e) {
+      }
+      return t;
+    };
+    _opmHooks.add({
+      w: e,
+      ctxs: s,
+      apply() {
+        for (const [e, t] of s)
+          'closed' === e.state ? s.delete(e) : t.g.gain.value = n(e) ? 0 : 1;
+        if (c)
+          for (const e of p()) {
+            try {
+              d(e);
+            } catch (e) {
+            }
+            !e.isConnected && e.paused && o.delete(e);
+          }
+      },
+      scan(e) {
+        for (const [n, a] of s)
+          if ('closed' !== n.state) {
+            if ('running' === n.state) {
+              a.an.getFloatTimeDomainData(a.buf);
+              for (let o = 0; o < a.buf.length; o += 4)
+                if (a.buf[o] > 0.002 || a.buf[o] < -0.002) {
+                  e(t(n));
+                  break;
+                }
+            }
+          } else
+            s.delete(n);
+        if (c)
+          for (const n of p())
+            !n.paused && !n.ended && n.readyState > 2 && n.volume > 0 && !l(n) && _hasAudio(n) ? e(t(n)) : !n.isConnected && n.paused && o.delete(n);
+      }
+    });
+  } catch (e) {
+  }
+}
+function _opmOwner(e) {
+  try {
+    if (e._opmTab)
+      return e._opmTab;
+    if ('cloudVideo' === e.id || e instanceof BaseAudioContext)
+      return _cloudTab;
+    if (_mp.v === e)
+      return _mvTab;
+  } catch (e) {
+  }
+  return null;
+}
+function _opmMute(e, t) {
+  e.muted = !!t;
+  for (const e of _opmHooks)
+    try {
+      e.apply();
+    } catch (e) {
+    }
+  renderTabs(), _opmSave();
+}
+function _opmAudioTick() {
+  const e = new Set(), t = Date.now();
+  for (const t of _opmHooks) {
+    let n = !0;
+    try {
+      n = !!t.w.closed;
+    } catch (e) {
+    }
+    if (n)
+      _opmHooks.delete(t);
+    else
+      try {
+        t.scan(t => t && e.add(t));
+      } catch (e) {
+      }
+  }
+  let n = !1;
+  for (const a of tabs) {
+    e.has(a) && (a.heardAt = t);
+    const o = t - (a.heardAt || 0) < 2500;
+    o !== !!a.audible && (a.audible = o, n = !0);
+  }
+  n && renderTabs();
+}
+function _opmUnload(e) {
+  const t = _opmKind(e.url);
+  if ('web' === t && e.el)
+    _saveTabScroll(e), e.scrollBack = !0, _tabDropFrame(e);
+  else if ('game' === t && e.game && !e.game.cloud)
+    _opmGameEnd(e);
+  else {
+    if ('movie' !== t || _mvTab !== e)
+      return;
+    _mvTab = null, _mpClose();
+  }
+  e.unloaded = !0, renderTabs();
+}
+setInterval(() => {
+  const e = Date.now();
+  for (const t of tabs)
+    t.id !== activeTabId && !t.unloaded && !t.audible && t !== _cloudTab && e - (t.last || e) > OPM_UNLOAD_MS && _opmUnload(t);
+}, 15000);
+let _opmSaveT = 0;
+function _opmSave() {
+  _opmReady && (clearTimeout(_opmSaveT), _opmSaveT = setTimeout(_opmSaveNow, 400));
+}
+function _opmSaveNow() {
+  if (clearTimeout(_opmSaveT), !_opmReady)
+    return;
+  const e = {
+    v: 1,
+    ts: Date.now(),
+    active: Math.max(0, tabs.findIndex(e => e.id === activeTabId)),
+    tabs: tabs.map(e => ({
+      url: e.url,
+      title: e.title,
+      hist: e.hist.slice(),
+      hi: e.hi,
+      pinned: !!e.pinned,
+      muted: !!e.muted
+    }))
+  };
+  _oDB().then(t => {
+    t.transaction('cache', 'readwrite').objectStore('cache').put(e, 'tabs');
+  }).catch(() => {
+  });
+}
+async function _opmRestore() {
+  let e = null;
+  try {
+    const t = await _oDB();
+    e = await new Promise(e => {
+      const n = t.transaction('cache', 'readonly').objectStore('cache').get('tabs');
+      n.onsuccess = () => e(n.result), n.onerror = () => e(null);
+    });
+  } catch (e) {
+  }
+  try {
+    if (e && 1 === e.v && Array.isArray(e.tabs) && e.tabs.length) {
+      const t = tabs[0], n = 1 === tabs.length && !t.url && 1 === t.hist.length, a = e.tabs.slice(0, OPM_MAX_TABS - (n ? 0 : tabs.length)).map(e => _createTab(null, e));
+      for (const e of a)
+        _opmMenuTab(e.url, e) && (e.hist[e.hi] = e.url = '', e.title = 'New Tab', e.unloaded = !1);
+      _opmOrder(), n && (tabs.splice(tabs.indexOf(t), 1), selectTab(a[Math.min(a.length - 1, Math.max(0, 0 | e.active))].id), _disposeTab(t)), renderTabs();
+    }
+  } catch (e) {
+  }
+  _opmReady = !0, _opmSave();
+}
+function _opmOrder() {
+  const e = tabs.filter(e => e.pinned), t = tabs.filter(e => !e.pinned);
+  tabs.splice(0, tabs.length, ...e, ...t);
+}
+function newTab(e) {
+  if (_opmFull())
+    return null;
+  const t = _createTab();
+  return selectTab(t.id), e && navigate(e), t;
+}
+function _opmNewTabAt(e) {
+  if (_opmFull())
+    return;
+  const t = _createTab();
+  tabs.splice(tabs.indexOf(t), 1), tabs.splice(Math.min(e, tabs.length), 0, t), _opmOrder(), selectTab(t.id);
+}
+function _opmDupUrl(e) {
+  const t = 'movie' === _opmKind(e.url) ? 'Atlas://movies' : _opmSafeUrl(e.url);
+  return _opmFull() || OPM_PAGES[_opmKind(t)] && tabs.some(e => e.url === t) ? '' : t || 'new';
+}
+function _opmDup(e) {
+  const t = _opmDupUrl(e);
+  if (!t)
+    return;
+  const n = e.hist.slice(0, e.hi + 1).map((n, a) => a === e.hi ? 'new' === t ? '' : t : n), a = _createTab(null, {
+      url: n[e.hi],
+      hist: n,
+      hi: e.hi,
+      title: n[e.hi] === e.url ? e.title : '',
+      muted: e.muted
+    });
+  tabs.splice(tabs.indexOf(a), 1), tabs.splice(tabs.indexOf(e) + 1, 0, a), _opmOrder(), selectTab(a.id);
+}
+function _opmPin(e, t) {
+  e.pinned = !!t, tabs.splice(tabs.indexOf(e), 1), tabs.splice(tabs.filter(e => e.pinned).length, 0, e), renderTabs(), _opmSave();
+}
+function _opmMove(e, t) {
+  const n = tabs.indexOf(e);
+  t < 0 || t >= tabs.length || tabs[t].pinned !== e.pinned || (tabs.splice(n, 1), tabs.splice(t, 0, e), renderTabs(), _opmSave());
+}
+function _disposeTab(e) {
+  _tabDropFrame(e), _opmGameEnd(e), _mvTab === e && (_mvTab = null, _mpClose()), _fxStop(e), _tabBtns.get(e.id)?.b.remove(), _tabBtns.delete(e.id);
+}
+function closeTab(e) {
+  const t = tabs.findIndex(t => t.id === e);
+  if (t < 0)
+    return;
+  const n = tabs[t];
+  _opmClosed.push({
+    url: n.url,
+    title: n.title,
+    hist: n.hist.slice(),
+    hi: n.hi,
+    muted: n.muted,
+    i: t
+  }), _opmClosed.length > 10 && _opmClosed.shift(), 1 === tabs.length && _createTab(), tabs.splice(tabs.indexOf(n), 1), n.id === activeTabId && (_runFrameLoadingCleanup(), selectTab(tabs[Math.min(t, tabs.length - 1)].id)), _disposeTab(n), renderTabs(), _opmSave();
+}
+function _opmReopen() {
+  if (_opmFull())
+    return;
+  const e = _opmClosed.pop();
+  if (!e)
+    return;
+  const t = _opmMenuTab(e.url, null);
+  if (t)
+    return selectTab(t.id);
+  const n = _createTab(null, e);
+  tabs.splice(tabs.indexOf(n), 1), tabs.splice(Math.min(e.i, tabs.length), 0, n), _opmOrder(), selectTab(n.id);
+}
+window.addEventListener('pagehide', _opmSaveNow), document.addEventListener('visibilitychange', () => {
+  document.hidden && _opmSaveNow();
+});
+let _opmMenuEl = null;
+function _opmMenuClose() {
+  const e = _opmMenuEl;
+  e && (_opmMenuEl = null, e._off(), e.remove());
+}
+function _opmMenu(e, t, n) {
+  _opmMenuClose();
+  const a = tabs.indexOf(e), o = tabs.filter(e => e.pinned).length, s = e.pinned ? 0 : o, r = e.pinned ? o - 1 : tabs.length - 1, i = () => tabs.filter(t => t !== e && !t.pinned), c = () => tabs.slice(tabs.indexOf(e) + 1).filter(e => !e.pinned), l = [
+      [
+        'New tab to the right',
+        () => _opmNewTabAt(tabs.indexOf(e) + 1),
+        _opmFull()
+      ],
+      null,
+      [
+        'Reload',
+        () => _opmReload(e),
+        !1,
+        'Ctrl+R'
+      ],
+      [
+        'Duplicate',
+        () => _opmDup(e),
+        !_opmDupUrl(e)
+      ],
+      [
+        e.pinned ? 'Unpin tab' : 'Pin tab',
+        () => _opmPin(e, !e.pinned)
+      ],
+      [
+        e.muted ? 'Unmute tab' : 'Mute tab',
+        () => _opmMute(e, !e.muted)
+      ],
+      null,
+      [
+        'Move tab left',
+        () => _opmMove(e, tabs.indexOf(e) - 1),
+        a <= s
+      ],
+      [
+        'Move tab right',
+        () => _opmMove(e, tabs.indexOf(e) + 1),
+        a >= r
+      ],
+      null,
+      [
+        'Close tab',
+        () => closeTab(e.id),
+        !1,
+        'Ctrl+W'
+      ],
+      [
+        'Close other tabs',
+        () => i().forEach(e => closeTab(e.id)),
+        !i().length
+      ],
+      [
+        'Close tabs to the right',
+        () => c().forEach(e => closeTab(e.id)),
+        !c().length
+      ],
+      null,
+      [
+        'Reopen closed tab',
+        _opmReopen,
+        !_opmClosed.length || _opmFull(),
+        'Ctrl+Shift+T'
+      ]
+    ], d = _opmMenuEl = document.createElement('div');
+  d.className = 'ptab-menu', d.setAttribute('role', 'menu');
+  const m = [];
+  for (const e of l) {
+    if (!e) {
+      d.appendChild(Object.assign(document.createElement('div'), { className: 'ptab-menu-sep' }));
+      continue;
+    }
+    const t = document.createElement('button');
+    t.type = 'button', t.className = 'ptab-menu-item', t.setAttribute('role', 'menuitem'), t.textContent = e[0], e[3] && t.appendChild(Object.assign(document.createElement('span'), {
+      className: 'ptab-menu-hint',
+      textContent: _OPM_MAC ? e[3].replace('Ctrl+', '\u2318').replace('Shift+', '\u21E7') : e[3]
+    })), t.disabled = !!e[2], t.onclick = t => {
+      t.stopPropagation(), _opmMenuClose(), e[1]();
+    }, t.disabled || m.push(t), d.appendChild(t);
+  }
+  document.getElementById('panel').appendChild(d);
+  const u = d.getBoundingClientRect();
+  d.style.left = Math.max(6, Math.min(t, innerWidth - u.width - 6)) + 'px', d.style.top = Math.max(6, Math.min(n, innerHeight - u.height - 6)) + 'px';
+  const p = d.getRootNode(), _ = e => {
+      d.contains(e.target) || _opmMenuClose();
+    }, h = e => {
+      if ('Escape' === e.key)
+        return e.preventDefault(), e.stopPropagation(), _opmMenuClose();
+      if ('ArrowDown' !== e.key && 'ArrowUp' !== e.key)
+        return;
+      e.preventDefault();
+      const t = m.length, n = m.indexOf(p.activeElement), a = 'ArrowDown' === e.key;
+      m[n < 0 ? a ? 0 : t - 1 : (n + (a ? 1 : t - 1)) % t]?.focus();
+    };
+  p.addEventListener('pointerdown', _, !0), document.addEventListener('keydown', h, !0), window.addEventListener('blur', _opmMenuClose), window.addEventListener('resize', _opmMenuClose), d._off = () => {
+    p.removeEventListener('pointerdown', _, !0), document.removeEventListener('keydown', h, !0), window.removeEventListener('blur', _opmMenuClose), window.removeEventListener('resize', _opmMenuClose);
+  };
+}
+const _OPM_MAC = /Mac|iPhone|iPad/.test(navigator.platform || ''), _OPM_LOCK = [
+    'KeyT',
+    'KeyW',
+    'KeyN',
+    'Tab',
+    'PageUp',
+    'PageDown',
+    'Digit1',
+    'Digit2',
+    'Digit3',
+    'Digit4',
+    'Digit5',
+    'Digit6',
+    'Digit7',
+    'Digit8',
+    'Digit9'
+  ];
+function _opmFocusAddr() {
+  const e = document.getElementById('addrInput');
+  e.focus(), e.select();
+}
+function _opmCycle(e) {
+  const t = tabs.indexOf(activeTab());
+  selectTab(tabs[(t + e + tabs.length) % tabs.length].id);
+}
+function _opmKey(e) {
+  const t = activeTab();
+  if (!t || e.defaultPrevented || e.isComposing)
+    return;
+  if (_cloudTab === t && _cloudInputActive && _cloudGate(e))
+    return;
+  const n = 1 === e.key.length ? e.key.toLowerCase() : e.key, a = _OPM_MAC ? e.metaKey : e.ctrlKey, o = !e.shiftKey && !e.altKey;
+  let s = null;
+  if (e.ctrlKey && !e.altKey && 'Tab' === n)
+    s = () => _opmCycle(e.shiftKey ? -1 : 1);
+  else if (a && !e.altKey)
+    if ('PageDown' === n || 'PageUp' === n)
+      s = e.shiftKey ? () => _opmMove(t, tabs.indexOf(t) + ('PageDown' === n ? 1 : -1)) : () => _opmCycle('PageDown' === n ? 1 : -1);
+    else {
+      if (e.repeat)
+        return;
+      't' === n && e.shiftKey ? s = _opmReopen : e.shiftKey || ('t' === n || 'n' === n ? s = () => newTab() : 'w' === n || 'F4' === n ? s = () => closeTab(t.id) : /^[1-9]$/.test(n) ? s = () => {
+        const e = '9' === n ? tabs[tabs.length - 1] : tabs[+n - 1];
+        e && selectTab(e.id);
+      } : 'r' === n ? s = reload : 'l' === n ? s = _opmFocusAddr : 'd' === n && 'web' === _opmKind(t.url) ? s = toggleBookmark : !_OPM_MAC || '[' !== n && 'ArrowLeft' !== n ? !_OPM_MAC || ']' !== n && 'ArrowRight' !== n || (s = goForward) : s = goBack);
+    }
+  else
+    !e.altKey || e.ctrlKey || e.metaKey || e.shiftKey ? !o || e.ctrlKey || e.metaKey || e.repeat || ('F5' === n ? s = reload : 'F6' === n && (s = _opmFocusAddr)) : 'ArrowLeft' === n ? s = goBack : 'ArrowRight' === n ? s = goForward : 'Home' === n ? s = handleHome : 'd' === n && (s = _opmFocusAddr);
+  s && (e.preventDefault(), e.stopPropagation(), s());
+}
+function _opmKeysIn(e) {
+  try {
+    e.addEventListener('keydown', _opmKey);
+    for (const t of [
+        'keydown',
+        'keyup',
+        'pointerdown'
+      ])
+      e.addEventListener(t, _opmModTrack, !0);
+  } catch (e) {
+  }
+}
+window.addEventListener('keydown', _opmKey, !0);
+const _opmMods = {
+  ctrl: !1,
+  other: !1
+};
+function _opmModTrack(e) {
+  const t = _opmMods, n = _OPM_MAC ? 'Meta' : 'Control', a = _OPM_MAC ? e.metaKey : e.ctrlKey;
+  'keydown' === e.type && e.key === n ? (t.ctrl = !0, t.other = !1) : 'keydown' === e.type ? (t.other = !0, t.ctrl = a) : t.ctrl = ('keyup' !== e.type || e.key !== n) && a;
+}
+for (const e of [
+    'keydown',
+    'keyup',
+    'pointerdown'
+  ])
+  window.addEventListener(e, _opmModTrack, !0);
+window.addEventListener('blur', () => {
+  document.hasFocus && !document.hasFocus() && (_opmMods.ctrl = !1);
+});
+try {
+  window.top.addEventListener('beforeunload', e => {
+    const t = _opmMods, n = activeTab();
+    allowUnload || !t.ctrl || t.other || !n || 1 === tabs.length && !n.url || (e.preventDefault(), e.returnValue = '', closeTab(n.id));
+  });
+} catch (e) {
+}
+function _opmFsChange() {
+  const e = _fsEl() || _opmTopDoc.fullscreenElement, t = (_opmTopDoc.defaultView || window).navigator.keyboard;
+  try {
+    e ? _cloudSession && e === document.getElementById('cloudVideoWrap') || t?.lock?.(_OPM_LOCK).catch(() => {
+    }) : t?.unlock?.();
+  } catch (e) {
+  }
+  const n = document.getElementById('winFsIcon');
+  n && (n.innerHTML = _opmTopDoc.fullscreenElement === _opmTopDoc.documentElement ? fsExit : fsEnter);
+}
+for (const e of new Set([
+    document,
+    _opmTopDoc
+  ]))
+  e.addEventListener('fullscreenchange', _opmFsChange);
+setInterval(() => {
+  if (_opmAudioTick(), document.hidden)
+    return;
+  let e = !1;
+  for (const t of tabs)
+    _syncTabPage(t) && (e = !0);
+  e ? (renderTabs(), _opmSave()) : _opmNav();
+}, 1000), controller.id = 'OPM', controller.rpc.id = 'tabchannel-OPM', controller.prefix = controller.config.prefix, ((() => {
+  const e = document.getElementById('tabViews');
+  for (const t of [
+      'gamesScreen',
+      'moviesScreen',
+      'effectsScreen',
+      'aiScreen',
+      'gamePlayer',
+      'mvModal',
+      'mvPlayer'
+    ]) {
+    const n = document.getElementById(t);
+    n && e.appendChild(n);
+  }
+  const t = document.getElementById('fsIcon')?.closest('button'), n = document.getElementById('gamePlayerController'), a = document.getElementById('gamePlayerTimeLeft');
+  t && n && t.before(n), a && document.getElementById('addrInput')?.after(a);
+})()), _audioHook(window, _opmOwner), selectTab(_createTab(document.getElementById('frame')).id), controller.setupMessagePort(), _opmRestore();
 const link = document.querySelector('link[rel~=\'icon\']') || document.createElement('link');
 link.rel = 'icon', link.href = 'data:,', document.head.appendChild(link);
-let focusTimeout = null;
-document.addEventListener('visibilitychange', e => {
-  if (titleChangerEnabled)
-    if (document.hidden)
-      document.title = 'New Tab';
-    else {
-      try {
-        clearInterval(focusTimeout);
-      } catch {
-      }
-      focusTimeout = null, document.title = 'atlas';
-    }
-});
 let _effectsVolume = 1, _currentAudio = null, _effectsSearchTimer = null, _effectsLoaded = !1, _effectsPage = 1, _effectsKeyword = null, _effectsLoading = !1, _effectsExhausted = !1, _effectsAll = [], _effectsLoadGen = 0, _effectsScrollTop = 0;
 function _makeGridVirtualizer(e, t, n, a, o) {
   const s = document.getElementById(e), r = document.getElementById(t), i = document.getElementById(n), c = 2;
-  let l = [], d = 0, u = 0, m = 0, h = 0, p = 0, g = 0, _ = !1;
+  let l = [], d = 0, m = 0, u = 0, p = 0, _ = 0, h = 0, g = !1;
   function f() {
     const e = getComputedStyle(i), t = e.gridTemplateColumns.split(' ').filter(e => e && '0px' !== e);
-    d = Math.max(1, t.length), m = parseFloat(e.rowGap) || 0, h = parseFloat(getComputedStyle(r).paddingTop) || 0;
+    d = Math.max(1, t.length), u = parseFloat(e.rowGap) || 0, p = parseFloat(getComputedStyle(r).paddingTop) || 0;
     const n = i.firstElementChild;
     if (n) {
       const e = parseFloat(getComputedStyle(n).height) || n.getBoundingClientRect().height;
-      e > 0 && (u = e + m);
+      e > 0 && (m = e + u);
     }
   }
-  function y() {
-    if (u > 0 && d > 0)
+  function v() {
+    if (m > 0 && d > 0)
       return;
-    if (f(), u > 0)
+    if (f(), m > 0)
       return;
     if (!l.length)
       return;
-    i.textContent = '', i.style.top = h + 'px';
+    i.textContent = '', i.style.top = p + 'px';
     const e = Math.min(l.length, d);
     for (let t = 0; t < e; t++)
       i.appendChild(a(l[t], t));
-    p = 0, g = e, f();
+    _ = 0, h = e, f();
   }
-  function v() {
+  function y() {
     if (!l.length || s.classList.contains('flow'))
       return;
-    if (y(), !u)
+    if (v(), !m)
       return;
-    const e = Math.ceil(l.length / d), t = Math.max(0, e * u - m), n = t + 'px';
+    const e = Math.ceil(l.length / d), t = Math.max(0, e * m - u), n = t + 'px';
     r.style.height !== n && (r.style.height = n);
-    const _ = s.scrollTop, f = s.clientHeight || 1;
-    let v = Math.floor((_ - h) / u) - c;
-    v < 0 && (v = 0);
-    let E = Math.ceil((_ - h + f) / u) + c;
-    E > e && (E = e), E <= v && (E = Math.min(e, v + 1));
-    const S = h + v * u + 'px';
-    i.style.top !== S && (i.style.top = S);
-    const w = v * d, C = Math.min(l.length, E * d);
-    w === p && C === g || function (e, t) {
-      if (e >= g || t <= p) {
+    const g = s.scrollTop, f = s.clientHeight || 1;
+    let y = Math.floor((g - p) / m) - c;
+    y < 0 && (y = 0);
+    let b = Math.ceil((g - p + f) / m) + c;
+    b > e && (b = e), b <= y && (b = Math.min(e, y + 1));
+    const w = p + y * m + 'px';
+    i.style.top !== w && (i.style.top = w);
+    const E = y * d, S = Math.min(l.length, b * d);
+    E === _ && S === h || function (e, t) {
+      if (e >= h || t <= _) {
         i.textContent = '';
         for (let n = e; n < t; n++)
           i.appendChild(a(l[n], n));
-        return p = e, void (g = t);
+        return _ = e, void (h = t);
       }
-      const n = Math.max(p, e), o = Math.min(g, t);
-      for (let e = p; e < n; e++)
+      const n = Math.max(_, e), o = Math.min(h, t);
+      for (let e = _; e < n; e++)
         i.firstElementChild?.remove();
-      for (let e = o; e < g; e++)
+      for (let e = o; e < h; e++)
         i.lastElementChild?.remove();
       for (let t = n - 1; t >= e; t--)
         i.prepend(a(l[t], t));
       for (let e = o; e < t; e++)
         i.appendChild(a(l[e], e));
-      p = e, g = t;
-    }(w, C), o && _ + f >= h + t - f && o();
+      _ = e, h = t;
+    }(E, S), o && g + f >= p + t - f && o();
   }
   return s.addEventListener('scroll', function () {
-    _ || (_ = !0, requestAnimationFrame(() => {
-      _ = !1, v();
+    g || (g = !0, requestAnimationFrame(() => {
+      g = !1, y();
     }));
   }, { passive: !0 }), window.addEventListener('resize', () => {
     if (!l.length || s.classList.contains('flow'))
       return;
     if (!i.firstElementChild)
-      return u = 0, void (d = 0);
-    const e = u > 0 ? Math.floor(Math.max(0, s.scrollTop - h) / u) * d : 0;
-    u = 0, d = 0, i.textContent = '', p = 0, g = 0, y(), u > 0 && (s.scrollTop = h + Math.floor(e / d) * u), v();
+      return m = 0, void (d = 0);
+    const e = m > 0 ? Math.floor(Math.max(0, s.scrollTop - p) / m) * d : 0;
+    m = 0, d = 0, i.textContent = '', _ = 0, h = 0, v(), m > 0 && (s.scrollTop = p + Math.floor(e / d) * m), y();
   }), {
     setItems(e) {
-      l = e || [], g > l.length && (i.textContent = '', p = 0, g = 0), v();
+      l = e || [], h > l.length && (i.textContent = '', _ = 0, h = 0), y();
     },
     restore(e) {
       if (!l.length)
         return;
-      if (y(), !u)
+      if (v(), !m)
         return;
-      const t = Math.ceil(l.length / d), n = Math.max(0, t * u - m);
+      const t = Math.ceil(l.length / d), n = Math.max(0, t * m - u);
       r.style.height = n + 'px';
-      const a = Math.max(0, 2 * h + n - s.clientHeight);
-      s.scrollTop = Math.min(e || 0, a), v();
+      const a = Math.max(0, 2 * p + n - s.clientHeight);
+      s.scrollTop = Math.min(e || 0, a), y();
     },
     clear() {
-      i.textContent = '', p = 0, g = 0;
+      i.textContent = '', _ = 0, h = 0;
     },
     reset() {
-      l = [], i.textContent = '', r.style.height = '', i.style.top = '', u = 0, d = 0, p = 0, g = 0;
+      l = [], i.textContent = '', r.style.height = '', i.style.top = '', m = 0, d = 0, _ = 0, h = 0;
     },
     enterFlow() {
       s.classList.add('flow'), i.style.top = '', r.style.height = '';
@@ -1129,13 +2365,17 @@ async function getEffects(e = 1, t = null) {
 }
 const _effectsVirt = _makeGridVirtualizer('effectsGridWrap', 'effectsGridSizer', 'effectsGrid', e => _buildEffectButton(e.title, e.src), () => _loadEffectsPage());
 function openEffects() {
-  _activateAtlasScreen('effectsScreen');
-  const e = document.getElementById('effectsScreen'), t = e.classList.contains('open');
-  e.classList.add('open'), t || _genie(e, 'navEffects', !0), _effectsLoaded ? _effectsVirt.isMounted() || (_renderEffectsList(), _effectsVirt.restore(_effectsScrollTop)) : _effectsReload(null);
+  _opmOpen('effects');
 }
 function closeEffects() {
-  const e = document.getElementById('effectsScreen'), t = e.classList.contains('open');
-  _effectsScrollTop = _effectsVirt.scrollTop(), e.classList.remove('open'), t && _genie(e, 'navEffects', !1), setTimeout(() => {
+  _opmClose('effects');
+}
+function _effectsShow() {
+  document.getElementById('effectsScreen').classList.add('open'), _effectsLoaded ? _effectsVirt.isMounted() || (_renderEffectsList(), _effectsVirt.restore(_effectsScrollTop)) : _effectsReload(null);
+}
+function _effectsHide() {
+  const e = document.getElementById('effectsScreen');
+  _effectsScrollTop = _effectsVirt.scrollTop(), e.classList.remove('open'), setTimeout(() => {
     e.classList.contains('open') || (_effectsLoadGen++, _effectsLoading = !1, _effectsVirt.clear());
   }, 520);
 }
@@ -1188,14 +2428,18 @@ function _buildEffectButton(e, t) {
   const i = document.createElementNS(n, 'path');
   i.setAttribute('d', 'M19.07 4.93a10 10 0 0 1 0 14.14'), o.appendChild(s), o.appendChild(r), o.appendChild(i);
   const c = document.createElement('span');
-  c.className = 'effect-title'; c.textContent = e;
+  c.className = 'effect-title';
+  c.textContent = e;
   const l = e.length, d = l <= 6 ? 14 : l <= 12 ? 12 : l <= 20 ? 11 : l <= 30 ? 10 : 9;
   c.style.fontSize = d + 'px';
   const u = document.createElement('div');
-  u.setAttribute('role', 'button'); u.setAttribute('tabindex', '0');
+  u.setAttribute('role', 'button');
+  u.setAttribute('tabindex', '0');
   u.addEventListener('keydown', event => {
     if (event.key === 'Enter' || event.key === ' ') {
-      event.preventDefault(); event.stopPropagation(); _downloadEffect(e, t);
+      event.preventDefault();
+      event.stopPropagation();
+      _downloadEffect(e, t);
     }
   });
   return u.className = 'effect-download effect-action', u.title = 'Download mp3', u.setAttribute('aria-label', 'Download mp3'), u.appendChild(_buildDownloadIcon()), u.onclick = n => {
@@ -1230,7 +2474,7 @@ function _playEffect(e, t) {
       return;
   }
   const n = new Audio(t);
-  n.volume = _effectsVolume, n._effectSrc = t, n.play().catch(() => {
+  n.volume = _effectsVolume, n._effectSrc = t, n._opmTab = activeTab(), n.play().catch(() => {
   }), e.classList.add('playing'), _currentAudio = n, n.onended = () => {
     _currentAudio === n && (_currentAudio = null, _clearPlayingBtns());
   };
@@ -1247,7 +2491,7 @@ _updateVolumeTrack(), document.getElementById('volumeSlider').addEventListener('
   _effectsSearchTimer = setTimeout(() => _effectsReload(e || null), 350);
 });
 let _luminReady = !1, _luminInitPromise = null, _gamesLoaded = !1, _gamesKeyword = null, _gamesSearchTimer = null, _gamesLoadGen = 0, _gamesScrollTop = 0;
-const _gamesImgCache = new WeakMap(), GAMES_CACHE_TTL = 86400000;
+const _gamesImgCache = new WeakMap(), GAMES_CACHE_TTL = 3600000, _gamesCacheTs = {};
 function _migrateOldDBs(e) {
   return localStorage.getItem('O_MIGRATED') ? Promise.resolve() : _oMigratePromise || (_oMigratePromise = ((async () => {
     try {
@@ -1293,13 +2537,15 @@ function _migrateOldDBs(e) {
 }
 function _oDB() {
   return _oDBPromise || (_oDBPromise = new Promise((e, t) => {
-    const n = indexedDB.open('O', 2);
+    const n = indexedDB.open('O', 3);
     n.onupgradeneeded = () => {
       const e = n.result;
-      e.objectStoreNames.contains('cache') || e.createObjectStore('cache'), e.objectStoreNames.contains('chats') || e.createObjectStore('chats', { keyPath: 'id' }), e.objectStoreNames.contains('bookmarks') || e.createObjectStore('bookmarks', { keyPath: 'id' });
+      e.objectStoreNames.contains('cache') || e.createObjectStore('cache'), e.objectStoreNames.contains('chats') || e.createObjectStore('chats', { keyPath: 'id' }), e.objectStoreNames.contains('bookmarks') || e.createObjectStore('bookmarks', { keyPath: 'id' }), e.objectStoreNames.contains('mvies') || e.createObjectStore('mvies', { keyPath: 'id' });
     }, n.onsuccess = () => {
       const t = n.result;
-      _migrateOldDBs(t).then(() => e(t));
+      t.onversionchange = () => {
+        t.close(), _oDBPromise = null;
+      }, _migrateOldDBs(t).then(() => e(t));
     }, n.onerror = () => {
       _oDBPromise = null, t(n.error);
     };
@@ -1311,20 +2557,22 @@ async function _loadGamesCacheEntry(e, t) {
         const o = n.transaction('cache', 'readonly').objectStore('cache').get(e);
         o.onsuccess = () => t(o.result), o.onerror = () => a(o.error);
       });
-    return a && t(a.games) ? Date.now() - a.ts > GAMES_CACHE_TTL ? null : a.games : null;
+    return a && t(a.games) ? Date.now() - a.ts > GAMES_CACHE_TTL ? null : (_gamesCacheTs[e] = a.ts, a.games) : null;
   } catch (t) {
     return console.error('[O] cache load failed:', e, t), null;
   }
 }
 async function _saveGamesCacheEntry(e, t) {
   try {
-    const n = await _oDB();
-    await new Promise((a, o) => {
-      const s = n.transaction('cache', 'readwrite');
-      s.objectStore('cache').put({
-        ts: Date.now(),
+    const n = await _oDB(), a = Date.now();
+    await new Promise((o, s) => {
+      const r = n.transaction('cache', 'readwrite');
+      r.objectStore('cache').put({
+        ts: a,
         games: t
-      }, e), s.oncomplete = a, s.onerror = () => o(s.error);
+      }, e), r.oncomplete = () => {
+        _gamesCacheTs[e] = a, o();
+      }, r.onerror = () => s(r.error);
     });
   } catch (t) {
     console.error('[O] cache save failed:', e, t);
@@ -1374,7 +2622,9 @@ async function _deleteBookmark(e) {
     console.error('[O] bookmark delete failed:', e, t);
   }
 }
-function _repoUrl(repo) { return 'https://cdn.jsdelivr.net/gh/' + repo + '/'; }
+function _repoUrl(repo) {
+  return 'https://cdn.jsdelivr.net/gh/' + repo + '/';
+}
 window._repoUrl = _repoUrl;
 const LUMIN_BLOCKED = /a\.luminsdk\.com/i, P = Array.prototype.push, A = Function.prototype.apply, hit = e => 'string' == typeof e && e.length < 256 && LUMIN_BLOCKED.test(e);
 function _luminPush(e) {
@@ -1401,12 +2651,15 @@ function _withLuminHook(e) {
 }
 let _luminScriptPromise = null;
 function _initLumin() {
-  if (_luminReady) return Promise.resolve();
-  if (!_luminScriptPromise) _luminScriptPromise = _withLuminHook(() => loadScript(getBase() + '/lmnsdk.js'));
+  if (_luminReady)
+    return Promise.resolve();
+  if (!_luminScriptPromise)
+    _luminScriptPromise = _withLuminHook(() => loadScript(getBase() + '/lmnsdk.js'));
   return _luminInitPromise || (_luminInitPromise = _luminScriptPromise.then(() => _withLuminHook(() => Lumin.init({ headless: !0 }))).then(() => {
     _luminReady = !0;
   }).catch(error => {
-    _luminInitPromise = null; _luminScriptPromise = null;
+    _luminInitPromise = null;
+    _luminScriptPromise = null;
     throw error;
   }), _luminInitPromise);
 }
@@ -1523,6 +2776,9 @@ function _finalizeGamesCatalog(e) {
   return e.sort((e, n) => t.compare(e.displayName, n.displayName)), e;
 }
 async function _ensureGamesCatalog() {
+  await _loadGamesCatalog(), _gamesState.matches = _filterByName(_gamesState.all, _gamesKeyword);
+}
+async function _loadGamesCatalog() {
   _gamesState.all || (_gamesState.fetchPromise || (_gamesState.fetchPromise = ((async () => {
     const e = await _loadGamesCacheEntry('games-v2', e => e && 'object' == typeof e);
     let t = !1, n = !1, a = !1, o = !1;
@@ -1533,18 +2789,23 @@ async function _ensureGamesCatalog() {
         e && Array.isArray(e.ugs) ? e.ugs : _fetchNewGames('ugs').catch(() => (a = !0, [])),
         e && Array.isArray(e.ckv) ? e.ckv : _fetchNewGames('ckv').catch(() => (o = !0, []))
       ]), d = { ...e || {} };
-    t || (d.gnm = r), n || (d.seraph = i), a || (d.ugs = c), o || (d.ckv = l), Object.keys(d).length > 0 && await _saveGamesCacheEntry('games-v2', d);
-    const u = new Set(), m = [
-        ...s.filter(e => !u.has(e.id) && (u.add(e.id), !0)),
+    t || (d.gnm = r), n || (d.seraph = i), a || (d.ugs = c), o || (d.ckv = l), [
+      'gnm',
+      'seraph',
+      'ugs',
+      'ckv'
+    ].some(t => d[t] !== e?.[t]) && await _saveGamesCacheEntry('games-v2', d);
+    const m = new Set(), u = [
+        ...s.filter(e => !m.has(e.id) && (m.add(e.id), !0)),
         ...r,
         ...i,
         ...c,
         ...l
       ];
-    _gamesState.all = _finalizeGamesCatalog(m);
+    _gamesState.all = _finalizeGamesCatalog(u);
   })()), _gamesState.fetchPromise.catch(() => {
     _gamesState.fetchPromise = null;
-  })), await _gamesState.fetchPromise), _gamesState.matches = _filterByName(_gamesState.all, _gamesKeyword);
+  })), await _gamesState.fetchPromise);
 }
 function _gameCardImg(e, t) {
   const n = Array.isArray(e) ? e.slice() : [e];
@@ -1583,21 +2844,32 @@ function _buildGameCard(e) {
   const o = document.createElement('span');
   o.textContent = e.name || e.displayName;
   const source = document.createElement('span'), action = document.createElement('span');
-  source.className = 'game-card-source'; source.textContent = e.source;
-  action.className = 'game-card-action'; action.textContent = 'Play';
-  a.appendChild(o); t.append(a, source, action); t.onclick = _gameCardOnClick(e); return t;
+  source.className = 'game-card-source';
+  source.textContent = e.source;
+  action.className = 'game-card-action';
+  action.textContent = 'Play';
+  a.appendChild(o);
+  t.append(a, source, action);
+  t.onclick = _gameCardOnClick(e);
+  return t;
 }
 async function _resolveGameImgSrc(e) {
   if (_gamesImgCache.has(e))
     return _gamesImgCache.get(e);
-  const t = 'lumin' === e.source ? await Lumin.getImageUrl(e.image_token).catch(() => null) : 'cloud' === e.source ? sjEncode(e.cover) : Array.isArray(e.cover) ? e.cover : e.cover.replace('{COVER_URL}', e._covers);
+  const t = 'lumin' === e.source ? imgProxy(await Lumin.getImageUrl(e.image_token).catch(() => null)) : Array.isArray(e.cover) ? e.cover.map(imgProxy) : imgProxy('cloud' === e.source ? e.cover : e.cover.replace('{COVER_URL}', e._covers));
   return t && _gamesImgCache.set(e, t), t;
 }
 function _gameCardOnClick(e) {
+  return () => {
+    const t = activeTab();
+    t && _opmGo(t, _gameUrl(e));
+  };
+}
+function _gameLaunch(e, t) {
   if ('lumin' === e.source)
-    return () => openGamePlayer(e.id);
-  const t = 'gn-math' === e.source ? e._html + '/' + e.url.replace('{HTML_URL}/', '') : e.url;
-  return () => openDirectGame(e.source, e.name, t);
+    return openGamePlayer(e.id, t);
+  const n = 'gn-math' === e.source ? e._html + '/' + e.url.replace('{HTML_URL}/', '') : e.url;
+  return openDirectGame(e.source, e.name, n, t);
 }
 const _gamesVirt = _makeGridVirtualizer('gamesGridWrap', 'gamesGridSizer', 'gamesGrid', e => _buildGameCard(e));
 function _updateGamesCount() {
@@ -1656,13 +2928,22 @@ async function _gamesReload(e) {
   });
 }
 function openGames() {
-  _activateAtlasScreen('gamesScreen');
-  const e = document.getElementById('gamesScreen'), t = e.classList.contains('open');
-  e.classList.add('open'), t || _genie(e, 'navGames', !0), _gamesLoaded ? _gamesVirt.isMounted() || (_renderGamesList(), _gamesVirt.restore(_gamesScrollTop)) : _gamesReload(null);
+  _opmOpen('games');
 }
 function closeGames() {
-  const e = document.getElementById('gamesScreen'), t = e.classList.contains('open');
-  _gamesScrollTop = _gamesVirt.scrollTop(), e.classList.remove('open'), t && _genie(e, 'navGames', !1), setTimeout(() => {
+  _opmClose('games');
+}
+function _gamesShow() {
+  document.getElementById('gamesScreen').classList.add('open');
+  const e = e => Date.now() - (_gamesCacheTs[e] || 0) > GAMES_CACHE_TTL;
+  _cloudGames.length && e('cloudGames') && (_cloudGames = []), _gamesState.all && e('games-v2') && (_gamesState.all = _gamesState.fetchPromise = null, _gamesLoaded = !1), _cloudGames.length || loadCloudGames().then(e => {
+    _cloudGames = e;
+  }).catch(() => {
+  }), _gamesLoaded ? _gamesVirt.isMounted() || (_renderGamesList(), _gamesVirt.restore(_gamesScrollTop)) : _gamesReload(null);
+}
+function _gamesHide() {
+  const e = document.getElementById('gamesScreen');
+  _gamesScrollTop = _gamesVirt.scrollTop(), e.classList.remove('open'), setTimeout(() => {
     e.classList.contains('open') || _gamesVirt.clear();
   }, 520);
 }
@@ -1688,13 +2969,16 @@ function _stopGamepadDetection() {
   const e = document.getElementById('gamePlayerController');
   e && e.classList.add('hidden');
 }
-function _openGamePlayerShell(e) {
-  _gamePlayerGen++;
-  const t = _gamePlayerGen, n = document.getElementById('gamePlayer'), a = document.getElementById('gameFrame'), o = document.getElementById('gamePlayerLoading'), s = document.getElementById('gamePlayerId');
-  return _cloudSession && teardownCloud(!0), document.getElementById('cloudVideoWrap').classList.remove('visible'), _exitStaleFullscreen(_cloudSession ? document.getElementById('cloudVideoWrap') : a), s.textContent = e, a.classList.remove('visible'), a.src = 'about:blank', o.classList.remove('hidden'), o.textContent = 'loading\u2026', n.classList.add('open'), _startGamepadDetection(), {
-    gf: a,
-    loading: o,
-    gen: t
+function _openGamePlayerShell(e, t = activeTab()) {
+  const n = t.gw || _opmGameWrap(t), a = n.querySelector('.game-player-loading');
+  t.gf && t.gf.remove();
+  const o = t.gf = document.createElement('iframe');
+  return o.className = 'opm-gf', o.setAttribute('allow', 'autoplay; fullscreen; pointer-lock; gamepad'), n.appendChild(o), o.addEventListener('load', () => {
+    _opmKeysIn(o.contentWindow), o._skipAd ? o._skipAd = !1 : _injectGameAdBlock(o);
+  }), _audioHook(o.contentWindow, () => t), _opmKeysIn(o.contentWindow), a.classList.remove('hidden'), a.textContent = 'loading\u2026', _startGamepadDetection(), _updateHomeView(), {
+    gf: o,
+    loading: a,
+    gen: t.gameGen
   };
 }
 function _dirOf(e) {
@@ -1704,9 +2988,13 @@ function _dirOf(e) {
 function _withBaseHref(e, t) {
   return /<base[^>]*>/i.test(e) ? e : /<head[^>]*>/i.test(e) ? e.replace(/<head([^>]*)>/i, `<head$1><base href="${ t }">`) : /<html[^>]*>/i.test(e) ? e.replace(/<html([^>]*)>/i, `<html$1><head><base href="${ t }"></head>`) : `<base href="${ t }">` + e;
 }
-function _gameAdBlockInit() {}
-function _ADBLOCKIT(html) { return html; }
-function _injectGameAdBlock() {}
+function _gameAdBlockInit() {
+}
+function _ADBLOCKIT(html) {
+  return html;
+}
+function _injectGameAdBlock() {
+}
 function _unwrapModuleContent(e) {
   const t = e.match(/<Content[^>]*>\s*<!\[CDATA\[([\s\S]*?)\]\]>\s*<\/Content>/i);
   if (t)
@@ -1718,72 +3006,69 @@ function _unwrapModuleContent(e) {
   }
   return e;
 }
-async function openDirectGame(e, t, n) {
+async function openDirectGame(e, t, n, a = activeTab()) {
+  const {
+    gf: o,
+    loading: s,
+    gen: r
+  } = _openGamePlayerShell(`${ e }/${ t }`, a);
+  try {
+    const e = await fetch(n), t = _unwrapModuleContent(await e.text());
+    if (r !== a.gameGen)
+      return;
+    o.onload = () => {
+      r === a.gameGen && (s.classList.add('hidden'), o.classList.add('visible'));
+    };
+    const i = o.contentDocument;
+    i.open(), o._skipAd = !0, i.write(_ADBLOCKIT(_withBaseHref(t, _dirOf(n)))), i.close();
+  } catch (e) {
+    r === a.gameGen && (s.textContent = 'failed to load');
+  }
+}
+function openIframeGame(e, t, n = activeTab()) {
   const {
     gf: a,
     loading: o,
     gen: s
-  } = _openGamePlayerShell(`${ e }/${ t }`);
-  try {
-    const e = await fetch(n), t = _unwrapModuleContent(await e.text());
-    if (s !== _gamePlayerGen)
-      return;
-    a.onload = () => {
-      s === _gamePlayerGen && (o.classList.add('hidden'), a.classList.add('visible'));
-    };
-    const r = a.contentDocument;
-    r.open(), _skipNextGameAdBlockInject = !0, r.write(_ADBLOCKIT(_withBaseHref(t, _dirOf(n)))), r.close();
-  } catch (e) {
-    s === _gamePlayerGen && (o.textContent = 'failed to load');
-  }
+  } = _openGamePlayerShell(e, n);
+  a.onload = () => {
+    s === n.gameGen && (o.classList.add('hidden'), a.classList.add('visible'));
+  }, a.src = t;
 }
-function openIframeGame(e, t) {
+async function openGamePlayer(e, t = activeTab()) {
   const {
     gf: n,
     loading: a,
     gen: o
-  } = _openGamePlayerShell(e);
-  n.onload = () => {
-    o === _gamePlayerGen && (a.classList.add('hidden'), n.classList.add('visible'));
-  }, n.src = t;
-}
-async function openGamePlayer(e) {
-  const {
-    gf: t,
-    loading: n,
-    gen: a
-  } = _openGamePlayerShell(e);
+  } = _openGamePlayerShell(e, t);
   try {
     await _initLumin();
-    const {url: o} = await Lumin.getGameUrl(e), s = await fetch(o), r = await s.text();
-    if (a !== _gamePlayerGen)
+    const {url: s} = await Lumin.getGameUrl(e), r = await fetch(s), i = await r.text();
+    if (o !== t.gameGen)
       return;
-    t.onload = () => {
-      a === _gamePlayerGen && (n.classList.add('hidden'), t.classList.add('visible'));
+    n.onload = () => {
+      o === t.gameGen && (a.classList.add('hidden'), n.classList.add('visible'));
     };
-    const i = t.contentDocument;
-    i.open(), _skipNextGameAdBlockInject = !0, i.write(_ADBLOCKIT(_withBaseHref(r, _dirOf(o)))), i.close();
+    const c = n.contentDocument;
+    c.open(), n._skipAd = !0, c.write(_ADBLOCKIT(_withBaseHref(i, _dirOf(s)))), c.close();
   } catch (e) {
-    a === _gamePlayerGen && (n.textContent = 'failed to load');
+    o === t.gameGen && (a.textContent = 'failed to load');
   }
 }
 function closeGamePlayer() {
-  resetGameCloseConfirm(), _cloudEndedActive = !1, _cloudStarting = !1, _cancelCloudRetry(), _stopGamepadDetection();
-  const e = document.getElementById('gamePlayer'), t = document.getElementById('gameFrame'), n = document.getElementById('cloudVideoWrap'), a = document.getElementById('gamePlayerLoading');
-  e.classList.remove('open'), t.src = 'about:blank', t.classList.remove('visible'), n.classList.remove('visible'), a.classList.remove('hidden'), a.textContent = 'loading\u2026', document.getElementById('gamePlayerId').textContent = '', document.getElementById('gamePlayerTimeLeft').textContent = '';
-  try {
-    Lumin.endGame();
-  } catch (e) {
-  }
-  _cloudEnabled && !_cloudSession && (_gamesState.matches = _filterByName(_cloudGames, _gamesKeyword), _updateGamesCount(), _gamesVirt.setItems(_gamesState.matches));
+  resetGameCloseConfirm(), _cloudEndedActive = !1, _cloudStarting && teardownCloud(!0), _cloudStarting = !1, _cancelCloudRetry();
+  const e = document.getElementById('cloudVideoWrap'), t = document.getElementById('gamePlayerLoading');
+  e.classList.remove('visible'), t.classList.remove('hidden'), t.textContent = 'loading\u2026', document.getElementById('gamePlayerId').textContent = '', document.getElementById('gamePlayerTimeLeft').textContent = '', tabs.some(e => e.gw) || _stopGamepadDetection(), _cloudEnabled && !_cloudSession && (_gamesState.matches = _filterByName(_cloudGames, _gamesKeyword), _updateGamesCount(), _gamesVirt.setItems(_gamesState.matches));
 }
 function _exitStaleFullscreen(e) {
-  document.fullscreenElement && document.fullscreenElement !== e && document.exitFullscreen().catch(() => {
+  _fsInner() && _fsEl() !== e && document.exitFullscreen().catch(() => {
   });
 }
 function toggleGameFullscreen() {
-  const e = _cloudSession ? document.getElementById('cloudVideoWrap') : document.getElementById('gameFrame');
-  document.fullscreenElement ? document.exitFullscreen() : e.requestFullscreen();
+  const e = activeTab(), t = e && e.game && e.game.cloud ? document.getElementById('cloudVideoWrap') : e && e.gf || document.getElementById('gameFrame');
+  _fsInner() ? document.exitFullscreen().catch(() => {
+  }) : t.requestFullscreen().catch(() => {
+  });
 }
 function _lockCloudKeyboard() {
   try {
@@ -1804,7 +3089,8 @@ function toggleControllerMapper() {
 function closeControllerMapper() {
   stopRemapping();
   document.getElementById('controllerMapperModal')?.classList.remove('open');
-  if (_cloudSession) document.getElementById('cloudVideoWrap')?.classList.add('visible');
+  if (_cloudSession)
+    document.getElementById('cloudVideoWrap')?.classList.add('visible');
 }
 function updateMapperUI() {
   const e = document.getElementById('leftStickToggle'), t = document.getElementById('rightStickToggle');
@@ -1814,15 +3100,16 @@ function updateMapperUI() {
       return;
     let o = null;
     'MOUSE_LEFT' === n ? o = 'Mouse Left' : 'MOUSE_RIGHT' === n ? o = 'Mouse Right' : 'MOUSE_MIDDLE' === n ? o = 'Mouse Middle' : n && n.name && (o = n.name), a.textContent = o || '-', e.classList.toggle('mapped', !!o), e.classList.toggle('unmapped', !o);
-    e.setAttribute('role', 'button'); e.setAttribute('tabindex', '0');
-    e.setAttribute('aria-label', `${e.querySelector('.cm-name')?.textContent || 'Controller button'}: ${o || 'unmapped'}. Press Enter to remap.`);
+    e.setAttribute('role', 'button');
+    e.setAttribute('tabindex', '0');
+    e.setAttribute('aria-label', `${ e.querySelector('.cm-name')?.textContent || 'Controller button' }: ${ o || 'unmapped' }. Press Enter to remap.`);
   });
 }
 document.getElementById('gameFrame').addEventListener('load', function () {
   _skipNextGameAdBlockInject ? _skipNextGameAdBlockInject = !1 : _injectGameAdBlock(this);
 }), document.addEventListener('fullscreenchange', function () {
   const e = document.getElementById('gamePlayerFsIcon');
-  e && (e.innerHTML = document.fullscreenElement ? '<path d="M8 3v3a2 2 0 0 1-2 2H3M21 8h-3a2 2 0 0 1-2-2V3M3 16h3a2 2 0 0 1 2 2v3M16 21v-3a2 2 0 0 1 2-2h3"/>' : '<path d="M8 3H5a2 2 0 0 0-2 2v3M21 8V5a2 2 0 0 0-2-2h-3M3 16v3a2 2 0 0 0 2 2h3M16 21h3a2 2 0 0 0 2-2v-3"/>'), _cloudSession && (document.fullscreenElement ? _lockCloudKeyboard() : _unlockCloudKeyboard());
+  e && (e.innerHTML = document.fullscreenElement ? '<path d="M8 3v3a2 2 0 0 1-2 2H3M21 8h-3a2 2 0 0 1-2-2V3M3 16h3a2 2 0 0 1 2 2v3M16 21v-3a2 2 0 0 1 2-2h3"/>' : '<path d="M8 3H5a2 2 0 0 0-2 2v3M21 8V5a2 2 0 0 0-2-2h-3M3 16v3a2 2 0 0 0 2 2h3M16 21h3a2 2 0 0 0 2-2v-3"/>'), _cloudSession && (_fsEl() === document.getElementById('cloudVideoWrap') ? _lockCloudKeyboard() : _unlockCloudKeyboard());
 }, !0);
 const _uiRoot = 'undefined' != typeof shadowRoot && shadowRoot || document;
 _uiRoot.addEventListener('click', e => {
@@ -1833,13 +3120,6 @@ _uiRoot.addEventListener('click', e => {
   n && startRemapping(n);
 });
 let remappingButton = null, remappingCleanup = null;
-_uiRoot.addEventListener('keydown', event => {
-  const row = event.target?.closest?.('.button-map');
-  if (!row || event.target?.closest?.('.cm-trash') || remappingButton) return;
-  if (event.key === 'Enter' || event.key === ' ') {
-    event.preventDefault(); event.stopPropagation(); startRemapping(row);
-  }
-});
 const _CAP = { capture: !0 }, _KEY_LABELS = {
     ' ': 'Space',
     ArrowUp: '\u2191',
@@ -1911,7 +3191,7 @@ document.getElementById('gamesSearch').addEventListener('input', function () {
   const e = this.value.trim();
   _gamesSearchTimer = setTimeout(() => _gamesReload(e || null), 350);
 });
-let _cloudEnabled = !1, _cloudGames = [], _cloudSession = null, _cloudPc = null, _cloudDc = null, _cloudWs = null, _cloudTimers = [], _cloudInputActive = !1, _cloudInputHandlers = null, _cloudStarting = !1, _cloudJitterHandlers = null, _cloudEndedActive = !1, _cloudPendingCandidates = [], _cloudMicStreamPromise = null, _cloudRelay = null, _cloudRetry = null;
+let _cloudEnabled = !1, _cloudGames = [], _cloudSession = null, _cloudPc = null, _cloudDc = null, _cloudWs = null, _cloudTimers = [], _cloudInputActive = !1, _cloudInputHandlers = null, _cloudStarting = !1, _cloudStartId = 0, _cloudJitterHandlers = null, _cloudEndedActive = !1, _cloudPendingCandidates = [], _cloudMicStreamPromise = null, _cloudRelay = null, _cloudRetry = null;
 const DEFAULT_CONTROLLER_MAP = {
   buttons: {
     0: {
@@ -2009,7 +3289,8 @@ const saveControllerMap = () => {
   }
 };
 function getBase() {
-  if (window.atlasServiceBase) return window.atlasServiceBase;
+  if (window.atlasServiceBase)
+    return window.atlasServiceBase;
   let e;
   return e = window.devMode ? window.serverList?.[0] || 'cdn.vipersfutbol.com' : window.wlspServer?.includes('://') ? window.wlspServer.split('://')[1].split('/')[0] : 'cdn.vipersfutbol.com', e.includes('://') ? e.replace('/wi/', '') : `https://${ e }`;
 }
@@ -2066,7 +3347,7 @@ function _quitCloudSession(e) {
   });
 }
 function teardownCloud(e) {
-  if (e && _cloudSession && _quitCloudSession(_cloudSession.uuid), _cloudInputActive = !1, _cloudStarting = !1, _unlockCloudKeyboard(), _cloudInputHandlers) {
+  if (e && _cloudSession && _quitCloudSession(_cloudSession.uuid), _cloudStartId++, _cloudInputActive = !1, _cloudStarting = !1, _unlockCloudKeyboard(), _cloudInputHandlers) {
     const {
       mouseMoveHandler: e,
       mouseButtonHandler: t,
@@ -2079,9 +3360,9 @@ function teardownCloud(e) {
       pointerLockChangeHandler: c,
       relockHint: l,
       invalidateRect: d,
-      gamepadState: u
+      gamepadState: m
     } = _cloudInputHandlers;
-    document.removeEventListener('mousemove', e), document.removeEventListener('mousedown', t), document.removeEventListener('mouseup', t), document.removeEventListener('contextmenu', n), document.removeEventListener('wheel', a), i.removeEventListener('click', o), document.removeEventListener('keydown', s, !0), document.removeEventListener('keyup', r, !0), document.removeEventListener('pointerlockchange', c), window.removeEventListener('resize', d), l.removeEventListener('click', o), l.classList.remove('visible'), u && u.pollInterval && (clearInterval(u.pollInterval), u.pollInterval = null, u.connected.clear()), _cloudInputHandlers = null;
+    document.removeEventListener('mousemove', e), document.removeEventListener('mousedown', t), document.removeEventListener('mouseup', t), document.removeEventListener('contextmenu', n), document.removeEventListener('wheel', a), i.removeEventListener('click', o), document.removeEventListener('keydown', s, !0), document.removeEventListener('keyup', r, !0), document.removeEventListener('pointerlockchange', c), window.removeEventListener('resize', d), l.removeEventListener('click', o), l.classList.remove('visible'), m && m.pollInterval && (clearInterval(m.pollInterval), m.pollInterval = null, m.connected.clear()), _cloudInputHandlers = null;
   }
   if (_cloudJitterHandlers) {
     const {
@@ -2130,6 +3411,7 @@ async function loadCloudGames() {
     }));
     return await _saveGamesCacheEntry('cloudGames', t), t;
   })()), _cloudGamesFetchPromise.catch(() => {
+  }).then(() => {
     _cloudGamesFetchPromise = null;
   })), _cloudGamesFetchPromise);
 }
@@ -2141,22 +3423,20 @@ function _poolDown(e) {
   return !!e?.pool?.health?.down;
 }
 async function _checkCloudPool() {
-  const status = await _stratusPeek('status');
-  const unavailable = !status.pool || _poolDown(status);
-  const toggle = document.getElementById('cloudToggle');
-  toggle.title = unavailable ? 'Cloud games are temporarily unavailable. Click to retry.' : 'Cloud games';
-  toggle.setAttribute('aria-label', toggle.title);
-  if (unavailable && _cloudEnabled) toggleCloudGames();
-  return !unavailable;
+  const e = _poolDown(await _stratusPeek('status')), t = document.getElementById('cloudToggle');
+  return t.classList.toggle('down', e), t.parentElement.title = e ? _POOL_DOWN_MSG : '', e && _cloudEnabled && toggleCloudGames(), !e;
 }
 async function startCloudGame(e, t, n) {
   if (_cloudStarting)
     return;
-  resetGameCloseConfirm(), teardownCloud(!0), _cloudStarting = !0, _gamePlayerGen++;
-  const a = document.getElementById('gamePlayer'), o = document.getElementById('gameFrame'), s = document.getElementById('cloudVideoWrap'), r = document.getElementById('cloudVideo'), i = document.getElementById('cloudOverlay'), c = document.getElementById('gamePlayerLoading');
-  document.getElementById('gamePlayerId').textContent = `cloud/${ t }`, document.getElementById('gamePlayerTimeLeft').textContent = '', _exitStaleFullscreen(s), o.classList.remove('visible'), o.src = 'about:blank', c.classList.add('hidden'), s.classList.add('visible'), r.srcObject = null, r.muted = !0, i.classList.remove('hidden'), a.classList.add('open');
+  resetGameCloseConfirm(), teardownCloud(!0), _cloudStarting = !0;
+  const a = ++_cloudStartId, o = () => a !== _cloudStartId;
+  _gamePlayerGen++;
+  document.getElementById('gamePlayer');
+  const s = document.getElementById('gameFrame'), r = document.getElementById('cloudVideoWrap'), i = document.getElementById('cloudVideo'), c = document.getElementById('cloudOverlay'), l = document.getElementById('gamePlayerLoading');
+  document.getElementById('gamePlayerId').textContent = `cloud/${ t }`, document.getElementById('gamePlayerTimeLeft').textContent = '', _exitStaleFullscreen(r), s.classList.remove('visible'), s.src = 'about:blank', l.classList.add('hidden'), r.classList.add('visible'), i.srcObject = null, i.muted = !0, c.classList.remove('hidden'), _updateHomeView();
   try {
-    if (void 0 === n && (setCloudPhase('checking', 'testing your connection', !0), n = await _cloudWantsRelay(), !_cloudStarting))
+    if (void 0 === n && (setCloudPhase('checking', 'testing your connection', !0), n = await _cloudWantsRelay(), o()))
       return;
     if (n && !_hasWebCodecs()) {
       if (_webrtcBlocked())
@@ -2165,60 +3445,70 @@ async function startCloudGame(e, t, n) {
     }
     _cloudMicStreamPromise = n ? null : navigator.mediaDevices.getUserMedia({ audio: !0 }).catch(() => null);
     const a = await _stratusPeek('status');
+    if (o())
+      return;
     if (_poolDown(a))
       throw new Error(_POOL_DOWN_MSG);
     if (setCloudPhase('requesting game', `${ a.pool?.idle || 0 } idle accounts`, !0), n) {
       const n = await _stratusPeek('relay/status');
+      if (o())
+        return;
       if (!1 === n.ok)
         return _cloudSlotsBusy({ retry_after: n.retryAfter }, e, t);
     }
-    const o = await _createCloudSession(e, n);
-    if ('POOL_EXHAUSTED' === o.code && o.pool_down)
+    const s = await _createCloudSession(e, n);
+    if (o())
+      return void (s.uuid && _quitCloudSession(s.uuid));
+    if ('RATE_LIMITED' === s.code || 'TOO_MANY_SESSIONS' === s.code)
+      return _cloudLimited(s, a.config, e, t, n);
+    if ('POOL_EXHAUSTED' === s.code && s.pool_down)
       throw new Error(_POOL_DOWN_MSG);
-    if (o.error)
-      throw o.uuid && _quitCloudSession(o.uuid), new Error(o.error);
+    if (s.error)
+      throw s.uuid && _quitCloudSession(s.uuid), new Error(s.error);
     if (_cloudSession = {
-        uuid: o.uuid,
-        state: o.state,
+        uuid: s.uuid,
+        state: s.state,
         gameKey: e,
         gameName: t,
         relay: n,
         deadlineAt: null
-      }, 'queued' === o.state) {
-      for (setCloudPhase('queued', `position #${ o.queue_pos ?? '?' }`, !1); _cloudSession && _cloudSession.uuid === o.uuid && (await new Promise(e => _cloudTimers.push(setTimeout(e, 2000))), _cloudSession && _cloudSession.uuid === o.uuid);) {
+      }, 'queued' === s.state) {
+      for (setCloudPhase('queued', `position #${ s.queue_pos ?? '?' }`, !1); _cloudSession && _cloudSession.uuid === s.uuid && (await new Promise(e => _cloudTimers.push(setTimeout(e, 2000))), _cloudSession && _cloudSession.uuid === s.uuid);) {
         const e = await stratusApi(`session/${ _cloudSession.uuid }`);
+        if (o())
+          return;
         if (e.error)
           throw new Error(e.error);
         if ('finished_queue' === e.state)
           break;
         setCloudPhase('queued', `position #${ e.queue_pos ?? '?' }`, !1);
       }
-      if (!_cloudSession || _cloudSession.uuid !== o.uuid)
+      if (!_cloudSession || _cloudSession.uuid !== s.uuid)
         return;
     }
     setCloudPhase('starting', 'booting instance', !0);
-    const s = await stratusApi(`session/${ _cloudSession.uuid }/start`, 'POST', {});
-    if (s.error)
-      throw new Error(s.error);
-    _cloudSession.deadlineAt = Date.now() + 1000 * s.max_seconds, _cloudSession.signalingWs = s.signaling_ws, _cloudSession.iceServers = s.ice_servers, _saveIceServers(s.ice_servers), _cloudSession.relay = !!s.relay, s.relay ? await startCloudRelay() : await connectCloudSignaling(s.signaling_ws, s.ice_servers);
-    const r = setInterval(() => {
+    const r = await stratusApi(`session/${ _cloudSession.uuid }/start`, 'POST', {});
+    if (o())
+      return;
+    if (r.error)
+      throw new Error(r.error);
+    if (_cloudSession.deadlineAt = Date.now() + 1000 * r.max_seconds, _cloudSession.signalingWs = r.signaling_ws, _cloudSession.iceServers = r.ice_servers, _saveIceServers(r.ice_servers), _cloudSession.relay = !!r.relay, r.relay ? await startCloudRelay() : await connectCloudSignaling(r.signaling_ws, r.ice_servers), o())
+      return;
+    const i = setInterval(() => {
       if (!_cloudSession || !_cloudSession.deadlineAt)
         return;
       const e = Math.max(0, Math.round((_cloudSession.deadlineAt - Date.now()) / 1000));
       document.getElementById('gamePlayerTimeLeft').textContent = `${ Math.floor(e / 60) }:${ String(e % 60).padStart(2, '0') }`;
     }, 500);
-    _cloudTimers.push(r);
+    _cloudTimers.push(i);
   } catch (e) {
+    if (o())
+      return;
     _cloudSession && _quitCloudSession(_cloudSession.uuid), _cloudSession = null, setCloudPhase('error', e.message, !1), _cloudStarting = !1;
   }
 }
-document.getElementById('cloudToggle').addEventListener('click', async () => {
-  if (_cloudEnabled || await _checkCloudPool()) {
-    toggleCloudGames();
-    if (_cloudEnabled) _cloudWantsRelay();
-  } else {
-    alert(_POOL_DOWN_MSG);
-  }
+document.getElementById('cloudToggle').addEventListener('click', () => {
+  toggleCloudGames(), _cloudEnabled && (_cloudWantsRelay(), _checkCloudPool());
 });
 const SOCKET_RECONNECT_DELAY_MS = 2000, SOCKET_RECONNECT_MAX_TRIES = 2;
 function connectCloudSignaling(e, t, n) {
@@ -2394,8 +3684,8 @@ async function createCloudPeer(e) {
       }, 15000), _cloudTimers.push(c);
     };
   t.addEventListener('waiting', d), t.addEventListener('stalled', d);
-  let u = null, m = null;
-  const h = setInterval(async () => {
+  let m = null, u = null;
+  const p = setInterval(async () => {
     if (!_cloudPc || _cloudPc !== a)
       return;
     let e;
@@ -2408,11 +3698,11 @@ async function createCloudPeer(e) {
     e.forEach(e => {
       'candidate-pair' === e.type && 'succeeded' === e.state && 'number' == typeof e.currentRoundTripTime && (t = 1000 * e.currentRoundTripTime), 'inbound-rtp' === e.type && 'video' === e.kind && ('number' == typeof e.jitter && (n = 1000 * e.jitter), 'number' == typeof e.packetsLost && (o = e.packetsLost), 'number' == typeof e.freezeCount && (s = e.freezeCount));
     });
-    const r = null !== o && null !== u ? o - u : 0;
-    u = o, m = s;
+    const r = null !== o && null !== m ? o - m : 0;
+    m = o, u = s;
     (null !== t && t > 150 || null !== n && n > 40 || r > 0) && d();
   }, 3000);
-  _cloudTimers.push(h), _cloudJitterHandlers = {
+  _cloudTimers.push(p), _cloudJitterHandlers = {
     video: t,
     bumpJitterTarget: d
   }, _cloudPc.ontrack = e => {
@@ -2423,36 +3713,30 @@ async function createCloudPeer(e) {
       candidate: e.candidate.toJSON()
     });
   };
-  let p = null;
-  const g = () => {
-    p && (clearTimeout(p), p = null);
+  let _ = null;
+  const h = () => {
+    _ && (clearTimeout(_), _ = null);
   };
-  const connectionDeadline = setTimeout(() => {
-    if (_cloudPc !== a || a.connectionState === 'connected') return;
-    if (!_cloudInputActive && _cloudWebrtcFailed()) return;
-    showCloudEndedScreen('connection timed out', 'The stream could not connect. Please try again.');
-  }, 25000);
-  _cloudTimers.push(connectionDeadline);
   a.onconnectionstatechange = () => {
     if (_cloudPc !== a)
       return;
     const e = a.connectionState;
     if ('connected' === e)
-      return clearTimeout(connectionDeadline), g(), t.muted = !1, t.play().catch(() => {
+      return h(), t.muted = !1, t.play().catch(() => {
       }), void _cloudLive();
     if ('disconnected' !== e) {
       if ([
           'failed',
           'closed'
         ].includes(e)) {
-        if (g(), !_cloudInputActive && _cloudWebrtcFailed())
+        if (h(), !_cloudInputActive && _cloudWebrtcFailed())
           return;
         showCloudEndedScreen('session ended', 'lost connection to the stream');
       }
     } else
-      p || (p = setTimeout(() => {
+      _ || (_ = setTimeout(() => {
         _cloudPc === a && 'disconnected' === a.connectionState && endCloudGame();
-      }, 6000), _cloudTimers.push(p));
+      }, 6000), _cloudTimers.push(_));
   };
   try {
     const e = _cloudMicStreamPromise && await _cloudMicStreamPromise;
@@ -2462,10 +3746,10 @@ async function createCloudPeer(e) {
     }
   } catch {
   }
-  const _ = await _cloudPc.createOffer();
-  await _cloudPc.setLocalDescription(_), cloudSigSend({
+  const g = await _cloudPc.createOffer();
+  await _cloudPc.setLocalDescription(g), cloudSigSend({
     type: 'rtc_offer',
-    sdp: _.sdp
+    sdp: g.sdp
   }), _cloudTimers.push(setTimeout(() => {
     _cloudPc !== a || _cloudInputActive || _cloudWebrtcFailed();
   }, 45000));
@@ -2481,7 +3765,7 @@ function _webrtcBlocked() {
   }
 }
 function _cloudLive() {
-  document.getElementById('cloudOverlay').classList.add('hidden'), _cloudInputActive = !0, _cloudStarting = !1, setupCloudInput(), document.fullscreenElement && _lockCloudKeyboard();
+  document.getElementById('cloudOverlay').classList.add('hidden'), _cloudInputActive = !0, _cloudStarting = !1, setupCloudInput(), _fsEl() === document.getElementById('cloudVideoWrap') && _lockCloudKeyboard();
 }
 function _saveIceServers(e) {
   if (e?.length)
@@ -2580,27 +3864,59 @@ function _cloudWebrtcFailed() {
     a.onclick = null;
   }, !0;
 }
-function _cloudSlotsBusy(e, t, n) {
+function _cloudSlotsBusy(e, t, n, a = !0) {
   teardownCloud(!0), document.getElementById('cloudVideoWrap').classList.add('visible');
-  const a = document.getElementById('cloudOverlay');
-  a.classList.remove('hidden');
-  const o = Math.max(1, Math.min(1140, Math.round(e.retry_after) || 30)), s = Date.now() + 1000 * o, r = e.message || `Your WebRTC is blocked/disabled. The serverside transport slots are exhausted, please come back in about ${ o } seconds`, i = () => {
-      const e = Math.ceil((s - Date.now()) / 1000);
-      if (e > 0)
-        return setCloudPhase(`slots busy, retry in ${ e }s`, r, !1);
-      clearInterval(c), setCloudPhase('click to retry', r, !1), a.onclick = () => {
-        a.onclick = null, startCloudGame(t, n, !0);
+  const o = document.getElementById('cloudOverlay');
+  o.classList.remove('hidden');
+  const s = Math.max(1, Math.min(1140, Math.round(e.retry_after) || 30)), r = Date.now() + 1000 * s, i = e.message || `Your WebRTC is blocked/disabled. The serverside transport slots are exhausted, please come back in about ${ s } seconds`, c = () => {
+      const s = Math.ceil((r - Date.now()) / 1000);
+      if (s > 0)
+        return setCloudPhase(`${ e.label || 'slots busy' }, retry in ${ s }s`, i, !1);
+      clearInterval(l), setCloudPhase('click to retry', i, !1), o.onclick = () => {
+        o.onclick = null, startCloudGame(t, n, a);
       };
-    }, c = setInterval(i, 1000);
+    }, l = setInterval(c, 1000);
   _cloudRetry = () => {
-    clearInterval(c), a.onclick = null;
-  }, i();
+    clearInterval(l), o.onclick = null;
+  }, c();
+}
+function _cloudLimited(e, t, n, a, o) {
+  if ('RATE_LIMITED' === e.code)
+    return _cloudSlotsBusy({
+      label: 'starting too fast',
+      retry_after: e.retry_after || t?.session_refill_seconds,
+      message: 'You are starting games too quickly. Wait for the timer, then click here to try again.'
+    }, n, a, o);
+  teardownCloud(!0);
+  const s = e.limit ?? t?.sessions_per_ip, r = null != e.active && null != s ? `${ e.active } of ${ s } games are` : 'Too many games are';
+  document.getElementById('cloudVideoWrap').classList.add('visible');
+  const i = document.getElementById('cloudOverlay');
+  i.classList.remove('hidden'), setCloudPhase('too many games', `${ r } already running from your network. Close a game, then click here to try again.`, !1), i.onclick = () => {
+    i.onclick = null, startCloudGame(n, a, o);
+  }, _cloudRetry = () => {
+    i.onclick = null;
+  };
 }
 function _cancelCloudRetry() {
   _cloudRetry && _cloudRetry(), _cloudRetry = null;
 }
 function _cloudOpen() {
   return _cloudRelay ? 1 === _cloudWs?.readyState : 'open' === _cloudDc?.readyState;
+}
+function _cloudGate(e) {
+  if (!_cloudTab || _cloudTab.id !== activeTabId)
+    return !1;
+  const t = document.getElementById('cloudVideo');
+  if (!e || document.pointerLockElement === t || _uiRoot.pointerLockElement === t)
+    return !0;
+  if ('keyup' === e.type || 'mouseup' === e.type)
+    return !0;
+  if ('keydown' === e.type) {
+    const e = _uiRoot.activeElement;
+    return !(e && (e.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(e.tagName)));
+  }
+  const n = document.getElementById('cloudVideoWrap').getBoundingClientRect();
+  return e.clientX >= n.left && e.clientX < n.right && e.clientY >= n.top && e.clientY < n.bottom;
 }
 function _cloudSend(e) {
   try {
@@ -2629,53 +3945,53 @@ function startCloudRelay() {
       dropped: 0,
       errors: 0
     };
-  let u, m, h, p, g, _ = !0, f = !1, y = !1, v = null, E = 0, S = 0, w = 0;
-  const C = e => {
-      1 === u?.readyState && u.send(JSON.stringify(e));
-    }, b = () => C({ type: 'relay_keyframe_request' }), k = (e, a, o) => 'RELAY_SLOTS_EXHAUSTED' === e || 'RELAY_DENIED' === e ? _cloudSlotsBusy({
+  let m, u, p, _, h, g = !0, f = !1, v = !1, y = null, b = 0, w = 0, E = 0;
+  const S = e => {
+      1 === m?.readyState && m.send(JSON.stringify(e));
+    }, k = () => S({ type: 'relay_keyframe_request' }), C = (e, a, o) => 'RELAY_SLOTS_EXHAUSTED' === e || 'RELAY_DENIED' === e ? _cloudSlotsBusy({
       message: a,
       retry_after: o
     }, t, n) : showCloudEndedScreen('TIME_UP' === e ? 'time is up' : 'session ended', a);
-  function I() {
-    m = new VideoDecoder({
+  function T() {
+    u = new VideoDecoder({
       output: e => {
         d.decoded++, c.length >= 30 && (c.shift().close(), d.dropped++), c.push(e);
       },
       error: () => {
-        d.errors++, _ = !0, I(), b();
+        d.errors++, g = !0, T(), k();
       }
-    }), m.configure(h), l.splice(0).forEach(M);
+    }), u.configure(p), l.splice(0).forEach(M);
   }
   function M(e) {
-    if ('configured' !== m?.state)
+    if ('configured' !== u?.state)
       return void (l.push(e) > 90 && l.shift());
     const t = 'key' === e.type;
-    if (!_ || t) {
-      if (m.decodeQueueSize > 30)
-        return _ = !0, d.dropped++, void b();
+    if (!g || t) {
+      if (u.decodeQueueSize > 30)
+        return g = !0, d.dropped++, void k();
       try {
-        m.decode(e), t && (_ = !1);
+        u.decode(e), t && (g = !1);
       } catch {
-        d.errors++, _ = !0, b();
+        d.errors++, g = !0, k();
       }
     }
   }
-  function L() {
-    if (!v)
+  function x() {
+    if (!y)
       return null;
-    const e = v.pts + 1000 * (performance.now() - v.at), t = g ? S - g.currentTime : 0;
-    if ('running' === g?.state && t > 0.02 && t < 0.25) {
-      const n = Math.max(-100000, Math.min(100000, w - 1000000 * t - e));
-      E += 0.05 * (n - E);
+    const e = y.pts + 1000 * (performance.now() - y.at), t = h ? w - h.currentTime : 0;
+    if ('running' === h?.state && t > 0.02 && t < 0.25) {
+      const n = Math.max(-100000, Math.min(100000, E - 1000000 * t - e));
+      b += 0.05 * (n - b);
     } else
-      E *= 0.9;
-    return e + E;
+      b *= 0.9;
+    return e + b;
   }
-  function A() {
-    if (y)
+  function L() {
+    if (v)
       return;
-    requestAnimationFrame(A);
-    const e = L();
+    requestAnimationFrame(L);
+    const e = x();
     if (null == e)
       return;
     const t = [];
@@ -2686,12 +4002,12 @@ function startCloudRelay() {
     const n = t.pop();
     t.forEach(e => {
       e.close(), d.dropped++;
-    }), e - n.timestamp > i && (d.dropped += c.length, c.splice(0).forEach(e => e.close()), b()), o.width !== n.displayWidth && (o.width = n.displayWidth, o.height = n.displayHeight), s.drawImage(n, 0, 0), n.close(), d.drawn++, f || (f = !0, _cloudLive());
+    }), e - n.timestamp > i && (d.dropped += c.length, c.splice(0).forEach(e => e.close()), k()), o.width !== n.displayWidth && (o.width = n.displayWidth, o.height = n.displayHeight), s.drawImage(n, 0, 0), n.close(), d.drawn++, f || (f = !0, _cloudLive());
   }
-  async function x(e) {
+  async function I(e) {
     const t = e.video || {}, n = e.audio || {};
     if (!t.codec)
-      return k('DECODER_UNSUPPORTED', 'the relay did not report a video codec');
+      return C('DECODER_UNSUPPORTED', 'the relay did not report a video codec');
     const a = {
       codec: t.codec,
       optimizeForLatency: !0
@@ -2706,39 +4022,39 @@ function startCloudRelay() {
         hardwareAcceleration: e
       };
       if ((await VideoDecoder.isConfigSupported(t).catch(() => null))?.supported) {
-        h = t;
+        p = t;
         break;
       }
     }
-    if (!y) {
-      if (!h)
-        return k('DECODER_UNSUPPORTED', 'this browser cannot decode the relay video');
-      I();
+    if (!v) {
+      if (!p)
+        return C('DECODER_UNSUPPORTED', 'this browser cannot decode the relay video');
+      T();
       try {
-        o = n.sampleRate || 48000, s = n.channels || 2, g = new (window.AudioContext || window.webkitAudioContext)({
+        o = n.sampleRate || 48000, s = n.channels || 2, h = new (window.AudioContext || window.webkitAudioContext)({
           sampleRate: o,
           latencyHint: 'interactive'
-        }), g.resume().catch(() => {
-        }), p = new AudioDecoder({
+        }), h.resume().catch(() => {
+        }), _ = new AudioDecoder({
           output: e => {
             try {
-              let t = S - g.currentTime;
-              if (t <= 0 && (S = g.currentTime + 0.02, t = 0.02), t > 0.5)
+              let t = w - h.currentTime;
+              if (t <= 0 && (w = h.currentTime + 0.02, t = 0.02), t > 0.5)
                 return;
-              const n = g.createBuffer(2, e.numberOfFrames, o);
+              const n = h.createBuffer(2, e.numberOfFrames, o);
               for (let t = 0; t < 2; t++)
                 e.copyTo(n.getChannelData(t), {
                   planeIndex: Math.min(t, e.numberOfChannels - 1),
                   format: 'f32-planar'
                 });
-              const a = g.createBufferSource();
-              a.buffer = n, a.connect(g.destination), a.start(S), S += n.duration, w = e.timestamp + 1000000 * n.duration;
+              const a = h.createBufferSource();
+              a.buffer = n, a.connect(h.destination), a.start(w), w += n.duration, E = e.timestamp + 1000000 * n.duration;
             } finally {
               e.close();
             }
           },
           error: () => d.errors++
-        }), p.configure({
+        }), _.configure({
           codec: 'opus',
           sampleRate: o,
           numberOfChannels: s
@@ -2746,48 +4062,48 @@ function startCloudRelay() {
       } catch {
       }
       var o, s;
-      C({ type: 'relay_client_ready' }), A();
+      S({ type: 'relay_client_ready' }), L();
     }
   }
-  function T() {
-    const e = L();
-    C({
+  function A() {
+    const e = x();
+    S({
       type: 'relay_stat',
       decoded: d.decoded,
       drawn: d.drawn,
       dropped: d.dropped,
       queue: c.length,
-      buffer_ms: g ? Math.round(1000 * Math.max(0, S - g.currentTime)) : 0,
+      buffer_ms: h ? Math.round(1000 * Math.max(0, w - h.currentTime)) : 0,
       hidden: document.hidden,
       clock_us: null == e ? null : Math.round(e),
       delay_us: r,
       decode_errors: d.errors
     });
   }
-  function B() {
-    'visible' !== document.visibilityState || y || (g?.resume().catch(() => {
-    }), c.splice(0).forEach(e => e.close()), v = null, E = 0, _ = !0, b(), T());
+  function P() {
+    'visible' !== document.visibilityState || v || (h?.resume().catch(() => {
+    }), c.splice(0).forEach(e => e.close()), y = null, b = 0, g = !0, k(), A());
   }
   return _cloudRelay = () => {
-    y = !0, document.removeEventListener('visibilitychange', B), [
-      m,
-      p,
-      g
+    v = !0, document.removeEventListener('visibilitychange', P), [
+      u,
+      _,
+      h
     ].forEach(e => {
       try {
         e?.close();
       } catch {
       }
     }), c.splice(0).forEach(e => e.close()), o.remove(), a.style.display = '';
-  }, _cloudTimers.push(setInterval(T, 2000)), document.addEventListener('visibilitychange', B), new Promise((t, n) => {
-    u = _cloudWs = new WebSocket(_stratusWsUrl('relay', e)), u.binaryType = 'arraybuffer', u.onopen = () => {
+  }, _cloudTimers.push(setInterval(A, 2000)), document.addEventListener('visibilitychange', P), new Promise((t, n) => {
+    m = _cloudWs = new WebSocket(_stratusWsUrl('relay', e)), m.binaryType = 'arraybuffer', m.onopen = () => {
       setCloudPhase('connecting', 'waiting for the relay stream', !0), t();
-    }, u.onerror = () => {
-      1 !== u.readyState && (teardownCloud(!0), n(new Error('relay socket error')));
-    }, u.onclose = () => {
-      _cloudWs === u && showCloudEndedScreen('session ended', 'lost the relay connection');
-    }, u.onmessage = e => {
-      if (_cloudWs !== u)
+    }, m.onerror = () => {
+      1 !== m.readyState && _cloudWs === m && (teardownCloud(!0), setCloudPhase('error', 'relay socket error', !1), n(new Error('relay socket error')));
+    }, m.onclose = () => {
+      _cloudWs === m && showCloudEndedScreen('session ended', 'lost the relay connection');
+    }, m.onmessage = e => {
+      if (_cloudWs !== m)
         return;
       if ('string' != typeof e.data)
         return function (e) {
@@ -2796,7 +4112,7 @@ function startCloudRelay() {
             return;
           const n = Number(new DataView(e).getBigUint64(2)), a = t.subarray(12);
           if (2 !== t[0])
-            v ??= {
+            y ??= {
               pts: n,
               at: performance.now()
             }, M(new EncodedVideoChunk({
@@ -2806,7 +4122,7 @@ function startCloudRelay() {
             }));
           else
             try {
-              p?.decode(new EncodedAudioChunk({
+              _?.decode(new EncodedAudioChunk({
                 type: 'key',
                 timestamp: n,
                 duration: 20000,
@@ -2824,19 +4140,19 @@ function startCloudRelay() {
       }
       switch (t.type) {
       case 'relay_ready':
-        x(t).catch(() => k('DECODER_UNSUPPORTED', 'could not start the relay stream'));
+        I(t).catch(() => C('DECODER_UNSUPPORTED', 'could not start the relay stream'));
         break;
       case 'relay_ended':
-        k(t.code || 'RELAY_ENDED', t.message, t.retry_after);
+        C(t.code || 'RELAY_ENDED', t.message, t.retry_after);
         break;
       case 'relay_denied':
-        k(t.code || 'RELAY_SLOTS_EXHAUSTED', t.message, t.retry_after);
+        C(t.code || 'RELAY_SLOTS_EXHAUSTED', t.message, t.retry_after);
         break;
       case 'game_cap':
-        k('TIME_UP', t.message);
+        C('TIME_UP', t.message);
         break;
       case 'game_ended':
-        k('SESSION_ENDED', t.message);
+        C('SESSION_ENDED', t.message);
       }
     };
   });
@@ -2854,7 +4170,7 @@ function setupCloudInput() {
     deadzone: 0.15
   };
   let d = null;
-  const u = () => {
+  const m = () => {
       if (!d) {
         const t = e.getBoundingClientRect(), n = e.videoWidth || e.width || 16, a = e.videoHeight || e.height || 9, o = Math.min(t.width / n, t.height / a), s = n * o, r = a * o;
         d = {
@@ -2865,25 +4181,25 @@ function setupCloudInput() {
         };
       }
       return d;
-    }, m = () => {
+    }, u = () => {
       d = null;
     };
-  window.addEventListener('resize', m);
-  const h = _cloudSend, p = (e = 0, a = 0, o = 0, r = 2) => {
+  window.addEventListener('resize', u);
+  const p = _cloudSend, _ = (e = 0, a = 0, o = 0, r = 2) => {
       if (!_cloudOpen())
         return;
       2 === r && (c = performance.now()), e = Math.max(-127, Math.min(127, e)), a = Math.max(-127, Math.min(127, a));
-      const i = u(), l = Math.floor((t - i.left) / i.width * 10000), d = Math.floor((n - i.top) / i.height * 10000), m = new ArrayBuffer(12), p = new DataView(m);
-      p.setUint8(0, 1), p.setUint8(1, 11), p.setUint8(2, r), p.setUint8(3, 8), p.setUint16(4, Math.max(0, Math.min(10000, l))), p.setUint16(6, Math.max(0, Math.min(10000, d))), p.setInt8(8, e), p.setInt8(9, a), p.setUint8(10, s), p.setInt8(11, o), h(m);
-    }, g = (e, t, n = 1) => {
+      const i = m(), l = Math.floor((t - i.left) / i.width * 10000), d = Math.floor((n - i.top) / i.height * 10000), u = new ArrayBuffer(12), _ = new DataView(u);
+      _.setUint8(0, 1), _.setUint8(1, 11), _.setUint8(2, r), _.setUint8(3, 8), _.setUint16(4, Math.max(0, Math.min(10000, l))), _.setUint16(6, Math.max(0, Math.min(10000, d))), _.setInt8(8, e), _.setInt8(9, a), _.setUint8(10, s), _.setInt8(11, o), p(u);
+    }, h = (e, t, n = 1) => {
       1 === n && (i = performance.now()), t ? r.add(e) : r.delete(e);
       const a = new ArrayBuffer(24), o = new DataView(a);
       o.setUint8(0, 1), o.setUint8(2, n), o.setUint8(3, 1), o.setUint16(4, e), o.setUint8(6, t ? 1 : 0);
       let s = 7;
       for (const t of r)
         t !== e && t > 0 && t < 255 && s < 21 && (o.setUint16(s, t), s += 2, o.setUint8(s, 1), s++);
-      o.setUint8(s++, 255), o.setUint8(1, s - 1), h(a.slice(0, s));
-    }, _ = [
+      o.setUint8(s++, 255), o.setUint8(1, s - 1), p(a.slice(0, s));
+    }, g = [
       32,
       69,
       82,
@@ -2900,7 +4216,7 @@ function setupCloudInput() {
       40,
       37,
       39
-    ], f = (e, t) => Math.abs(e) < t ? 0 : e, y = (e, t) => {
+    ], f = (e, t) => Math.abs(e) < t ? 0 : e, v = (e, t) => {
       if (!_cloudOpen() || !_cloudInputActive)
         return;
       const n = l.connected.get(e) || {
@@ -2914,24 +4230,24 @@ function setupCloudInput() {
           if (null === e)
             return;
           const n = 'MOUSE_LEFT' === e ? 1 : 'MOUSE_RIGHT' === e ? 2 : 'MOUSE_MIDDLE' === e ? 4 : 0;
-          n ? (a ? s |= n : s &= ~n, p(0, 0, 0)) : e && e.key ? g(e.key, a) : void 0 === e && t < _.length && g(_[t], a);
+          n ? (a ? s |= n : s &= ~n, _(0, 0, 0)) : e && e.key ? h(e.key, a) : void 0 === e && t < g.length && h(g[t], a);
         }
       });
       const a = f(t.axes[0] || 0, l.deadzone), o = f(t.axes[1] || 0, l.deadzone), r = f(t.axes[2] || 0, l.deadzone), i = f(t.axes[3] || 0, l.deadzone), c = f(n.axes[0] || 0, l.deadzone), d = f(n.axes[1] || 0, l.deadzone);
       if ('WASD' === controllerMap.leftStick)
-        Math.sign(a) !== Math.sign(c) && (c < 0 && g(65, !1), c > 0 && g(68, !1), a < 0 && g(65, !0), a > 0 && g(68, !0)), Math.sign(o) !== Math.sign(d) && (d < 0 && g(87, !1), d > 0 && g(83, !1), o < 0 && g(87, !0), o > 0 && g(83, !0));
+        Math.sign(a) !== Math.sign(c) && (c < 0 && h(65, !1), c > 0 && h(68, !1), a < 0 && h(65, !0), a > 0 && h(68, !0)), Math.sign(o) !== Math.sign(d) && (d < 0 && h(87, !1), d > 0 && h(83, !1), o < 0 && h(87, !0), o > 0 && h(83, !0));
       else if ('MOUSE' === controllerMap.leftStick && (0 !== a || 0 !== o)) {
         const e = 15, t = Math.round(a * e), n = Math.round(o * e);
-        p(t, n, 0);
+        _(t, n, 0);
       }
       if ('MOUSE' === controllerMap.rightStick) {
         if (0 !== r || 0 !== i) {
           const e = 15, t = Math.round(r * e), n = Math.round(i * e);
-          p(t, n, 0);
+          _(t, n, 0);
         }
       } else if ('WASD' === controllerMap.rightStick) {
         const e = f(n.axes[2] || 0, l.deadzone), t = f(n.axes[3] || 0, l.deadzone);
-        Math.sign(r) !== Math.sign(e) && (e < 0 && g(65, !1), e > 0 && g(68, !1), r < 0 && g(65, !0), r > 0 && g(68, !0)), Math.sign(i) !== Math.sign(t) && (t < 0 && g(87, !1), t > 0 && g(83, !1), i < 0 && g(87, !0), i > 0 && g(83, !0));
+        Math.sign(r) !== Math.sign(e) && (e < 0 && h(65, !1), e > 0 && h(68, !1), r < 0 && h(65, !0), r > 0 && h(68, !0)), Math.sign(i) !== Math.sign(t) && (t < 0 && h(87, !1), t > 0 && h(83, !1), i < 0 && h(87, !0), i > 0 && h(83, !0));
       }
       l.connected.set(e, {
         buttons: t.buttons.map(e => e.pressed || e.value > 0.5),
@@ -2939,18 +4255,18 @@ function setupCloudInput() {
       });
     };
   l.pollInterval = setInterval(() => {
-    if (!_cloudInputActive)
+    if (!_cloudInputActive || !_cloudGate())
       return;
     const e = navigator.getGamepads ? navigator.getGamepads() : [];
     let t = !1;
     for (let n = 0; n < e.length; n++) {
       const a = e[n];
       if (a && a.connected)
-        t = !0, y(n, a);
+        t = !0, v(n, a);
       else if (l.connected.has(n)) {
         l.connected.get(n).buttons.forEach((e, t) => {
-          e && t < _.length && g(_[t], !1);
-        }), g(87, !1), g(65, !1), g(83, !1), g(68, !1), l.connected.delete(n);
+          e && t < g.length && h(g[t], !1);
+        }), h(87, !1), h(65, !1), h(83, !1), h(68, !1), l.connected.delete(n);
       }
     }
     const n = document.getElementById('gamePlayerController');
@@ -2959,63 +4275,63 @@ function setupCloudInput() {
     if (!_cloudInputActive)
       return;
     const e = performance.now();
-    e - c < 48 && p(0, 0, 0, 7), e - i < 48 && g([...r][0] || 0, r.size > 0, 6);
+    e - c < 48 && _(0, 0, 0, 7), e - i < 48 && h([...r][0] || 0, r.size > 0, 6);
   }, 16)), _cloudTimers.push(setInterval(() => {
-    c && p(0, 0, 0, 7);
+    c && _(0, 0, 0, 7);
   }, 20000)));
-  const v = s => {
-      if (!_cloudInputActive)
+  const y = s => {
+      if (!_cloudInputActive || !_cloudGate(s))
         return;
       const r = s.movementX || 0, i = s.movementY || 0;
       if (document.pointerLockElement === e) {
-        const e = u();
+        const e = m();
         a = Math.max(0, Math.min(e.width, a + r)), o = Math.max(0, Math.min(e.height, o + i)), t = e.left + a, n = e.top + o;
       } else
         t = s.clientX, n = s.clientY;
-      p(r, i, 0);
-    }, E = e => {
-      _cloudInputActive && (s = e.buttons, p(0, 0, 0));
-    }, S = e => {
-      _cloudInputActive && e.preventDefault();
+      _(r, i, 0);
+    }, b = e => {
+      _cloudInputActive && _cloudGate(e) && (s = e.buttons, _(0, 0, 0));
     }, w = e => {
-      _cloudInputActive && (e.preventDefault(), p(0, 0, e.deltaY > 0 ? -1 : 1));
-    }, C = document.getElementById('cloudRelockHint'), b = () => {
-      C.classList.remove('visible'), ((() => {
+      _cloudInputActive && _cloudGate(e) && e.preventDefault();
+    }, E = e => {
+      _cloudInputActive && _cloudGate(e) && (e.preventDefault(), _(0, 0, e.deltaY > 0 ? -1 : 1));
+    }, S = document.getElementById('cloudRelockHint'), k = () => {
+      S.classList.remove('visible'), ((() => {
         if (!_cloudDc && !_cloudRelay)
           return;
         if (document.pointerLockElement === e)
           return;
-        m();
-        const s = u();
+        u();
+        const s = m();
         a = s.width / 2, o = s.height / 2, t = s.left + a, n = s.top + o, e.requestPointerLock?.();
       })());
     };
-  let k = !1;
-  const I = () => {
+  let C = !1;
+  const T = () => {
     if (_cloudInputActive)
       if (document.pointerLockElement === e)
-        k = !0, C.classList.remove('visible');
-      else if (k) {
+        C = !0, S.classList.remove('visible');
+      else if (C) {
         const e = !document.getElementById('cloudOverlay').classList.contains('hidden');
-        C.classList.toggle('visible', !e);
+        S.classList.toggle('visible', !e);
       }
   };
-  document.addEventListener('pointerlockchange', I), C.addEventListener('click', b);
+  document.addEventListener('pointerlockchange', T), S.addEventListener('click', k);
   const M = e => t => {
-      _cloudInputActive && (t.preventDefault(), t.stopPropagation(), e && t.repeat || g(t.keyCode, e));
-    }, L = M(!0), A = M(!1);
-  document.addEventListener('mousemove', v), document.addEventListener('mousedown', E), document.addEventListener('mouseup', E), document.addEventListener('contextmenu', S), document.addEventListener('wheel', w, { passive: !1 }), e.addEventListener('click', b), document.addEventListener('keydown', L, { capture: !0 }), document.addEventListener('keyup', A, { capture: !0 }), _cloudInputHandlers = {
-    mouseMoveHandler: v,
-    mouseButtonHandler: E,
-    contextMenuHandler: S,
-    wheelHandler: w,
-    videoClickHandler: b,
-    keyDownHandler: L,
-    keyUpHandler: A,
+      _cloudInputActive && _cloudGate(t) && (t.preventDefault(), t.stopPropagation(), e && t.repeat || h(t.keyCode, e));
+    }, x = M(!0), L = M(!1);
+  document.addEventListener('mousemove', y), document.addEventListener('mousedown', b), document.addEventListener('mouseup', b), document.addEventListener('contextmenu', w), document.addEventListener('wheel', E, { passive: !1 }), e.addEventListener('click', k), document.addEventListener('keydown', x, { capture: !0 }), document.addEventListener('keyup', L, { capture: !0 }), _cloudInputHandlers = {
+    mouseMoveHandler: y,
+    mouseButtonHandler: b,
+    contextMenuHandler: w,
+    wheelHandler: E,
+    videoClickHandler: k,
+    keyDownHandler: x,
+    keyUpHandler: L,
     video: e,
-    invalidateRect: m,
-    pointerLockChangeHandler: I,
-    relockHint: C,
+    invalidateRect: u,
+    pointerLockChangeHandler: T,
+    relockHint: S,
     gamepadState: l
   };
 }
@@ -3027,38 +4343,2172 @@ function endCloudGame() {
   e.classList.remove('visible'), t.classList.remove('hidden'), t.textContent = 'loading\u2026', document.getElementById('gamePlayerTimeLeft').textContent = '', setCloudPhase('idle', '', !1);
 }
 const originalHandleGamePlayerClose = handleGamePlayerClose;
-handleGamePlayerClose = function () {
-  if (_cloudEndedActive)
-    return _cloudEndedActive = !1, void closeGamePlayer();
-  _cloudSession ? _armOrConfirmClose(() => {
-    endCloudGame(), closeGamePlayer();
-  }) : originalHandleGamePlayerClose();
-}, window.addEventListener('beforeunload', () => {
-  _cloudSession && _quitCloudSession(_cloudSession.uuid);
-}), document.addEventListener('visibilitychange', () => {
-  _cloudSession && document.hidden && _cloudWs && 1 === _cloudWs.readyState && _cloudWs.send(JSON.stringify({ type: 'ping' }));
-});
-const originalGameCardOnClick = _gameCardOnClick;
-_gameCardOnClick = function (e) {
-  return 'cloud' === e.source ? () => startCloudGame(e.key, e.name) : originalGameCardOnClick(e);
-}, ((() => {
-  const e = document.getElementById('pingDisplay');
-  e && (window.devMode ? e.textContent = 'ping: DEVELOPER' : window.WlspIsBackup ? e.textContent = 'ping: BACKUP' : e.textContent = 'number' == typeof window.WlspPing ? `ping: ${ window.WlspPing }ms` : 'ping: --');
-  const t = document.getElementById('baseDisplay');
-  if (t)
+
+let _abToString = null;
+
+
+
+
+
+const _mvBase = () => getBase() + '/movies', MV_IMG = 'https://image.tmdb.org/t/p/', MV_HOME_KEY = 'movies', MV_HOME_TTL = 3600000, MV_DONE = 0.93, _mv = {
+    lib: new Map(),
+    loaded: null,
+    trend: {},
+    detail: {},
+    seasons: {},
+    sdata: {},
+    home: null,
+    q: '',
+    res: null,
+    qGen: 0,
+    tGen: 0,
+    bGen: 0,
+    item: null,
+    season: 0,
+    box: null,
+    target: null
+  }, _mvEl = (e, t, n) => {
+    const a = document.createElement(e);
+    return t && (a.className = t), null != n && (a.textContent = n), a;
+  }, _mvImg = (e, t = 'w342') => e ? imgProxy(MV_IMG + t + e) : '', _mvSleep = e => new Promise(t => setTimeout(t, e)), _mvClock = e => {
+    e = Math.max(0, Math.floor(e) || 0);
+    const t = Math.floor(e / 3600), n = Math.floor(e % 3600 / 60), a = e % 60;
+    return (t ? t + ':' + String(n).padStart(2, '0') : n) + ':' + String(a).padStart(2, '0');
+  }, _mvHm = e => {
+    const t = Math.round(e / 60);
+    return t < 1 ? e > 5 ? '<1m' : '0m' : t >= 60 ? Math.floor(t / 60) + 'h' + (t % 60 ? ' ' + t % 60 + 'm' : '') : t + 'm';
+  }, _mvEpKey = (e, t) => e + 'x' + t, _mvFrac = e => e && e.dur ? Math.min(1, e.pos / e.dur) : 0, _mvDone = e => !!e && e.dur > 0 && (e.pos >= e.dur * MV_DONE || e.dur - e.pos <= 90), _mvErrText = e => e && e.held ? 'The movie server didn\'t answer. Reload Atlas and try again.' : e && 429 === e.status ? 'Too many requests. Wait a few seconds and try again.' : 'Couldn\'t load that. Try again in a moment.', _MVI = {
+    play: '<polygon points="6 3 20 12 6 21 6 3" fill="currentColor"/>',
+    pause: '<rect x="6" y="4" width="4" height="16" rx="1" fill="currentColor"/><rect x="14" y="4" width="4" height="16" rx="1" fill="currentColor"/>',
+    back: '<path d="m12 19-7-7 7-7"/><path d="M19 12H5"/>',
+    x: '<path d="M18 6 6 18M6 6l12 12"/>',
+    rew: '<path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/>',
+    fwd: '<path d="M21 12a9 9 0 1 1-3-6.7L21 8"/><path d="M21 3v5h-5"/>',
+    next: '<polygon points="5 4 15 12 5 20 5 4" fill="currentColor"/><line x1="19" x2="19" y1="5" y2="19"/>',
+    vol: '<path d="M11 5 6 9H2v6h4l5 4V5z"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/>',
+    vol1: '<path d="M11 5 6 9H2v6h4l5 4V5z"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>',
+    mute: '<path d="M11 5 6 9H2v6h4l5 4V5z"/><line x1="22" x2="16" y1="9" y2="15"/><line x1="16" x2="22" y1="9" y2="15"/>',
+    cc: '<rect width="18" height="14" x="3" y="5" rx="2"/><path d="M7 15h4M15 15h2M7 11h2M13 11h4"/>',
+    gear: '<path d="M9.671 4.136a2.34 2.34 0 0 1 4.659 0 2.34 2.34 0 0 0 3.319 1.915 2.34 2.34 0 0 1 2.33 4.033 2.34 2.34 0 0 0 0 3.831 2.34 2.34 0 0 1-2.33 4.033 2.34 2.34 0 0 0-3.319 1.915 2.34 2.34 0 0 1-4.659 0 2.34 2.34 0 0 0-3.32-1.915 2.34 2.34 0 0 1-2.33-4.033 2.34 2.34 0 0 0 0-3.831A2.34 2.34 0 0 1 6.35 6.051a2.34 2.34 0 0 0 3.319-1.915"/><circle cx="12" cy="12" r="3"/>',
+    pip: '<path d="M21 9V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v10c0 1.1.9 2 2 2h4"/><rect width="10" height="7" x="12" y="13" rx="2"/>',
+    heart: '<path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/>',
+    star: '<path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" fill="currentColor" stroke="none"/>',
+    check: '<path d="M20 6 9 17l-5-5"/>',
+    chev: '<path d="m9 18 6-6-6-6"/>',
+    chevl: '<path d="m15 18-6-6 6-6"/>',
+    replay: '<path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/>',
+    fs: fsEnter,
+    fsx: fsExit
+  }, _mvSvg = e => `<svg viewBox="0 0 24 24">${ _MVI[e] }</svg>`;
+async function _mvJson(e, t = 15000) {
+  for (let n = 0;; n++) {
+    const a = new AbortController(), o = setTimeout(() => a.abort(), t);
     try {
-      t.textContent = `base: ${ new URL(window.assetsBase).hostname }`;
-    } catch {
-      window.devMode ? t.textContent = 'base: DEVELOPER' : t.textContent = 'base: --';
+      const t = await fetch(_mvBase() + e, { signal: a.signal });
+      if (429 === t.status && n < 2) {
+        await _mvSleep(1500 * (n + 1));
+        continue;
+      }
+      if (t.status >= 500 && n < 1) {
+        await _mvSleep(1000);
+        continue;
+      }
+      if (!t.ok)
+        throw Object.assign(new Error(e + ' -> ' + t.status), { status: t.status });
+      return await t.json();
+    } catch (e) {
+      if (a.signal.aborted)
+        throw Object.assign(new Error('no answer'), { held: !0 });
+      if (e.status || n >= 1)
+        throw e;
+      await _mvSleep(1000);
+    } finally {
+      clearTimeout(o);
     }
-})());
+  }
+}
+const _mvApi = {
+    search: (e, t = 'multi', n = 1) => _mvJson(`/search/${ t }?query=${ encodeURIComponent(e) }&page=${ n }`),
+    home: () => _mvJson('/home'),
+    detail: (e, t) => _mvJson(`/${ e }/${ t }`),
+    season: (e, t) => _mvJson(`/tv/${ e }/season/${ t }`),
+    streams: (e, t, n, a) => _mvJson('tv' === e ? `/stream/tv/${ t }/${ n }/${ a }` : `/stream/movie/${ t }`, 25000).then(e => e.streams || [])
+  }, _mvCached = (e, t, n) => e[t] || (e[t] = n().catch(n => {
+    throw delete e[t], n;
+  })), _mvDetail = e => _mvCached(_mv.detail, e.id, () => _mvApi.detail(e.type, e.tid).then(t => (_mvNoteCert(e, t), t))), _MV_TONE = {
+    G: 0,
+    'TV-Y': 0,
+    'TV-Y7': 0,
+    'TV-G': 0,
+    U: 0,
+    PG: 1,
+    'TV-PG': 1,
+    'PG-13': 2,
+    'TV-14': 2,
+    12: 2,
+    '12A': 2,
+    R: 3,
+    'TV-MA': 3,
+    15: 3,
+    'NC-17': 4,
+    18: 4,
+    R18: 4
+  };
+let _mvCerts = null;
+const _mvStored = e => {
+    if (!_mvCerts)
+      try {
+        _mvCerts = JSON.parse(localStorage.MV_CERT || '{}');
+      } catch {
+        _mvCerts = {};
+      }
+    return _mvCerts[e.id] || null;
+  }, _mvCert = e => {
+    const t = _mvStored(e);
+    return t && t[0] ? [
+      t[0],
+      t[1]
+    ] : null;
+  }, _mvAdult = e => !(!e.adult && !(_mvStored(e) || [])[2]), _mvAdultEl = () => _mvEl('i', 'mv-adult', '18+');
+function _mvCertOf(e) {
+  const t = e && 'string' == typeof e.rating ? e.rating.trim() : '';
+  return t ? [
+    t,
+    e.ratingRegion || ''
+  ] : null;
+}
+function _mvCertEl(e) {
+  const t = _mvEl('i', 'mv-cert', e[0]), n = _MV_TONE[e[0].toUpperCase()];
+  return t.dataset.t = null == n ? 'x' : n, t.title = 'Rated ' + e[0] + (e[1] ? ' (' + e[1] + ')' : ''), t;
+}
+function _mvNoteCert(e, t) {
+  const n = _mvCertOf(t) || [
+      '',
+      ''
+    ], a = t && !0 === t.adult ? 1 : 0, o = _mvStored(e) || [
+      '',
+      '',
+      0
+    ];
+  if (!n[0] && !a || o[0] === n[0] && o[1] === n[1] && !!o[2] == !!a)
+    return;
+  _mvCerts[e.id] = [
+    n[0],
+    n[1],
+    a
+  ];
+  const s = Object.keys(_mvCerts);
+  s.length > 500 && delete _mvCerts[s[0]];
+  try {
+    localStorage.MV_CERT = JSON.stringify(_mvCerts);
+  } catch {
+  }
+  document.querySelectorAll('.mv-card').forEach(t => {
+    if (t.dataset.id !== e.id)
+      return;
+    const o = t.querySelector('.mv-sub'), s = t.querySelector('.mv-poster');
+    n[0] && o && !o.querySelector('.mv-cert') && o.append(_mvCertEl(n)), a && s && !s.querySelector('.mv-adult') && s.append(_mvAdultEl());
+  });
+}
+const _mvSeasonEps = (e, t) => _mvCached(_mv.seasons, e + ':' + t, () => _mvApi.season(e, t)).then(n => _mv.sdata[e + ':' + t] = n.episodes || []);
+function _mvNorm(e, t) {
+  const n = e.media_type || t;
+  return {
+    id: n + ':' + e.id,
+    type: n,
+    tid: e.id,
+    title: e.title || e.name || '',
+    poster: e.poster_path || '',
+    backdrop: e.backdrop_path || '',
+    year: (e.release_date || e.first_air_date || '').slice(0, 4),
+    rating: e.vote_average || 0,
+    overview: e.overview || '',
+    adult: !0 === e.adult
+  };
+}
+const _mvHomeNorm = e => ({
+    id: e.mediaType + ':' + e.id,
+    type: e.mediaType,
+    tid: e.id,
+    title: e.title || '',
+    poster: e.poster || '',
+    backdrop: e.backdrop || '',
+    year: e.year ? String(e.year) : '',
+    rating: e.vote || 0,
+    overview: '',
+    adult: !1
+  }), _mvHomeOk = e => (e || []).filter(e => e && e.id && ('movie' === e.mediaType || 'tv' === e.mediaType) && e.title).map(_mvHomeNorm), _mvOk = (e, t) => (e || []).filter(e => {
+    const n = e.media_type || t;
+    return 'movie' === n || 'tv' === n;
+  }).map(e => _mvNorm(e, t));
+function _mvLoadLib() {
+  return _mv.loaded || (_mv.loaded = ((async () => {
+    try {
+      const e = await _oDB();
+      (await new Promise((t, n) => {
+        const a = e.transaction('mvies').objectStore('mvies').getAll();
+        a.onsuccess = () => t(a.result || []), a.onerror = () => n(a.error);
+      })).forEach(e => _mv.lib.set(e.id, e));
+    } catch (e) {
+      console.error('[O] movies load failed:', e);
+    }
+  })()));
+}
+function _mvSave(e) {
+  _mv.lib.set(e.id, e), _oDB().then(t => {
+    t.transaction('mvies', 'readwrite').objectStore('mvies').put(e);
+  }).catch(t => console.error('[O] movies save failed:', e.id, t));
+}
+function _mvDrop(e) {
+  _mv.lib.delete(e), _oDB().then(t => {
+    t.transaction('mvies', 'readwrite').objectStore('mvies').delete(e);
+  }).catch(t => console.error('[O] movies delete failed:', e, t));
+}
+function _mvTouch(e) {
+  const t = _mv.lib.get(e.id) || {
+    id: e.id,
+    type: e.type,
+    tid: e.tid,
+    fav: 0,
+    ts: 0,
+    pos: 0,
+    dur: 0,
+    spent: 0,
+    eps: {}
+  };
+  for (const n of [
+      'title',
+      'poster',
+      'backdrop',
+      'year',
+      'rating',
+      'adult'
+    ])
+    e[n] && (t[n] = e[n]);
+  return t;
+}
+function _mvForget(e) {
+  e.ts = e.pos = e.dur = e.spent = 0, e.eps = {}, delete e.s, delete e.e, e.fav ? _mvSave(e) : _mvDrop(e.id);
+}
+function openMovies() {
+  _opmOpen('movies');
+}
+function closeMovies() {
+  _opmClose('movies');
+}
+function _moviesShow() {
+  document.getElementById('moviesScreen').classList.add('open'), _mvInit(), _mvF.items.length && _mvFeatTick();
+}
+function _moviesHide() {
+  _mvCloseBox(), clearTimeout(_mvF.t), document.getElementById('moviesScreen').classList.remove('open');
+}
+let _mvBound = !1;
+async function _mvInit() {
+  _mvBound || (_mvBound = !0, _mvBind()), await _mvLoadLib(), _mvPaintLists(), _mvLoadHome();
+}
+function _mvBind() {
+  document.getElementById('moviesScreen').querySelectorAll('.mv-sec').forEach(_mvSecBind);
+  let e = 0;
+  document.getElementById('mvSearch').addEventListener('input', t => {
+    const n = t.target.value;
+    clearTimeout(e), e = setTimeout(() => _mvSearch(n), 350);
+  });
+  const t = document.getElementById('mvModal');
+  t.addEventListener('pointerdown', e => {
+    e.target === t && _mvCloseBox();
+  }), document.addEventListener('visibilitychange', () => {
+    document.hidden && _mpLive() && _mpSave();
+  }), window.addEventListener('pagehide', () => {
+    _mpLive() && _mpSave();
+  });
+}
+function _mvSecBind(e) {
+  const t = e.querySelector('.mv-row'), n = e.querySelector('.mv-sec-head'), a = _mvEl('div', 'mv-arrows');
+  [
+    [
+      'chevl',
+      -1
+    ],
+    [
+      'chev',
+      1
+    ]
+  ].forEach(([e, n]) => {
+    const o = _mvEl('button', 'mv-arrow');
+    o.type = 'button', o.innerHTML = _mvSvg(e), o.onclick = () => t.scrollBy({
+      left: n * t.clientWidth * 0.85,
+      behavior: 'smooth'
+    }), a.append(o);
+  }), n.append(a);
+  let o = 0;
+  t.addEventListener('scroll', () => {
+    o || (o = requestAnimationFrame(() => {
+      o = 0, _mvArrows(e);
+    }));
+  }, { passive: !0 });
+}
+function _mvSecEnsure(e, t) {
+  let n = document.getElementById('mvSec_' + e);
+  if (!n) {
+    n = _mvEl('section', 'mv-sec'), n.id = 'mvSec_' + e, n.hidden = !0, n.dataset.dyn = '1';
+    const t = _mvEl('div', 'mv-sec-head');
+    t.append(_mvEl('h2', 'mv-h')), n.append(t, _mvEl('div', 'mv-row')), _mvSecBind(n), document.getElementById('mvHome').append(n);
+  }
+  return n.querySelector('.mv-h').textContent = t, n;
+}
+function _mvArrows(e) {
+  const t = e.querySelector('.mv-row'), [n, a] = e.querySelectorAll('.mv-arrow');
+  n && (n.disabled = t.scrollLeft < 4, a.disabled = t.scrollLeft + t.clientWidth >= t.scrollWidth - 4, e.querySelector('.mv-arrows').classList.toggle('none', t.scrollWidth <= t.clientWidth + 4));
+}
+const _mvSec = e => document.getElementById('mvSec_' + e);
+function _mvFill(e, t, n) {
+  const a = _mvSec(e);
+  a.hidden = !t.length;
+  const o = a.querySelector('.mv-row');
+  o.replaceChildren(...t.map((e, t) => _mvCard(e, t, n))), o.scrollLeft = 0, _mvArrows(a);
+}
+function _mvSkel(e) {
+  const t = _mvSec(e), n = t.querySelector('.mv-row');
+  t.hidden = !1, n.replaceChildren(...Array.from({ length: 9 }, (e, t) => {
+    const n = _mvEl('div', 'mv-card skel');
+    return n.style.setProperty('--i', t), n.append(_mvEl('div', 'mv-poster'), _mvEl('div', 'mv-sl'), _mvEl('div', 'mv-sl s')), n;
+  })), n.scrollLeft = 0, _mvArrows(t);
+}
+function _mvFail(e, t, n) {
+  const a = _mvSec(e), o = a.querySelector('.mv-row');
+  a.hidden = !1;
+  const s = _mvEl('div', 'mv-err'), r = _mvEl('button', 'mv-pill', 'Try again');
+  r.type = 'button', r.onclick = n, s.append(_mvEl('span', '', _mvErrText(t)), r), o.replaceChildren(s), _mvArrows(a);
+}
+function _mvPaintLists() {
+  const e = [..._mv.lib.values()];
+  _mvFill('recent', e.filter(e => e.ts).sort((e, t) => t.ts - e.ts).slice(0, 30), {
+    progress: !0,
+    wide: !0
+  }), _mvFill('list', e.filter(e => e.fav).sort((e, t) => t.fav - e.fav));
+}
+async function _mvCacheGet() {
+  try {
+    const e = await _oDB(), t = await new Promise((t, n) => {
+        const a = e.transaction('cache').objectStore('cache').get(MV_HOME_KEY);
+        a.onsuccess = () => t(a.result), a.onerror = () => n(a.error);
+      });
+    return t && 1 === t.v && t.ts > 0 && Array.isArray(t.rows) && t.rows.length ? t : null;
+  } catch (e) {
+    return console.error('[O] movies cache load failed:', e), null;
+  }
+}
+function _mvCachePut(e) {
+  _oDB().then(t => {
+    t.transaction('cache', 'readwrite').objectStore('cache').put({
+      v: 1,
+      ts: Date.now(),
+      rows: e
+    }, MV_HOME_KEY);
+  }).catch(e => console.error('[O] movies cache save failed:', e));
+}
+const _mvRowsSig = e => e.map(e => e.id + ':' + (e.items || []).map(e => e.id).join(',')).join('|');
+function _mvHomeSkel() {
+  const e = [
+    'sk0',
+    'sk1',
+    'sk2'
+  ];
+  e.forEach(e => {
+    _mvSecEnsure(e, '').dataset.sk = '1', _mvSkel(e);
+  });
+  const t = document.getElementById('mvFeat');
+  _mvF.items.length || (t.hidden = !1, t.className = 'mv-feat skel', t.replaceChildren()), _mvSecsOrder(e);
+}
+async function _mvLoadHome(e) {
+  const t = ++_mv.tGen, n = e => e && Date.now() - e.ts < MV_HOME_TTL;
+  if (!e && n(_mv.home))
+    return void (_mv.sig !== _mvRowsSig(_mv.home.rows) && _mvPaintHome());
+  const a = e ? null : await _mvCacheGet();
+  if (t !== _mv.tGen)
+    return;
+  if (a) {
+    if (_mv.home = {
+        ts: a.ts,
+        rows: a.rows
+      }, _mvPaintHome(), n(a))
+      return;
+  } else
+    _mv.home || _mvHomeSkel();
+  let o;
+  try {
+    o = await _mvApi.home();
+  } catch (e) {
+    if (t !== _mv.tGen)
+      return;
+    if (_mv.home)
+      return;
+    return _mv.home = {
+      ts: 0,
+      rows: [],
+      err: e
+    }, void _mvPaintHome();
+  }
+  if (t !== _mv.tGen)
+    return;
+  const s = _mv.home, r = (o && o.rows || []).map(e => e.error && !(e.items || []).length && s && s.rows.find(t => t.id === e.id && !t.error) || e);
+  r.length ? (r.some(e => e.error) || _mvCachePut(r), _mv.home = {
+    ts: r.some(e => e.error) ? 0 : Date.now(),
+    rows: r
+  }, (!s || s.err || _mvRowsSig(s.rows) !== _mvRowsSig(r) || r.some(e => e.error)) && _mvPaintHome()) : s || (_mv.home = {
+    ts: 0,
+    rows: [],
+    err: new Error('empty')
+  }, _mvPaintHome());
+}
+function _mvPaintHome() {
+  const e = _mv.home, t = [], n = {};
+  if (e.err)
+    return _mvSecEnsure('error', 'Movies'), _mvFail('error', e.err, () => _mvLoadHome(!0)), _mvSecsOrder(['error']), _mvFeat([]), void (_mv.sig = '');
+  for (const a of e.rows) {
+    if (!a || !a.id)
+      continue;
+    const e = _mvHomeOk(a.items), o = /^top\b/i.test(a.id);
+    _mvSecEnsure(a.id, a.title || a.id), t.push(a.id), !a.error || e.length ? e.length ? (n[a.id] = o ? e.slice(0, 10) : e, _mvFill(a.id, n[a.id], o ? { rank: !0 } : void 0)) : _mvSec(a.id).hidden = !0 : _mvFail(a.id, new Error(a.error), () => _mvLoadHome(!0));
+  }
+  _mvSecsOrder(t);
+  const a = t.map(e => (n[e] || []).filter(e => e.backdrop)).filter(e => e.length).slice(0, 2), o = [];
+  for (let e = 0; o.length < 5 && a.some(t => e < t.length); e++)
+    a.forEach(t => {
+      o.length < 5 && t[e] && o.push(t[e]);
+    });
+  _mvFeat(o), _mv.sig = _mvRowsSig(e.rows);
+}
+function _mvSecsOrder(e) {
+  const t = document.getElementById('mvHome');
+  t.querySelectorAll('.mv-sec[data-dyn]').forEach(t => {
+    e.includes(t.id.slice(6)) || t.remove();
+  }), t.append(...e.map(e => document.getElementById('mvSec_' + e)));
+}
+const _mvF = {
+  items: [],
+  i: 0,
+  t: 0,
+  hover: !1,
+  bg: []
+};
+function _mvFeat(e) {
+  const t = document.getElementById('mvFeat'), n = _mvF;
+  if (clearTimeout(n.t), n.items.length === e.length && e.length && e.every((e, t) => e.id === n.items[t].id))
+    return t.hidden = !1, void _mvFeatTick();
+  if (n.items = e, n.i = 0, n.bg = [], t.className = 'mv-feat', t.hidden = !e.length, !e.length)
+    return void t.replaceChildren();
+  t.innerHTML = `<div class="mv-fbgs"></div><div class="mv-fshade"></div><div class="mv-fin"><div class="mv-fmeta"></div><h2 class="mv-ft"></h2><p class="mv-fo"></p><div class="mv-fbtn"><button class="mv-fplay" type="button">${ _mvSvg('play') }<span>Play</span></button><button class="mv-fdet" type="button"><span>Details</span></button></div></div><div class="mv-fdots"></div>`;
+  const a = t.querySelector('.mv-fdots');
+  e.forEach((e, t) => {
+    const n = _mvEl('button', 'mv-fd');
+    n.type = 'button', n.setAttribute('aria-label', 'Show ' + (t + 1)), n.onclick = () => {
+      _mvFeatShow(t), _mvFeatTick();
+    }, a.append(n);
+  }), t.querySelector('.mv-fplay').onclick = () => {
+    const e = n.items[n.i];
+    _mvOpen(e), 'movie' === e.type && _mvPlayNow();
+  }, t.querySelector('.mv-fdet').onclick = () => _mvOpen(n.items[n.i]), t.onpointerenter = () => {
+    n.hover = !0;
+  }, t.onpointerleave = () => {
+    n.hover = !1;
+  }, _mvFeatShow(0), _mvFeatTick();
+}
+function _mvFeatShow(e) {
+  const t = _mvF, n = document.getElementById('mvFeat'), a = t.items[e], o = n.querySelector('.mv-fbgs');
+  if (!a)
+    return;
+  t.i = e;
+  const s = e => {
+    const n = t.items[e];
+    if (n && !t.bg[e]) {
+      const a = document.createElement('img');
+      a.alt = '', a.decoding = 'async', a.referrerPolicy = 'no-referrer', a.onerror = () => a.remove(), a.src = _mvImg(n.backdrop, 'w1280'), o.append(a), t.bg[e] = a;
+    }
+    return t.bg[e];
+  };
+  t.bg.forEach(e => e && e.classList.remove('on'));
+  const r = s(e);
+  r && requestAnimationFrame(() => r.classList.add('on')), s((e + 1) % t.items.length), n.querySelectorAll('.mv-fd').forEach((t, n) => t.classList.toggle('on', n === e));
+  const i = () => {
+    const e = [];
+    a.year && e.push(_mvEl('span', '', a.year));
+    const t = _mvEl('span', '', 'tv' === a.type ? 'Series' : 'Movie'), o = _mvCert(a);
+    if (o && t.append(_mvCertEl(o)), e.push(t), a.rating > 0) {
+      const t = _mvEl('span');
+      t.innerHTML = _mvSvg('star'), t.append(a.rating.toFixed(1)), e.push(t);
+    }
+    n.querySelector('.mv-fmeta').replaceChildren(...e);
+  };
+  i(), n.querySelector('.mv-ft').textContent = a.title;
+  const c = n.querySelector('.mv-fo');
+  c.textContent = a.overview || '', c.classList.toggle('wait', !a.overview), _mvDetail(a).then(e => {
+    e && t.items[t.i] === a && (!a.overview && e.overview && (a.overview = e.overview, c.textContent = e.overview), i());
+  }, () => {
+  }).then(() => {
+    t.items[t.i] === a && c.classList.remove('wait');
+  }), n.querySelector('.mv-fdet').hidden = 'tv' === a.type, n.querySelector('.mv-fplay span').textContent = 'tv' === a.type ? 'Watch' : 'Play';
+  const l = n.querySelector('.mv-fin');
+  l.classList.remove('swap'), l.offsetWidth, l.classList.add('swap');
+}
+function _mvFeatTick() {
+  const e = _mvF;
+  clearTimeout(e.t), e.t = setTimeout(() => {
+    if (!document.getElementById('moviesScreen').classList.contains('open'))
+      return;
+    !(document.hidden || e.hover || document.getElementById('mvModal').classList.contains('open') || _mvPlayerOpen() || !document.getElementById('mvResults').hidden) && e.items.length > 1 && _mvFeatShow((e.i + 1) % e.items.length), _mvFeatTick();
+  }, 8000);
+}
+function _mvSearch(e) {
+  if (1 === (e = e.trim()).length)
+    return;
+  const t = ++_mv.qGen, n = document.getElementById('mvHome'), a = document.getElementById('mvResults'), o = document.getElementById('mvGrid'), s = document.getElementById('mvCount');
+  if (_mv.q = e, s.textContent = '', !e)
+    return a.hidden = !0, void (n.hidden = !1);
+  n.hidden = !0, a.hidden = !1, document.getElementById('mvResTitle').textContent = 'Results for "' + e + '"', o.replaceChildren(...Array.from({ length: 12 }, (e, t) => {
+    const n = _mvEl('div', 'mv-card skel');
+    return n.style.setProperty('--i', t), n.append(_mvEl('div', 'mv-poster'), _mvEl('div', 'mv-sl'), _mvEl('div', 'mv-sl s')), n;
+  }));
+  const r = _mv.rType = 'multi';
+  _mvApi.search(e, r).then(e => {
+    t === _mv.qGen && (_mv.res = _mvOk(e.results, 'multi' === r ? void 0 : r), _mv.rPage = 1, _mv.rPages = e.total_pages || 1, _mvPaintResults());
+  }).catch(n => {
+    if (t !== _mv.qGen)
+      return;
+    const a = _mvEl('div', 'mv-err'), s = _mvEl('button', 'mv-pill', 'Try again');
+    s.type = 'button', s.onclick = () => _mvSearch(e), a.append(_mvEl('span', '', _mvErrText(n)), s), o.replaceChildren(a);
+  });
+}
+function _mvPaintResults() {
+  const e = document.getElementById('mvGrid'), t = document.getElementById('mvCount'), n = _mv.res || [], a = _mv.rPage < _mv.rPages;
+  t.textContent = n.length + (a ? '+' : '') + (1 !== n.length || a ? ' results' : ' result'), n.length ? (e.replaceChildren(...n.map((e, t) => _mvCard(e, t))), _mvMoreBtn()) : e.replaceChildren(_mvEl('div', 'games-loading', 'no results'));
+}
+function _mvMoreBtn() {
+  const e = document.getElementById('mvGrid');
+  if (_mv.rPage >= _mv.rPages)
+    return;
+  const t = _mvEl('div', 'mv-more'), n = _mvEl('button', 'mv-pill', 'Show more');
+  n.type = 'button', n.onclick = () => {
+    const a = _mv.qGen, o = _mv.rType;
+    n.disabled = !0, n.textContent = 'Loading\u2026', _mvApi.search(_mv.q, o, _mv.rPage + 1).then(n => {
+      if (a !== _mv.qGen)
+        return;
+      _mv.rPage++, _mv.rPages = n.total_pages || _mv.rPages;
+      const s = new Set(_mv.res.map(e => e.id)), r = _mvOk(n.results, 'multi' === o ? void 0 : o).filter(e => !s.has(e.id));
+      _mv.res.push(...r), t.remove(), e.append(...r.map((e, t) => _mvCard(e, t))), document.getElementById('mvCount').textContent = _mv.res.length + (_mv.rPage < _mv.rPages ? '+' : '') + ' results', _mvMoreBtn();
+    }).catch(() => {
+      a === _mv.qGen && (n.disabled = !1, n.textContent = 'Try again');
+    });
+  }, t.append(n), e.append(t);
+}
+function _mvCard(e, t, n = {}) {
+  const a = _mvEl('div', 'mv-card');
+  a.tabIndex = 0, a.setAttribute('role', 'button'), a.style.setProperty('--i', Math.min(t, 12));
+  const o = _mvEl('div', 'mv-poster'), s = n.wide && e.backdrop ? _mvImg(e.backdrop, 'w500') : _mvImg(e.poster);
+  if (n.wide && a.classList.add('wide'), s) {
+    const e = document.createElement('img');
+    e.alt = '', e.loading = 'lazy', e.decoding = 'async', e.referrerPolicy = 'no-referrer', e.draggable = !1, e.onload = () => {
+      e.classList.add('in'), o.classList.add('ok');
+    }, e.onerror = () => {
+      e.remove(), o.classList.add('none', 'ok');
+    }, e.src = s, o.append(e);
+  } else
+    o.classList.add('none', 'ok');
+  if (o.append(_mvEl('span', 'mv-ph', e.title)), e.rating > 0) {
+    const t = _mvEl('span', 'mv-rate');
+    t.innerHTML = _mvSvg('star'), t.append(e.rating.toFixed(1)), o.append(t);
+  }
+  _mvAdult(e) && o.append(_mvAdultEl());
+  let r = (e.year ? e.year + ' \xB7 ' : '') + ('tv' === e.type ? 'Series' : 'Movie');
+  if (n.progress) {
+    const t = 'tv' !== e.type && _mvDone(e), n = _mvEl('div', 'mv-prog'), s = document.createElement('i');
+    s.style.width = (t ? 100 : Math.round(100 * _mvFrac(e))) + '%', n.append(s), o.append(n), r = 'tv' === e.type ? 'S' + e.s + ' E' + e.e + (_mvDone(e) ? ' \xB7 finished' : '') : t ? 'Finished' : _mvHm(e.dur - e.pos) + ' left';
+    const i = _mvEl('button', 'mv-rm');
+    i.type = 'button', i.title = 'Remove from history', i.innerHTML = _mvSvg('x'), i.onclick = t => {
+      t.stopPropagation(), _mvForget(e), a.classList.add('out'), setTimeout(_mvPaintLists, 220);
+    }, o.append(i);
+  }
+  const i = _mvEl('div', 'mv-sub'), c = _mvCert(e);
+  if (i.append(_mvEl('span', 'mv-st', r)), c && i.append(_mvCertEl(c)), a.dataset.id = e.id, n.rank) {
+    const n = _mvEl('div', 'mv-rkp');
+    n.append(_mvEl('span', 'mv-rkn', String(t + 1)), o), a.classList.add('rk'), a.append(n, _mvEl('div', 'mv-name', e.title), i);
+  } else
+    a.append(o, _mvEl('div', 'mv-name', e.title), i);
+  return a.onclick = () => _mvOpen(e), a.onkeydown = t => {
+    'Enter' !== t.key && ' ' !== t.key || (t.preventDefault(), _mvOpen(e));
+  }, a;
+}
+const _mvFuture = e => {
+    if (!e.air_date)
+      return !1;
+    const t = new Date();
+    return t.setDate(t.getDate() + 1), e.air_date > t.toISOString().slice(0, 10);
+  }, _mvSeasonNums = e => (e && e.seasons || []).map(e => e.season_number).filter(e => e > 0).sort((e, t) => e - t);
+async function _mvOpen(e) {
+  const t = ++_mv.bGen;
+  _mv.item = e, _mv.season = 0, _mv.target = null, _mv.seasonNums = [];
+  const n = document.getElementById('mvModal'), a = _mv.box = document.getElementById('mvBox');
+  a.innerHTML = `<div class="mv-hero"><img class="mv-bd" alt=""><button class="mv-x" type="button" aria-label="Close">${ _mvSvg('x') }</button>\n<div class="mv-hero-in"><div class="mv-hp"></div><div class="mv-ht"><h2 class="mv-title"></h2><div class="mv-meta"></div></div></div></div>\n<div class="mv-body"><div class="mv-genres"></div><p class="mv-tag"></p><p class="mv-over"></p>\n<div class="mv-actions"><button class="mv-play" type="button">${ _mvSvg('play') }<span></span></button><button class="mv-fav" type="button">${ _mvSvg('heart') }<span></span></button></div>\n<div class="mv-tv" hidden><div class="mv-sh"><span class="mv-sk">Season</span><div class="mv-seasons"></div></div><div class="mv-eps"></div></div></div>`;
+  const o = e => a.querySelector(e);
+  o('.mv-title').textContent = e.title, o('.mv-over').textContent = e.overview || '', o('.mv-over').hidden = !e.overview, o('.mv-tag').hidden = !0, o('.mv-genres').hidden = !0;
+  const s = o('.mv-bd'), r = o('.mv-hp');
+  s.referrerPolicy = 'no-referrer', s.onload = () => s.classList.add('in'), s.onerror = () => s.classList.remove('in');
+  const i = (e, t) => {
+    const n = _mvImg(e, 'w780'), a = _mvImg(t, 'w185');
+    if (n && !s.getAttribute('src') && (s.src = n), a && !r.firstChild) {
+      const e = document.createElement('img');
+      e.alt = '', e.referrerPolicy = 'no-referrer', e.onerror = () => e.remove(), e.src = a, r.append(e);
+    }
+  };
+  i(e.backdrop, e.poster), _mvPaintMeta(e, null), _mvPaintPlay(), _mvPaintFav(), o('.mv-x').onclick = () => _mvCloseBox(), o('.mv-play').onclick = _mvPlayNow, o('.mv-fav').onclick = _mvToggleFav, n.classList.add('open'), document.addEventListener('keydown', _mvBoxKey, !0), a.scrollTop = 0;
+  let c = null;
+  try {
+    c = await _mvDetail(e);
+  } catch (e) {
+  }
+  if (t === _mv.bGen) {
+    if (c) {
+      i(c.backdrop_path, c.poster_path), _mv.seasonNums = _mvSeasonNums(c), _mvPaintMeta(e, c);
+      const t = o('.mv-tag');
+      t.textContent = c.tagline || '', t.hidden = !c.tagline;
+      const n = c.overview || e.overview;
+      o('.mv-over').textContent = n || '', o('.mv-over').hidden = !n;
+      const a = o('.mv-genres');
+      (c.genres || []).forEach(e => a.append(_mvEl('span', 'mv-chip', e.name))), a.hidden = !a.childNodes.length;
+    }
+    if ('tv' === e.type) {
+      o('.mv-tv').hidden = !1;
+      const t = _mv.seasonNums, n = _mv.lib.get(e.id), a = t.length ? t : [n && n.s ? n.s : 1], s = n && a.includes(n.s) ? n.s : a[0], r = o('.mv-seasons');
+      a.length > 1 ? a.forEach(e => {
+        const t = _mvEl('button', 'mv-sn', String(e));
+        t.type = 'button', t.dataset.n = e, t.title = 'Season ' + e, t.onclick = () => _mvSeason(e), r.append(t);
+      }) : o('.mv-sh').hidden = !0, _mvSeason(s);
+    }
+    if (c && t === _mv.bGen) {
+      const t = _mvFacts(e, c);
+      t && o('.mv-body').append(t);
+    }
+  }
+}
+function _mvPaintMeta(e, t) {
+  const n = _mv.box.querySelector('.mv-meta'), a = (t && (t.release_date || t.first_air_date) || e.year || '').slice(0, 4), o = t && t.vote_average || e.rating, s = [];
+  a && s.push(a), s.push('tv' === e.type ? 'Series' : 'Movie'), t && 'movie' === e.type && t.runtime && s.push(_mvHm(60 * t.runtime)), t && 'tv' === e.type && t.number_of_seasons && s.push(t.number_of_seasons + (1 === t.number_of_seasons ? ' season' : ' seasons'));
+  const r = s.map(e => _mvEl('span', '', e)), i = _mvCertOf(t) || _mvCert(e);
+  if (i && r[a ? 1 : 0].append(_mvCertEl(i)), n.replaceChildren(...r), o > 0) {
+    const e = _mvEl('span', 'mv-rt');
+    e.innerHTML = _mvSvg('star'), e.append(o.toFixed(1)), n.append(e);
+  }
+  const c = _mv.box.querySelector('.mv-hp');
+  c && !c.querySelector('.mv-adult') && (t && !0 === t.adult || _mvAdult(e)) && c.append(_mvAdultEl());
+}
+function _mvFacts(e, t) {
+  const n = e => (e || []).map(e => e && e.name).filter(Boolean), a = e => {
+      if (!e)
+        return '';
+      const t = new Date(e + 'T12:00:00');
+      return isNaN(t) ? e : t.toLocaleDateString(void 0, {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric'
+      });
+    }, o = (e, t) => {
+      try {
+        return new Intl.DisplayNames(void 0, { type: t }).of(e) || e;
+      } catch {
+        return e;
+      }
+    }, s = e => e >= 1000000000 ? '$' + +(e / 1000000000).toFixed(2) + 'B' : e >= 1000000 ? '$' + +(e / 1000000).toFixed(1) + 'M' : e >= 1000 ? '$' + Math.round(e / 1000) + 'K' : '', r = e => e >= 1000000 ? +(e / 1000000).toFixed(1) + 'M' : e >= 1000 ? +(e / 1000).toFixed(1) + 'k' : e > 0 ? String(e) : '', i = t.original_language ? o(t.original_language, 'language') : '', c = (t.production_countries || []).length ? n(t.production_countries) : (t.origin_country || []).map(e => o(e, 'region')), l = [];
+  'tv' === e.type ? l.push([
+    'First aired',
+    a(t.first_air_date)
+  ], [
+    'Last aired',
+    a(t.last_air_date)
+  ], [
+    'Seasons',
+    t.number_of_seasons ? t.number_of_seasons + (t.number_of_episodes ? ' \xB7 ' + t.number_of_episodes + ' episodes' : '') : ''
+  ], [
+    'Status',
+    t.status
+  ], [
+    'Network',
+    n(t.networks).slice(0, 3).join(', ')
+  ], [
+    'Created by',
+    n(t.created_by).slice(0, 3).join(', ')
+  ], [
+    'Language',
+    i
+  ], [
+    'Country',
+    c.slice(0, 3).join(', ')
+  ], [
+    'Votes',
+    r(t.vote_count)
+  ], [
+    'Studios',
+    n(t.production_companies).slice(0, 3).join(', '),
+    1
+  ]) : l.push([
+    'Released',
+    a(t.release_date)
+  ], [
+    'Status',
+    t.status
+  ], [
+    'Language',
+    i
+  ], [
+    'Country',
+    c.slice(0, 3).join(', ')
+  ], [
+    'Budget',
+    s(t.budget)
+  ], [
+    'Box office',
+    s(t.revenue)
+  ], [
+    'Votes',
+    r(t.vote_count)
+  ], [
+    'Collection',
+    t.belongs_to_collection && t.belongs_to_collection.name
+  ], [
+    'Studios',
+    n(t.production_companies).slice(0, 3).join(', '),
+    1
+  ]);
+  const d = l.filter(e => e[1]);
+  if (!d.length)
+    return null;
+  const m = _mvEl('div', 'mv-facts');
+  return d.forEach(([e, t, n]) => {
+    const a = _mvEl('div', 'mv-fact' + (n ? ' full' : ''));
+    a.append(_mvEl('span', 'mv-fk', e), _mvEl('span', 'mv-fv', t)), m.append(a);
+  }), m;
+}
+function _mvTvTarget() {
+  const e = _mv.item, t = _mv.lib.get(e.id), n = _mv.seasonNums || [];
+  if (t && t.s) {
+    const a = t.eps[_mvEpKey(t.s, t.e)];
+    if (a && !_mvDone(a))
+      return {
+        s: t.s,
+        e: t.e,
+        resume: a.pos > 15,
+        pos: a.pos,
+        name: a.name
+      };
+    const o = _mv.sdata[e.tid + ':' + t.s];
+    if (o) {
+      const e = o.find(e => e.episode_number > t.e && !_mvFuture(e));
+      if (e)
+        return {
+          s: t.s,
+          e: e.episode_number,
+          name: e.name,
+          next: !0
+        };
+      const s = n.find(e => e > t.s);
+      return s ? {
+        s: s,
+        e: 1,
+        next: !0
+      } : {
+        s: t.s,
+        e: t.e,
+        again: !0,
+        name: a && a.name
+      };
+    }
+    return {
+      s: t.s,
+      e: t.e + 1,
+      next: !0
+    };
+  }
+  return {
+    s: n[0] || 1,
+    e: 1
+  };
+}
+function _mvPaintPlay() {
+  const e = _mv.box && _mv.box.querySelector('.mv-play');
+  if (!e)
+    return;
+  const t = _mv.item, n = _mv.lib.get(t.id);
+  let a;
+  if ('tv' === t.type) {
+    const e = _mv.target = _mvTvTarget(), t = 'S' + e.s + ' E' + e.e;
+    a = e.again ? 'Watch again' : e.resume ? 'Resume \xB7 ' + t + ' \xB7 ' + _mvClock(e.pos) : (e.next ? 'Play next \xB7 ' : 'Play \xB7 ') + t;
+  } else
+    a = n && n.ts ? _mvDone(n) ? 'Watch again' : n.pos > 15 ? 'Resume \xB7 ' + _mvClock(n.pos) : 'Play' : 'Play';
+  e.querySelector('span').textContent = a;
+}
+function _mvPaintFav() {
+  const e = _mv.box && _mv.box.querySelector('.mv-fav');
+  if (!e)
+    return;
+  const t = _mv.lib.get(_mv.item.id), n = !(!t || !t.fav);
+  e.classList.toggle('on', n), e.querySelector('span').textContent = n ? 'In my list' : 'My list';
+}
+function _mvToggleFav() {
+  const e = _mvTouch(_mv.item);
+  e.fav = e.fav ? 0 : Date.now(), e.fav || e.ts ? _mvSave(e) : _mvDrop(e.id), _mvPaintFav();
+  const t = _mv.box.querySelector('.mv-fav');
+  t.classList.remove('pop'), t.offsetWidth, t.classList.add('pop'), _mvPaintLists();
+}
+async function _mvSeason(e) {
+  const t = _mv.item, n = _mv.bGen, a = _mv.box;
+  _mv.season = e, a.querySelectorAll('.mv-sn').forEach(t => t.classList.toggle('on', +t.dataset.n === e));
+  const o = a.querySelector('.mv-eps');
+  _mv.sdata[t.tid + ':' + e] || o.replaceChildren(...Array.from({ length: 4 }, () => {
+    const e = _mvEl('div', 'mv-ep skel');
+    return e.append(_mvEl('div', 'mv-ep-img'), _mvEl('div', 'mv-ep-t')), e;
+  }));
+  try {
+    if (await _mvSeasonEps(t.tid, e), n !== _mv.bGen || _mv.season !== e)
+      return;
+    _mvPaintEps(), _mvPaintPlay();
+  } catch (t) {
+    if (n !== _mv.bGen || _mv.season !== e)
+      return;
+    const a = _mvEl('div', 'mv-err'), s = _mvEl('button', 'mv-pill', 'Try again');
+    s.type = 'button', s.onclick = () => _mvSeason(e), a.append(_mvEl('span', '', _mvErrText(t)), s), o.replaceChildren(a);
+  }
+}
+function _mvPaintEps() {
+  const e = _mv.item, t = _mv.season, n = _mv.box, a = _mv.sdata[e.tid + ':' + t], o = n && n.querySelector('.mv-eps');
+  if (!a || !o)
+    return;
+  const s = _mv.lib.get(e.id);
+  if (!a.length)
+    return void o.replaceChildren(_mvEl('div', 'mv-none', 'No episodes listed for this season.'));
+  o.replaceChildren(...a.map(n => {
+    const a = _mvEpKey(t, n.episode_number), o = s && s.eps && s.eps[a], r = !(!s || s.s !== t || s.e !== n.episode_number), i = _mvFuture(n), c = _mvEl('div', 'mv-ep' + (r ? ' last' : '') + (i ? ' soon' : ''));
+    c.tabIndex = i ? -1 : 0, c.setAttribute('role', 'button');
+    const l = _mvEl('div', 'mv-ep-img'), d = _mvImg(n.still_path, 'w300');
+    if (d) {
+      const e = document.createElement('img');
+      e.alt = '', e.loading = 'lazy', e.referrerPolicy = 'no-referrer', e.onload = () => e.classList.add('in'), e.onerror = () => e.remove(), e.src = d, l.append(e);
+    }
+    l.append(_mvEl('span', 'mv-ep-n', String(n.episode_number)));
+    const m = o && _mvDone(o);
+    if (o && o.dur) {
+      const e = _mvEl('div', 'mv-prog'), t = document.createElement('i');
+      t.style.width = (m ? 100 : Math.round(100 * _mvFrac(o))) + '%', e.append(t), l.append(e);
+    }
+    if (m) {
+      const e = _mvEl('span', 'mv-ep-ok');
+      e.innerHTML = _mvSvg('check'), l.append(e);
+    }
+    const u = _mvEl('span', 'mv-ep-play');
+    u.innerHTML = _mvSvg('play'), l.append(u);
+    const p = _mvEl('div', 'mv-ep-t'), _ = _mvEl('div', 'mv-ep-top');
+    _.append(_mvEl('span', 'mv-ep-name', n.name || 'Episode ' + n.episode_number)), n.runtime && _.append(_mvEl('span', 'mv-ep-rt', n.runtime + 'm')), p.append(_), n.overview && p.append(_mvEl('div', 'mv-ep-desc', n.overview));
+    let h = '';
+    if (i ? h = 'Airs ' + new Date(n.air_date + 'T12:00:00').toLocaleDateString(void 0, {
+        month: 'short',
+        day: 'numeric'
+      }) : o && o.ts && (h = (m ? 'Finished' : 'Stopped at ' + _mvClock(o.pos)) + (o.spent >= 30 ? ' \xB7 ' + _mvHm(o.spent) + ' watched' : '')), r || h) {
+      const e = _mvEl('div', 'mv-ep-st');
+      r && e.append(_mvEl('b', '', 'Last watched')), h && e.append(_mvEl('span', '', h)), p.append(e);
+    }
+    if (c.append(l, p), !i) {
+      const a = () => _mpStart(e, t, n.episode_number, n.name);
+      c.onclick = a, c.onkeydown = e => {
+        'Enter' !== e.key && ' ' !== e.key || (e.preventDefault(), a());
+      };
+    }
+    return c;
+  }));
+  const r = o.querySelector('.last');
+  r && !o._scrolled && (o._scrolled = 1, o.scrollTop = Math.max(0, r.offsetTop - 8));
+}
+function _mvPlayNow() {
+  const e = _mv.item;
+  if ('tv' === e.type) {
+    const t = _mv.target || _mvTvTarget(), n = _mv.sdata[e.tid + ':' + t.s], a = n && n.find(e => e.episode_number === t.e);
+    _mpStart(e, t.s, t.e, t.name || a && a.name, t.again);
+  } else
+    _mpStart(e, 0, 0, '', _mvDone(_mv.lib.get(e.id)));
+}
+function _mvRefreshBox() {
+  _mv.box && document.getElementById('mvModal').classList.contains('open') && (_mvPaintPlay(), _mvPaintFav(), _mvPaintEps());
+}
+function _mvCloseBox() {
+  _mv.bGen++, document.getElementById('mvModal').classList.remove('open'), document.removeEventListener('keydown', _mvBoxKey, !0), _mvPaintLists();
+}
+function _mvBoxKey(e) {
+  'Escape' !== e.key || _mvPlayerOpen() || (e.preventDefault(), e.stopImmediatePropagation(), _mvCloseBox());
+}
+const _mp = {
+    el: null,
+    v: null,
+    r: {},
+    gen: 0,
+    hls: null,
+    servers: [],
+    si: 0,
+    qi: 0,
+    item: null,
+    s: 0,
+    e: 0,
+    epName: '',
+    started: !1,
+    quiet: !1,
+    acc: 0,
+    last: 0,
+    n: 0,
+    next: null,
+    rate: 1,
+    hover: !1,
+    menuOpen: !1,
+    cc: null,
+    ccTried: !1,
+    lvl: -1,
+    netRetry: 0,
+    mediaRetry: 0,
+    fsAt: 0,
+    tapAt: 0,
+    skipClick: 0,
+    plan: [],
+    prof: null,
+    ramped: !1,
+    ply: 0,
+    qAuto: !0,
+    bad: new Set(),
+    dead: new Set(),
+    stalls: [],
+    qSince: 0,
+    waitAt: 0,
+    wakeAt: 0,
+    idleT: 0,
+    nextPre: !1,
+    lq: 0,
+    fT: 0,
+    fD: 0,
+    lastT: 0,
+    gHist: [],
+    ac: null,
+    bwAt: 0,
+    beginAt: 0,
+    capIdx: -1,
+    refreshed: !1,
+    deadUrls: new Set(),
+    lastKind: '',
+    fileTries: 0
+  }, _MP_HTML = `<video class="mp-video" playsinline></video>\n<div class="mp-cap"></div>\n<div class="mp-rip l"></div><div class="mp-rip r"></div>\n<button class="mp-big" type="button" aria-label="Play or pause"></button>\n<div class="mp-stat"><div class="mp-spin"></div><div class="mp-msg"></div><div class="mp-errbtns"><button class="mv-pill" data-a="retry" type="button">Try again</button><button class="mv-pill ghost" data-a="back" type="button">Back</button></div></div>\n<div class="mp-toast"></div>\n<div class="mp-top"><button class="mp-btn" data-a="back" type="button" title="Back (Esc)">${ _mvSvg('back') }</button><div class="mp-ttl"><div class="mp-t1"></div><div class="mp-t2"></div></div></div>\n<div class="mp-next"><div class="mp-next-k">Up next</div><div class="mp-next-t"></div><div class="mp-next-bar"><i></i></div><div class="mp-next-b"><button class="mv-pill" data-a="nextnow" type="button">Play now</button><button class="mv-pill ghost" data-a="nextno" type="button">Cancel</button></div></div>\n<div class="mp-menu"></div>\n<div class="mp-bottom">\n<div class="mp-seek"><div class="mp-trk"><i class="mp-buf"></i><i class="mp-fill"></i></div><i class="mp-dot"></i><div class="mp-tip">0:00</div></div>\n<div class="mp-bar">\n<button class="mp-btn" data-a="toggle" type="button" title="Play / pause (space)"></button>\n<button class="mp-btn" data-a="rew" type="button" title="Back 10s (j)">${ _mvSvg('rew') }</button>\n<button class="mp-btn" data-a="fwd" type="button" title="Forward 10s (l)">${ _mvSvg('fwd') }</button>\n<div class="mp-vol"><button class="mp-btn" data-a="mute" type="button" title="Mute (m)"></button><div class="mp-vs"><div class="mp-trk"><i class="mp-vfill"></i></div><i class="mp-dot"></i></div></div>\n<div class="mp-time"><span class="mp-cur">0:00</span><span class="mp-dur">0:00</span></div>\n<div class="mp-sp"></div>\n<button class="mp-btn" data-a="next" type="button" title="Next episode (n)" hidden>${ _mvSvg('next') }</button>\n<button class="mp-btn" data-a="cc" type="button" title="Captions (c)" hidden>${ _mvSvg('cc') }</button>\n<button class="mp-btn" data-a="gear" type="button" title="Settings">${ _mvSvg('gear') }</button>\n<button class="mp-btn" data-a="pip" type="button" title="Picture in picture" hidden>${ _mvSvg('pip') }</button>\n<button class="mp-btn" data-a="full" type="button" title="Fullscreen (f)"></button>\n</div></div>`;
+function _mvPlayerOpen() {
+  const e = document.getElementById('mvPlayer');
+  return !!e && e.classList.contains('open') && !e.classList.contains('bg');
+}
+function _mpGroup(e) {
+  const t = e => parseInt(String(e.quality || '0'), 10) || 0, n = new Map();
+  for (const t of e)
+    t && t.url && 'dash' !== t.type && (n.has(t.provider) || n.set(t.provider, []), n.get(t.provider).push(t));
+  return [...n.entries()].map(([e, n]) => (n.sort((e, n) => t(n) - t(e)), {
+    provider: e,
+    providerName: n[0].providerName || n[0].provider,
+    type: n[0].type,
+    qualities: n
+  }));
+}
+const _MP_TIERS = [
+    240,
+    360,
+    480,
+    720,
+    1080,
+    1440,
+    2160
+  ], _mpBr = e => e >= 2160 ? 16000000 : e >= 1440 ? 9000000 : e >= 1080 ? 5000000 : e >= 720 ? 2800000 : e >= 480 ? 1400000 : e >= 360 ? 800000 : 450000, _MP_RAMP = 6, _MP_SMALL = {
+    maxBufferLength: 10,
+    maxMaxBufferLength: 12,
+    maxBufferSize: 8000000
+  };
+let _mpProf = null;
+function _mpProfile() {
+  return _mpProf || (_mpProf = ((async () => {
+    const e = navigator, t = e.connection || {}, n = e.mediaCapabilities, a = e.deviceMemory || 8, o = e.hardwareConcurrency || 4, s = Math.min(Math.min(screen.width, screen.height), 9 * Math.max(screen.width, screen.height) / 16) * (devicePixelRatio || 1), r = t.effectiveType || '';
+    let i = Math.max(1080, _MP_TIERS.filter(e => e <= 1.1 * s).pop() || 0);
+    if (a <= 2 || o <= 2 ? i = Math.min(i, 720) : a <= 4 && (i = Math.min(i, 1080)), 'slow-2g' === r || '2g' === r ? i = Math.min(i, 240) : '3g' === r ? i = Math.min(i, 360) : t.saveData && (i = Math.min(i, 480)), n && n.decodingInfo) {
+      const e = [];
+      await Promise.all(_MP_TIERS.filter(e => e >= 720 && e <= i).map(t => n.decodingInfo({
+        type: 'file',
+        video: {
+          contentType: 'video/mp4; codecs="avc1.640033"',
+          width: Math.round(16 * t / 9),
+          height: t,
+          bitrate: _mpBr(t),
+          framerate: 30
+        }
+      }).then(n => {
+        n.supported && e.push([
+          t,
+          n.smooth
+        ]);
+      }, () => {
+      })));
+      const t = e.filter(e => e[1]).map(e => e[0]);
+      e.length && (i = Math.min(i, t.length ? Math.max(...t) : Math.min(...e.map(e => e[0]))));
+    }
+    let c = 0;
+    try {
+      const e = JSON.parse(localStorage.MV_BW || 'null');
+      e && e.b > 0 && Date.now() - e.t < 604800000 && (c = e.b);
+    } catch {
+    }
+    return !c && t.downlink && t.downlink < 9.5 && (c = 800000 * t.downlink), {
+      cap: i,
+      mem: a,
+      cpu: o,
+      bw: c,
+      save: !!t.saveData
+    };
+  })()));
+}
+function _mpBw(e) {
+  const t = _mp.prof;
+  t && e > 0 && (t.bw = t.bw ? 0.7 * t.bw + 0.3 * e : e, Date.now() - _mp.bwAt > 30000 && _mpBwSave());
+}
+function _mpBwSave() {
+  const e = _mp.prof;
+  if (e && e.bw) {
+    _mp.bwAt = Date.now();
+    try {
+      localStorage.MV_BW = JSON.stringify({
+        b: Math.round(e.bw),
+        t: _mp.bwAt
+      });
+    } catch {
+    }
+  }
+}
+const _MP_RETRY_MS = 1000, _MP_TRIES = 2;
+function _mpKind(e, t) {
+  const n = t && 'object' == typeof t ? t : {}, a = n.error;
+  return 'source_expired' === a || n.refreshSources || 410 === e ? 'expired' : 403 === e || 'blocked' === a ? 'blocked' : !0 === n.retry || 'upstream_busy' === a || 'upstream timeout' === a || !e || 408 === e || 425 === e || 429 === e || e >= 500 ? 'busy' : 'other';
+}
+const _mpSleep = e => new Promise(t => setTimeout(t, e));
+async function _mpWhy(e) {
+  const t = new AbortController(), n = setTimeout(() => t.abort(), 5000);
+  _mp.ac && _mp.ac.signal.addEventListener('abort', () => t.abort(), { once: !0 });
+  try {
+    const n = await fetch(e, { signal: t.signal });
+    return n.ok ? (t.abort(), 'ok') : _mpKind(n.status, await n.json().catch(() => null));
+  } catch {
+    return 'busy';
+  } finally {
+    clearTimeout(n);
+  }
+}
+function _mpHlsKind(e) {
+  if ('networkError' !== e.type || /Parsing|Incompatible/i.test(e.details || ''))
+    return 'other';
+  const t = e.networkDetails;
+  let n = null;
+  try {
+    const e = t && ('arraybuffer' === t.responseType ? new TextDecoder().decode(t.response && t.response.slice ? t.response.slice(0, 400) : t.response) : t.responseText);
+    e && (n = JSON.parse(e));
+  } catch {
+  }
+  return _mpKind(e.response && e.response.code, n);
+}
+const _mpRetryCfg = e => ({
+    maxNumRetry: e,
+    retryDelayMs: _MP_RETRY_MS,
+    maxRetryDelayMs: _MP_RETRY_MS,
+    backoff: 'linear',
+    shouldRetry: (e, t, n, a) => t < e.maxNumRetry && (n || !a || [
+      0,
+      408,
+      425,
+      429,
+      500,
+      503,
+      504
+    ].includes(a.code))
+  }), _mpPolicy = (e, t, n) => ({
+    default: {
+      maxTimeToFirstByteMs: e,
+      maxLoadTimeMs: t,
+      timeoutRetry: {
+        maxNumRetry: 1,
+        retryDelayMs: 0,
+        maxRetryDelayMs: 0
+      },
+      errorRetry: _mpRetryCfg(n)
+    }
+  }), _mpPh = () => {
+    try {
+      return JSON.parse(localStorage.MV_PH || '{}');
+    } catch {
+      return {};
+    }
+  };
+function _mpPhSave(e, t) {
+  if (!(e && t > 0))
+    return;
+  const n = _mpPh();
+  if (n[e] !== t) {
+    n[e] = t;
+    try {
+      localStorage.MV_PH = JSON.stringify(n);
+    } catch {
+    }
+  }
+}
+const _mpProbed = new Map();
+async function _mpProbe(e, t, n) {
+  const a = _mpProbed.get(e.url);
+  if (a && Date.now() - a.t < 600000)
+    return a.dead && (e.dead = !0), a.h && (e.h = a.h), void (a.b && (e.b = a.b));
+  const o = new AbortController(), s = () => o.abort(), r = setTimeout(s, t);
+  _mp.ac.signal.addEventListener('abort', s, { once: !0 });
+  try {
+    const t = await fetch(_mvBase() + '/proxy?url=' + encodeURIComponent(e.url), { signal: o.signal });
+    if (!t.ok) {
+      const n = _mpKind(t.status, await t.json().catch(() => null));
+      return void ('expired' !== n && 'blocked' !== n || (e.dead = !0, _mpProbed.set(e.url, {
+        dead: !0,
+        t: Date.now()
+      })));
+    }
+    if (+t.headers.get('content-length') > 200000)
+      return;
+    let a = 0, s = 0;
+    for (const e of (await t.text()).matchAll(/#EXT-X-STREAM-INF:([^\r\n]*)/g))
+      a = Math.max(a, +(/RESOLUTION=\d+x(\d+)/.exec(e[1]) || [])[1] || 0), s = Math.max(s, +(/BANDWIDTH=(\d+)/.exec(e[1]) || [])[1] || 0);
+    a && (e.h = a, _mpPhSave(n, a)), s && (e.b = s), _mpProbed.set(e.url, {
+      h: a,
+      b: s,
+      t: Date.now()
+    });
+  } catch {
+  } finally {
+    clearTimeout(r);
+  }
+}
+async function _mpRank(e) {
+  const t = _mp, n = t.prof, a = [], o = t.servers.flatMap(e => e.qualities), s = _mpPh(), r = t.servers.flatMap(e => e.qualities.filter(e => 'hls' === e.type).map(t => [
+      e,
+      t
+    ])).slice(0, 4), i = (e, t) => t.h || s[e.provider] || 0;
+  if (o.length > 1 && r.length && (await new Promise(e => {
+      let t = r.length, a = !1;
+      const o = () => {
+          a || (a = !0, e());
+        }, s = () => {
+          r.some(([e, t]) => Math.min(i(e, t), n.cap) >= n.cap) && o();
+        };
+      r.forEach(([e, n]) => _mpProbe(n, 4000, e.provider).then(() => {
+        --t ? s() : o();
+      })), s(), setTimeout(o, 3500);
+    }), e !== t.gen))
+    return;
+  let c = '';
+  try {
+    c = localStorage.MV_SRC || '';
+  } catch {
+  }
+  t.servers.forEach((e, o) => e.qualities.forEach((s, r) => {
+    if (s.dead || t.deadUrls.has(s.url))
+      return void t.deadUrls.add(s.url);
+    const l = 'hls' === s.type, d = l ? i(e, s) || 720 : parseInt(s.quality, 10) || 0;
+    a.push({
+      si: o,
+      qi: r,
+      hls: l,
+      h: d,
+      eh: Math.min(d, n.cap),
+      fit: l || !n.bw || 1.25 * _mpBr(d) <= n.bw,
+      ok: l || d <= n.cap,
+      pref: e.provider === c,
+      b: s.b || 0,
+      n: a.length
+    });
+  }));
+  const l = e => e.fit ? e.eh : -e.h;
+  a.sort((e, t) => t.fit - e.fit || l(t) - l(e) || t.ok - e.ok || t.hls - e.hls || t.pref - e.pref || t.b - e.b || e.n - t.n), t.plan = a;
+}
+function _mpHlsCfg(e) {
+  return Object.assign({
+    manifestLoadPolicy: _mpPolicy(1 / 0, 20000, _MP_TRIES),
+    playlistLoadPolicy: _mpPolicy(10000, 20000, _MP_TRIES),
+    fragLoadPolicy: _mpPolicy(10000, 120000, 3),
+    autoStartLoad: !1,
+    startPosition: e > 0 ? e : -1,
+    capLevelToPlayerSize: !0,
+    capLevelOnFPSDrop: !0,
+    abrEwmaDefaultEstimate: _mp.prof.bw || 8000000,
+    backBufferLength: 30
+  }, _MP_SMALL);
+}
+function _mpPickStart(e, t) {
+  const n = _mp, a = n.prof, o = e.levels, s = a.bw || 8000000, r = n.servers[n.si] && n.servers[n.si].provider;
+  _mpPhSave(r, Math.max(0, ...o.map(e => e.height || 0))), 1 !== o.length || o[0].height || n.v.addEventListener('loadedmetadata', () => {
+    e === n.hls && _mpPhSave(r, n.v.videoHeight);
+  }, { once: !0 });
+  let i = 0, c = 0;
+  o.forEach((e, t) => {
+    (!e.height || e.height <= a.cap) && (c = t);
+  }), n.capIdx = c < o.length - 1 ? c : -1;
+  const l = n.capIdx >= 0 && Object.getOwnPropertyDescriptor(Object.getPrototypeOf(e), 'autoLevelCapping');
+  l && l.set && Object.defineProperty(e, 'autoLevelCapping', {
+    configurable: !0,
+    get: () => l.get.call(e),
+    set: t => l.set.call(e, t < 0 || t > n.capIdx ? n.capIdx : t)
+  }), n.capIdx >= 0 && (e.autoLevelCapping < 0 || e.autoLevelCapping > n.capIdx) && (e.autoLevelCapping = n.capIdx);
+  const d = e.autoLevelCapping >= 0 ? Math.min(c, e.autoLevelCapping) : c;
+  o.forEach((e, t) => {
+    t <= d && e.bitrate <= 0.85 * s && (i = t);
+  }), e.startLevel = i, e.startLoad(t > 0 ? t : -1);
+}
+function _mpBufTune() {
+  const e = _mp, t = e.hls, n = e.prof;
+  if (!t || !e.ramped || !n)
+    return;
+  const a = n.mem >= 8, o = n.mem >= 4;
+  let s = (a ? 45 : o ? 35 : 24) + Math.min(30, 10 * e.stalls.length), r = a ? 100000000 : o ? 60000000 : 30000000;
+  (n.save || document.hidden) && (s = Math.min(s, 20), r = Math.min(r, 24000000));
+  const i = t.loadLevel >= 0 ? t.loadLevel : t.currentLevel, c = t.levels && t.levels[i], l = c && (c.maxBitrate || c.bitrate) || 5000000;
+  s = Math.max(15, Math.min(s, Math.floor(8 * r / l))), Object.assign(t.config, {
+    maxBufferLength: s,
+    maxMaxBufferLength: s,
+    maxBufferSize: r
+  });
+}
+function _mpRamp() {
+  const e = _mp;
+  e.ramped = !0, e.v.preload = 'auto', _mpBufTune(), _mpPrepNext(e.gen);
+}
+function _mpRampReset() {
+  const e = _mp;
+  e.ramped = !1, e.ply = 0, e.hls && Object.assign(e.hls.config, _MP_SMALL);
+}
+function _mpStallEnd() {
+  const e = _mp, t = e.waitAt ? performance.now() - e.waitAt : 0;
+  e.waitAt = 0, t < 700 || (e.stalls.push({
+    t: performance.now(),
+    d: t
+  }), e.stalls.length > 8 && e.stalls.shift(), _mpBufTune());
+}
+function _mpLadder(e) {
+  const t = _mp, n = t.v, a = t.servers[t.si];
+  if (!a || 'file' !== a.type || a.qualities.length < 2 || !t.qAuto || document.hidden)
+    return;
+  let o = 0;
+  for (let e = 0; e < n.buffered.length; e++)
+    n.buffered.start(e) <= n.currentTime + 0.5 && n.buffered.end(e) >= o && (o = n.buffered.end(e));
+  const s = o - n.currentTime, r = parseInt(a.qualities[t.qi].quality, 10) || 0, i = t.gHist;
+  if (i.push([
+      e,
+      o,
+      s
+    ]), i.length > 7 && i.shift(), 7 === i.length && i[0][2] < 30 && o > i[0][1]) {
+    const n = (o - i[0][1]) / ((e - i[0][0]) / 1000) * _mpBr(r);
+    n > (t.prof.bw || 0) && _mpBw(n);
+  }
+  let c = !1;
+  if (++t.lq % 5 == 0 && n.getVideoPlaybackQuality) {
+    const e = n.getVideoPlaybackQuality(), a = e.totalVideoFrames - t.fT, o = e.droppedVideoFrames - t.fD;
+    t.fT = e.totalVideoFrames, t.fD = e.droppedVideoFrames, c = a >= 90 && o / a > 0.2;
+  }
+  const l = e - t.qSince, d = t.stalls.filter(t => e - t.t < 45000).length;
+  l > 8000 && (d >= 2 || t.waitAt && e - t.waitAt > 6000 || c) ? _mpStep(-1, c) : l > 75000 && !d && s > 10 && t.prof.bw && _mpStep(1);
+}
+function _mpStep(e, t) {
+  const n = _mp, a = n.servers[n.si], o = e => parseInt(a.qualities[e].quality, 10) || 0, s = n.qi + (e < 0 ? 1 : -1);
+  if (!(s < 0 || s >= a.qualities.length))
+    if (e > 0 && (n.bad.has(n.si + ':' + s) || o(s) > n.prof.cap || 1.6 * _mpBr(o(s)) > n.prof.bw))
+      n.qSince = performance.now() - 30000;
+    else {
+      if (e < 0)
+        if (n.bad.add(n.si + ':' + n.qi), t)
+          n.prof.cap = Math.min(n.prof.cap, o(s));
+        else {
+          const e = 1.1 * _mpBr(o(n.qi));
+          n.prof.bw = n.prof.bw ? Math.min(n.prof.bw, e) : e;
+        }
+      n.qSince = performance.now(), _mpToast(a.qualities[s].quality + ' \xB7 auto'), _mpSwitchQ(n.si, s);
+    }
+}
+function _mpSolo(e) {
+  const t = _mp.el;
+  if (t && t.parentNode)
+    for (const n of t.parentNode.children)
+      n === t || 'gamePlayer' === n.id || /^(STYLE|SCRIPT|LINK|TEMPLATE|IFRAME)$/.test(n.tagName) || n.toggleAttribute('data-mpx', e);
+}
+let _hlsP = null;
+function _mpHlsLib() {
+  return globalThis.Hls ? Promise.resolve(globalThis.Hls) : _hlsP || (_hlsP = new Promise((e, t) => {
+    const n = [
+        'https://cdn.jsdelivr.net/npm/hls.js@1/dist/hls.min.js',
+        'https://unpkg.com/hls.js@1/dist/hls.min.js'
+      ], a = () => {
+        const o = n.shift();
+        if (!o)
+          return _hlsP = null, t(new Error('hls.js failed to load'));
+        const s = document.createElement('script');
+        s.src = o, s.onload = () => globalThis.Hls ? e(globalThis.Hls) : a(), s.onerror = () => {
+          s.remove(), a();
+        }, document.head.appendChild(s);
+      };
+    a();
+  }));
+}
+function _mpBuild() {
+  if (_mp.el)
+    return;
+  const e = _mp.el = document.getElementById('mvPlayer');
+  e.innerHTML = _MP_HTML;
+  const t = t => e.querySelector(t), n = _mp.v = t('.mp-video'), a = _mp.r;
+  Object.assign(a, {
+    cap: t('.mp-cap'),
+    big: t('.mp-big'),
+    msg: t('.mp-msg'),
+    toast: t('.mp-toast'),
+    t1: t('.mp-t1'),
+    t2: t('.mp-t2'),
+    next: t('.mp-next'),
+    menu: t('.mp-menu'),
+    seek: t('.mp-seek'),
+    buf: t('.mp-buf'),
+    fill: t('.mp-fill'),
+    dot: t('.mp-seek .mp-dot'),
+    tip: t('.mp-tip'),
+    cur: t('.mp-cur'),
+    dur: t('.mp-dur'),
+    vs: t('.mp-vs'),
+    vfill: t('.mp-vfill'),
+    vdot: t('.mp-vs .mp-dot'),
+    toggle: t('[data-a=toggle]'),
+    mute: t('[data-a=mute]'),
+    full: t('[data-a=full]'),
+    cc: t('[data-a=cc]'),
+    nextBtn: t('[data-a=next]'),
+    pip: t('[data-a=pip]'),
+    top: t('.mp-top'),
+    bottom: t('.mp-bottom'),
+    rl: t('.mp-rip.l'),
+    rr: t('.mp-rip.r')
+  });
+  try {
+    const e = JSON.parse(localStorage.MV_VOL || '{}');
+    n.volume = null == e.v ? 1 : Math.min(1, Math.max(0, e.v)), n.muted = !!e.m;
+  } catch {
+  }
+  const o = n.volume;
+  n.volume = 0.5;
+  const s = 0.5 !== n.volume;
+  n.volume = o, s && (a.vs.hidden = !0), a.big.innerHTML = _mvSvg('play'), a.toggle.innerHTML = _mvSvg('play'), a.full.innerHTML = _mvSvg('fs'), e.requestFullscreen || e.webkitRequestFullscreen || n.webkitEnterFullscreen || (a.full.hidden = !0), document.pictureInPictureEnabled && n.requestPictureInPicture && (a.pip.hidden = !1), n.addEventListener('play', () => {
+    _mp.quiet || (e.classList.remove('paused', 'ended'), _mpIcons(), _mpPop());
+  }), n.addEventListener('pause', () => {
+    _mp.quiet || n.ended || (e.classList.add('paused'), a.big.innerHTML = _mvSvg('pause'), _mpIcons(), _mpSave());
+  }), n.addEventListener('playing', () => {
+    _mp.quiet = !1, _mp.started = !0, _mp.beginAt = 0, clearTimeout(_mp.spinT), a.msg.textContent = '', _mpStallEnd(), e.classList.remove('buffering', 'loading', 'err', 'paused'), _mpIcons(), _mpWake();
+  }), n.addEventListener('waiting', () => {
+    _mp.waitAt || !_mp.started || n.seeking || (_mp.waitAt = performance.now()), clearTimeout(_mp.spinT), _mp.spinT = setTimeout(() => e.classList.add('buffering'), 350);
+  }), n.addEventListener('canplay', () => {
+    clearTimeout(_mp.spinT), e.classList.remove('buffering');
+  }), n.addEventListener('seeking', () => {
+    _mp.waitAt = 0, Math.abs(n.currentTime - _mp.lastT) > 20 && _mpRampReset(), _mp.lastT = n.currentTime;
+  }), n.addEventListener('seeked', () => {
+    clearTimeout(_mp.spinT), e.classList.remove('buffering'), _mpPaint();
+  }), n.addEventListener('timeupdate', _mpPaint), n.addEventListener('progress', _mpPaint), n.addEventListener('durationchange', _mpPaint), n.addEventListener('volumechange', () => {
+    _mpPaintVol();
+    try {
+      localStorage.MV_VOL = JSON.stringify({
+        v: n.volume,
+        m: n.muted
+      });
+    } catch {
+    }
+  }), n.addEventListener('ratechange', () => {
+    _mp.quiet || (_mp.rate = n.playbackRate);
+  }), n.addEventListener('ended', () => {
+    _mpSave(), e.classList.add('paused', 'ended'), a.big.innerHTML = _mvSvg('replay'), _mpIcons(), _mpUpNext();
+  }), n.addEventListener('error', () => {
+    !_mp.quiet && _mp.started && !_mp.hls && n.error && _mpFileDied();
+  }), n.textTracks.addEventListener('addtrack', e => {
+    e.track.oncuechange = _mpCues, _mpAvail();
+  });
+  let r = 0;
+  n.addEventListener('click', () => {
+    performance.now() - _mp.skipClick < 450 || (clearTimeout(r), r = setTimeout(_mpToggle, 190));
+  }), n.addEventListener('dblclick', () => {
+    performance.now() - _mp.skipClick < 450 || (clearTimeout(r), _mpFull());
+  }), n.addEventListener('pointerup', t => {
+    if ('touch' !== t.pointerType)
+      return;
+    _mp.skipClick = performance.now();
+    const n = performance.now(), a = e.clientWidth, o = t.clientX;
+    if (n - _mp.tapAt < 320)
+      return _mp.tapAt = 0, void (o < a / 3 ? _mpSkip(-10, !0) : o > 2 * a / 3 ? _mpSkip(10, !0) : _mpFull());
+    _mp.tapAt = n, e.classList.contains('active') && !e.classList.contains('paused') ? (clearTimeout(_mp.idleT), _mp.idleT = 0, e.classList.remove('active')) : _mpWake();
+  }), e.addEventListener('pointerdown', e => {
+    e.target.closest('.mp-menu, [data-a=gear]') || _mpMenuClose();
+  });
+  for (const e of [
+      a.top,
+      a.bottom
+    ])
+    e.addEventListener('pointerenter', () => {
+      _mp.hover = !0;
+    }), e.addEventListener('pointerleave', () => {
+      _mp.hover = !1, _mpWake();
+    });
+  e.addEventListener('click', e => {
+    const t = e.target.closest('[data-a]');
+    t && _mpAct(t.dataset.a);
+  }), a.big.addEventListener('click', _mpToggle);
+  const i = e => {
+    const t = a.seek.getBoundingClientRect(), o = Math.min(1, Math.max(0, (e - t.left) / t.width)), s = n.duration || 0;
+    return a.tip.textContent = _mvClock(o * s), a.tip.style.left = Math.min(t.width - 28, Math.max(28, o * t.width)) + 'px', o;
+  };
+  a.seek.addEventListener('pointermove', e => i(e.clientX)), _mpDrag(a.seek, (e, t) => {
+    const a = n.duration;
+    a > 0 && (i(t.clientX), _mp.drag = e * a, _mpPaint());
+  }, () => {
+    null != _mp.drag && (n.currentTime = _mp.drag), _mp.drag = null, _mpPaint();
+  }), _mpDrag(a.vs, e => {
+    n.muted = 0 === e, n.volume = e;
+  }), document.addEventListener('fullscreenchange', () => {
+    const t = _fsEl() === e;
+    e.classList.toggle('fs', t), a.full.innerHTML = _mvSvg(t ? 'fsx' : 'fs'), t || (_mp.fsAt = performance.now());
+  }), document.addEventListener('keyup', e => {
+    _mvPlayerOpen() && ' ' === e.key && (e.preventDefault(), e.stopImmediatePropagation());
+  }, !0), document.addEventListener('visibilitychange', () => {
+    _mvPlayerOpen() && (_mpBufTune(), document.hidden || _mpPaint());
+  }), _mpIcons(), _mpPaintVol();
+}
+function _mpDrag(e, t, n) {
+  e.addEventListener('pointerdown', a => {
+    if (a.button)
+      return;
+    a.preventDefault();
+    const o = n => t((t => {
+        const n = e.getBoundingClientRect();
+        return Math.min(1, Math.max(0, (t.clientX - n.left) / n.width));
+      })(n), n), s = () => {
+        e.removeEventListener('pointermove', o), e.removeEventListener('pointerup', s), e.removeEventListener('pointercancel', s), e.classList.remove('drag'), n && n();
+      };
+    try {
+      e.setPointerCapture(a.pointerId);
+    } catch {
+    }
+    e.classList.add('drag'), e.addEventListener('pointermove', o), e.addEventListener('pointerup', s), e.addEventListener('pointercancel', s), o(a);
+  });
+}
+function _mpAct(e) {
+  const t = _mp.v;
+  switch (e) {
+  case 'toggle':
+    _mpToggle();
+    break;
+  case 'rew':
+    _mpSkip(-10);
+    break;
+  case 'fwd':
+    _mpSkip(10);
+    break;
+  case 'mute':
+    t.muted = !t.muted, t.muted || 0 !== t.volume || (t.volume = 0.5);
+    break;
+  case 'full':
+    _mpFull();
+    break;
+  case 'gear':
+    _mp.menuOpen ? _mpMenuClose() : _mpMenu('root');
+    break;
+  case 'cc':
+    _mpCcToggle();
+    break;
+  case 'pip':
+    (document.pictureInPictureElement ? document.exitPictureInPicture() : t.requestPictureInPicture()).catch(() => {
+    });
+    break;
+  case 'next':
+  case 'nextnow':
+    _mpPlayNext();
+    break;
+  case 'nextno':
+    _mpNextCancel();
+    break;
+  case 'back':
+    _mpClose();
+    break;
+  case 'retry':
+    _mpRetry();
+  }
+}
+function _mpToggle() {
+  const e = _mp.v;
+  if (e.src || e.currentSrc || _mp.hls) {
+    if (e.ended)
+      return e.currentTime = 0, void e.play().catch(() => {
+      });
+    e.paused ? e.play().catch(() => {
+    }) : e.pause(), _mpWake();
+  }
+}
+function _mpSkip(e, t) {
+  const n = _mp.v;
+  if (n.duration > 0)
+    if (n.currentTime = Math.min(n.duration, Math.max(0, n.currentTime + e)), t) {
+      const t = e < 0 ? _mp.r.rl : _mp.r.rr;
+      t.textContent = (e < 0 ? '\u2212' : '+') + Math.abs(e) + 's', t.classList.remove('go'), t.offsetWidth, t.classList.add('go');
+    } else
+      _mpToast((e < 0 ? '\u2212' : '+') + Math.abs(e) + 's');
+}
+function _mpFull() {
+  const e = _mp.el, t = _mp.v;
+  if (_fsInner())
+    return void document.exitFullscreen().catch(() => {
+    });
+  const n = e.requestFullscreen || e.webkitRequestFullscreen;
+  if (n) {
+    const t = n.call(e);
+    t && t.catch && t.catch(() => {
+    });
+  } else
+    t.webkitEnterFullscreen && t.webkitEnterFullscreen();
+}
+function _mpToast(e) {
+  const t = _mp.r.toast;
+  t.textContent = e, t.classList.add('show'), clearTimeout(_mp.toastT), _mp.toastT = setTimeout(() => t.classList.remove('show'), 900);
+}
+function _mpWake() {
+  const e = _mp, t = e.el;
+  t && _mvPlayerOpen() && (e.wakeAt = performance.now(), t.classList.contains('active') || (t.classList.add('active'), _mpPaint()), e.idleT || (e.idleT = setTimeout(_mpIdle, 3000)));
+}
+function _mpIdle() {
+  const e = _mp, t = 3000 - (performance.now() - e.wakeAt);
+  e.idleT = 0, t > 60 ? e.idleT = setTimeout(_mpIdle, t) : e.v.paused || e.hover || e.menuOpen || e.el.classList.remove('active');
+}
+function _mpMove(e) {
+  'touch' !== e.pointerType && _mpWake();
+}
+function _mpPop() {
+  const e = _mp.r.big;
+  e.innerHTML = _mvSvg('play'), e.classList.remove('pop'), e.offsetWidth, e.classList.add('pop');
+}
+function _mpIcons() {
+  const e = _mp.v;
+  _mp.r.toggle.innerHTML = _mvSvg(e.ended ? 'replay' : e.paused ? 'play' : 'pause');
+}
+function _mpPaintVol() {
+  const e = _mp.v, t = _mp.r, n = e.muted ? 0 : e.volume;
+  t.vfill.style.transform = 'scaleX(' + n + ')', t.vdot.style.left = 100 * n + '%', t.mute.innerHTML = _mvSvg(0 === n ? 'mute' : n < 0.5 ? 'vol1' : 'vol');
+}
+function _mpPaint() {
+  const e = _mp.v, t = _mp.r, n = _mp.el.classList, a = e.duration, o = a > 0 && isFinite(a);
+  if (null == _mp.drag && !(n.contains('active') || n.contains('paused') || n.contains('err')))
+    return;
+  const s = null != _mp.drag ? _mp.drag : e.currentTime, r = o ? Math.min(1, s / a) : 0;
+  t.fill.style.transform = 'scaleX(' + r + ')', t.dot.style.left = 100 * r + '%', t.cur.textContent = _mvClock(s), t.dur.textContent = o ? ' / ' + _mvClock(a) : '';
+  let i = 0;
+  for (let t = 0; t < e.buffered.length; t++)
+    e.buffered.start(t) <= e.currentTime + 0.5 && e.buffered.end(t) >= i && (i = e.buffered.end(t));
+  t.buf.style.transform = 'scaleX(' + (o ? Math.min(1, i / a) : 0) + ')';
+}
+function _mpStatus(e, t) {
+  const n = _mp.el;
+  n.classList.remove('loading', 'err'), e && n.classList.add(e), _mp.r.msg.textContent = t || '', 'err' === e && (_mp.quiet = !1, _mp.el.classList.add('active'));
+}
+function _mpTeardown() {
+  const e = _mp, t = e.v;
+  if (t) {
+    if (e.quiet = !0, clearTimeout(e.spinT), e.hls) {
+      try {
+        e.hls.destroy();
+      } catch {
+      }
+      e.hls = null;
+    }
+    t.onloadedmetadata = t.onerror = null, t.pause(), t.removeAttribute('src'), t.load(), e.netRetry = e.mediaRetry = 0, e.lvl = -1, e.cc = null, e.ccTried = !1, e.ramped = !1, e.ply = 0, e.waitAt = e.beginAt = 0, e.stalls = [], e.gHist = [], e.fT = e.fD = 0, e.lastT = 0, _mp.r.cap.replaceChildren(), _mp.r.cap.dataset.t = '', _mp.r.cc.hidden = !0;
+  }
+}
+const _mpSL = new Map();
+function _mpStreams(e, t, n, a) {
+  const o = e.id + ':' + t + ':' + n, s = _mpSL.get(o);
+  return !a && s && Date.now() - s.t < 90000 ? Promise.resolve(s.r) : _mvApi.streams(e.type, e.tid, t, n).then(e => (e.length && (_mpSL.set(o, {
+    t: Date.now(),
+    r: e
+  }), _mpSL.size > 20 && _mpSL.delete(_mpSL.keys().next().value)), e));
+}
+let _mpPre = null;
+function _mpPreStreams() {
+  const e = _mp, t = e.next;
+  e.nextPre = !0;
+  const n = e.item.tid + ':' + t.s + ':' + t.e;
+  _mvApi.streams('tv', e.item.tid, t.s, t.e).then(e => {
+    _mpPre = {
+      k: n,
+      t: Date.now(),
+      r: e
+    };
+  }, () => {
+  });
+}
+async function _mpStart(e, t, n, a, o) {
+  _mpBuild(), _opmMovieStart(e, t, n);
+  const s = _mp, r = ++s.gen, i = 'tv' === e.type;
+  s.ac && s.ac.abort(), s.ac = new AbortController(), Object.assign(s, {
+    item: e,
+    s: t,
+    e: n,
+    epName: a || '',
+    started: !1,
+    servers: [],
+    plan: [],
+    si: 0,
+    qi: 0,
+    next: null,
+    nextPre: !1,
+    qAuto: !0,
+    bad: new Set(),
+    dead: new Set(),
+    qSince: 0,
+    refreshed: !1,
+    deadUrls: new Set(),
+    lastKind: '',
+    fileTries: 0,
+    acc: 0,
+    last: performance.now(),
+    n: 0,
+    lq: 0,
+    tvStart: {
+      s: t,
+      e: n,
+      name: a,
+      fresh: o
+    }
+  }), _mpNextCancel(), _mpTeardown();
+  const c = _mv.lib.get(e.id), l = i ? c && c.eps && c.eps[_mvEpKey(t, n)] : c, d = !o && l && l.dur && !_mvDone(l) && l.pos > 15 ? Math.max(0, l.pos - 2) : 0;
+  s.startPos = d, s.r.t1.textContent = e.title, s.r.t2.textContent = i ? 'S' + t + ' E' + n + (a ? ' \xB7 ' + a : '') : e.year || '', s.r.nextBtn.hidden = !0, s.el.classList.remove('paused', 'ended', 'buffering'), s.el.classList.add('open', 'active'), _mpPaint(), _mpStatus('loading', 'Finding sources\u2026'), document.addEventListener('keydown', _mpKey, !0);
+  for (const e of [
+      'pointermove',
+      'mousemove'
+    ])
+    window.addEventListener(e, _mpMove, !0);
+  clearInterval(s.tick), s.tick = setInterval(_mpTick, 1000), setTimeout(() => {
+    r === s.gen && _mvPlayerOpen() && _mpSolo(!0);
+  }, 350), _mpWake();
+  const m = _mpProfile(), u = _mpPre;
+  let p;
+  _mpPre = null;
+  try {
+    p = i && u && u.k === e.tid + ':' + t + ':' + n && Date.now() - u.t < 300000 && u.r.length ? u.r : await _mpStreams(e, t, n);
+  } catch (e) {
+    return void (r === s.gen && _mpStatus('err', _mvErrText(e)));
+  }
+  if (r === s.gen)
+    if (s.prof = await m, s.servers = _mpGroup(p), s.servers.length) {
+      if (await _mpRank(r), r === s.gen)
+        return s.plan.length || s.refreshed ? void _mpTry(s.plan.map(e => [
+          e.si,
+          e.qi
+        ]), d, r) : (s.refreshed = !0, void _mpRefresh(d, r));
+    } else
+      _mpStatus('err', 'No sources have this one right now. Try another title, or check back later.');
+}
+function _mpRetry() {
+  const e = _mp.tvStart;
+  _mpSL.clear(), e && _mpStart(_mp.item, e.s, e.e, e.name, e.fresh);
+}
+function _mpOrder(e) {
+  const t = _mp, n = t.plan.length ? t.plan.map(e => [
+      e.si,
+      e.qi
+    ]) : t.servers.flatMap((e, t) => e.qualities.map((e, n) => [
+      t,
+      n
+    ])), a = Math.max(0, n.findIndex(([t, n]) => t === e[0] && n === e[1]));
+  return n.slice(a).concat(n.slice(0, a)).filter(([e, n], a) => !a || !t.dead.has(e + ':' + n));
+}
+async function _mpTry(e, t, n) {
+  const a = _mp;
+  for (let o = 0; o < e.length; o++) {
+    if (n !== a.gen)
+      return;
+    const [s, r] = e[o], i = a.servers[s];
+    a.si = s, a.qi = r, _mpStatus('loading', o || !a.started ? (o ? 'Trying ' : 'Loading ') + i.providerName + '\u2026' : '');
+    for (let e = 0;; e++)
+      try {
+        return void await _mpMount(i.qualities[r], t, n);
+      } catch (t) {
+        if (n !== a.gen)
+          return;
+        if (_mpTeardown(), a.lastKind = t.kind || 'other', 'busy' === a.lastKind && e < _MP_TRIES || 'ok' === a.lastKind && !e) {
+          if (await _mpSleep(_MP_RETRY_MS), n !== a.gen)
+            return;
+          continue;
+        }
+        a.dead.add(s + ':' + r), a.deadUrls.add(i.qualities[r].url);
+        break;
+      }
+  }
+  n === a.gen && (a.refreshed ? _mpStatus('err', _mpFailText()) : (a.refreshed = !0, _mpRefresh(t, n)));
+}
+const _mpFailText = () => 'busy' === _mp.lastKind ? 'The sources are busy right now. Try again in a moment.' : 'None of the sources would play this. Try again in a moment.';
+async function _mpRefresh(e, t) {
+  const n = _mp;
+  let a;
+  _mpStatus('loading', 'Finding another source\u2026');
+  try {
+    a = (await _mpStreams(n.item, n.s, n.e, !0)).filter(e => !n.deadUrls.has(e.url));
+  } catch (e) {
+    return void (t === n.gen && _mpStatus('err', _mvErrText(e)));
+  }
+  t === n.gen && (n.servers = _mpGroup(a), n.dead = new Set(), n.bad = new Set(), n.servers.length ? (await _mpRank(t), t === n.gen && _mpTry(n.plan.map(e => [
+    e.si,
+    e.qi
+  ]), e, t)) : _mpStatus('err', _mpFailText()));
+}
+async function _mpMount(e, t, n) {
+  const a = _mp, o = a.v, s = () => n !== a.gen;
+  _mpTeardown(), a.qSince = performance.now(), o.preload = 'metadata';
+  const r = _mvBase() + '/proxy?url=' + encodeURIComponent(e.url), i = () => new Promise((e, t) => {
+      const n = setTimeout(() => t(new Error('timeout')), 15000);
+      o.onloadedmetadata = () => {
+        clearTimeout(n), o.onerror = null, e();
+      }, o.onerror = () => {
+        clearTimeout(n), _mpWhy(r).then(e => t(Object.assign(new Error('media error'), { kind: e })));
+      }, o.src = r;
+    }), c = e => {
+      o.playbackRate = a.rate, e && t && (o.currentTime = t), a.beginAt = performance.now(), o.play().catch(() => {
+        a.quiet = !1, a.el.classList.add('paused'), a.r.big.innerHTML = _mvSvg('play'), _mpStatus('');
+      });
+    };
+  if ('file' === e.type) {
+    if (await i(), s())
+      return;
+    return void c(!0);
+  }
+  const l = await _mpHlsLib();
+  if (s())
+    return;
+  if (!l.isSupported()) {
+    if (!o.canPlayType('application/vnd.apple.mpegurl'))
+      throw new Error('no hls support');
+    if (await i(), s())
+      return;
+    return c(!0), void _mpAvail();
+  }
+  const d = new l(_mpHlsCfg(t));
+  d.subtitleDisplay = !1, a.hls = d, await new Promise((e, n) => {
+    const i = setTimeout(() => n(new Error('manifest timeout')), 15000);
+    let c = !1;
+    d.on(l.Events.ERROR, (e, t) => {
+      const o = _mpHlsKind(t), r = ('expired' === o || 'blocked' === o) && !!t.response;
+      if (t.fatal || r)
+        return c ? void (s() || d !== a.hls || (!r && t.type === l.ErrorTypes.NETWORK_ERROR && a.netRetry++ < _MP_TRIES ? setTimeout(() => {
+          s() || d !== a.hls || d.startLoad();
+        }, _MP_RETRY_MS) : !r && t.type === l.ErrorTypes.MEDIA_ERROR && a.mediaRetry++ < 2 ? d.recoverMediaError() : _mpFailover(t.details || 'The source stopped', o))) : (clearTimeout(i), void n(Object.assign(new Error(t.details || 'fatal'), { kind: o })));
+    }), d.on(l.Events.MANIFEST_PARSED, () => {
+      c = !0, clearTimeout(i), _mpPickStart(d, t), e();
+    }), [
+      'SUBTITLE_TRACKS_UPDATED',
+      'AUDIO_TRACKS_UPDATED',
+      'LEVELS_UPDATED',
+      'LEVEL_SWITCHED',
+      'AUDIO_TRACK_SWITCHED',
+      'SUBTITLE_TRACK_SWITCH'
+    ].forEach(e => l.Events[e] && d.on(l.Events[e], _mpAvail)), d.on(l.Events.LEVEL_SWITCHED, _mpBufTune), d.loadSource(r), d.attachMedia(o);
+  }), s() || (c(!1), _mpAvail());
+}
+async function _mpFileDied() {
+  const e = _mp, t = e.gen, n = await _mpWhy(e.v.currentSrc);
+  if (t === e.gen) {
+    if (e.lastKind = n, ('busy' === n || 'ok' === n) && e.fileTries++ < ('ok' === n ? 1 : _MP_TRIES)) {
+      const t = ++e.gen, n = e.v.currentTime || 0;
+      return _mpTeardown(), await _mpSleep(_MP_RETRY_MS), void (t === e.gen && _mpTry(_mpOrder([
+        e.si,
+        e.qi
+      ]), n, t));
+    }
+    _mpFailover('The source stopped', n);
+  }
+}
+function _mpFailover(e, t) {
+  const n = _mp;
+  if (!n.servers.length)
+    return;
+  t && (n.lastKind = t);
+  const a = ++n.gen, o = n.v.currentTime || n.startPos || 0, s = n.servers[n.si] && n.servers[n.si].qualities[n.qi];
+  s && n.deadUrls.add(s.url);
+  const r = _mpOrder([
+    n.si,
+    n.qi
+  ]).slice(1);
+  _mpTeardown(), r.length ? _mpTry(r, o, a) : n.refreshed ? _mpStatus('err', _mpFailText()) : (n.refreshed = !0, _mpRefresh(o, a));
+}
+async function _mpSwitch(e, t) {
+  const n = _mp, a = ++n.gen, o = n.v.currentTime || 0;
+  try {
+    localStorage.MV_SRC = n.servers[e].provider;
+  } catch {
+  }
+  n.qAuto = !0, _mpTeardown(), await _mpTry([[
+      e,
+      t
+    ]], o, a);
+}
+function _mpQuality() {
+  const e = _mp;
+  if (e.hls && e.hls.levels.length > 1) {
+    const t = new Map();
+    e.hls.levels.forEach((n, a) => {
+      const o = n.height || 0;
+      (!t.has(o) || (n.bitrate || 0) > (e.hls.levels[t.get(o)].bitrate || 0)) && t.set(o, a);
+    });
+    const n = [...t.entries()].sort((e, t) => t[0] - e[0]).map(([t, n]) => ({
+        label: t ? t + 'p' : 'Level ' + n,
+        on: e.lvl === n,
+        pick: () => {
+          e.hls.nextLevel = n, e.lvl = n;
+        }
+      })), a = e.hls.levels[e.hls.currentLevel];
+    return n.unshift({
+      label: 'Auto',
+      on: -1 === e.lvl,
+      pick: () => {
+        e.hls.nextLevel = -1, e.lvl = -1;
+      }
+    }), {
+      items: n,
+      value: -1 === e.lvl ? 'Auto' + (a && a.height ? ' \xB7 ' + a.height + 'p' : '') : e.hls.levels[e.lvl] && e.hls.levels[e.lvl].height ? e.hls.levels[e.lvl].height + 'p' : 'Custom'
+    };
+  }
+  const t = e.servers[e.si];
+  if (t && t.qualities.length > 1 && 'file' === t.type) {
+    const n = t.qualities[e.qi].quality || '', a = t.qualities.map((t, n) => ({
+        label: t.quality || 'Source ' + (n + 1),
+        on: !e.qAuto && n === e.qi,
+        pick: () => {
+          e.qAuto = !1, n !== e.qi && _mpSwitchQ(e.si, n);
+        }
+      }));
+    return a.unshift({
+      label: 'Auto',
+      on: e.qAuto,
+      pick: () => {
+        e.qAuto = !0;
+        const t = e.plan.find(t => t.si === e.si && !e.bad.has(t.si + ':' + t.qi)) || e.plan.find(t => t.si === e.si);
+        t && t.qi !== e.qi ? _mpSwitchQ(e.si, t.qi) : e.qSince = performance.now() - 60000;
+      }
+    }), {
+      items: a,
+      value: e.qAuto ? 'Auto \xB7 ' + n : n
+    };
+  }
+  return null;
+}
+async function _mpSwitchQ(e, t) {
+  const n = _mp, a = ++n.gen, o = n.v.currentTime || 0;
+  _mpTeardown(), await _mpTry([[
+      e,
+      t
+    ]], o, a);
+}
+function _mpAudio() {
+  const e = _mp.hls;
+  if (!e || !e.audioTracks || e.audioTracks.length < 2)
+    return null;
+  const t = e.audioTracks.map((t, n) => ({
+      label: t.name || t.lang || 'Track ' + (n + 1),
+      on: e.audioTrack === n,
+      pick: () => {
+        e.audioTrack = n;
+      }
+    })), n = t.find(e => e.on);
+  return {
+    items: t,
+    value: n ? n.label : ''
+  };
+}
+function _mpCaps() {
+  const e = _mp, t = e.hls, n = [];
+  return t && t.subtitleTracks && t.subtitleTracks.length ? t.subtitleTracks.forEach((e, t) => n.push({
+    label: e.name || e.lang || 'Track ' + (t + 1),
+    lang: e.lang || '',
+    hls: t
+  })) : [...e.v.textTracks].filter(e => 'subtitles' === e.kind || 'captions' === e.kind).forEach(e => n.push({
+    label: e.label || e.language || 'Captions',
+    lang: e.language || '',
+    tt: e
+  })), n;
+}
+const _mpCcOn = e => null != e.hls ? _mp.hls.subtitleTrack === e.hls : 'disabled' !== e.tt.mode;
+function _mpCcSet(e) {
+  const t = _mp, n = t.hls;
+  t.cc = e || null, e && (t.ccLast = e), n && n.subtitleTracks && n.subtitleTracks.length ? n.subtitleTrack = e ? e.hls : -1 : [...t.v.textTracks].forEach(t => {
+    'subtitles' !== t.kind && 'captions' !== t.kind || (t.mode = e && e.tt === t ? 'hidden' : 'disabled');
+  });
+  try {
+    localStorage.MV_CC = e ? e.lang || e.label : '';
+  } catch {
+  }
+  _mpCues(), _mpAvail();
+}
+function _mpCcToggle() {
+  const e = _mpCaps();
+  if (!e.length)
+    return;
+  if (e.find(_mpCcOn))
+    return _mpCcSet(null), void _mpToast('Captions off');
+  const t = _mp.ccLast, n = t && e.find(e => e.label === t.label && e.lang === t.lang) || e.find(e => /^en/i.test(e.lang)) || e[0];
+  _mpCcSet(n), _mpToast('Captions: ' + n.label);
+}
+function _mpCues() {
+  const e = _mp, t = [];
+  for (const n of e.v.textTracks)
+    if ('showing' === n.mode && (n.mode = 'hidden'), 'hidden' === n.mode && n.activeCues)
+      for (const e of n.activeCues)
+        t.push(String(e.text || '').replace(/<[^>]*>/g, '').replace(/\{\\[^}]*\}/g, '').replace(/&nbsp;/g, ' ').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&').trim());
+  const n = e.r.cap, a = t.filter(Boolean).join('\n');
+  n.dataset.t !== a && (n.dataset.t = a, n.replaceChildren(...a.split('\n').filter(Boolean).map(e => _mvEl('div', 'mp-cl', e))));
+}
+function _mpAvail() {
+  const e = _mp, t = _mpCaps();
+  e.r.cc.hidden = !t.length;
+  const n = t.some(_mpCcOn);
+  if (e.r.cc.classList.toggle('on', n), t.length && !e.ccTried) {
+    e.ccTried = !0;
+    let n = '';
+    try {
+      n = localStorage.MV_CC || '';
+    } catch {
+    }
+    const a = n && t.find(e => e.lang === n || e.label === n);
+    a ? _mpCcSet(a) : t.some(_mpCcOn) && _mpCcSet(null);
+  }
+  e.menuOpen && e.menuPanel && _mpMenu(e.menuPanel, !0);
+}
+const _MP_RATES = [
+  0.5,
+  0.75,
+  1,
+  1.25,
+  1.5,
+  1.75,
+  2
+];
+function _mpMenu(e, t) {
+  const n = _mp, a = n.r.menu, o = n.v;
+  n.menuOpen = !0, n.menuPanel = e, a.classList.add('open'), a.classList.toggle('fwd', !t), a.replaceChildren();
+  const s = (e, t, n, o, s) => {
+      const r = _mvEl('button', 'mp-mi' + (n ? ' sel' : ''));
+      r.type = 'button';
+      const i = _mvEl('span', 'mp-ml', e);
+      if (r.append(i), t && r.append(_mvEl('span', 'mp-mv', t)), s) {
+        const e = _mvEl('span', 'mp-mc');
+        e.innerHTML = _mvSvg('chev'), r.append(e);
+      }
+      if (n) {
+        const e = _mvEl('span', 'mp-mk');
+        e.innerHTML = _mvSvg('check'), r.append(e);
+      }
+      r.onclick = o, a.append(r);
+    }, r = (e, t) => {
+      (e => {
+        const t = _mvEl('button', 'mp-mh');
+        t.type = 'button', t.innerHTML = _mvSvg('chevl'), t.append(_mvEl('span', '', e)), t.onclick = () => _mpMenu('root'), a.append(t);
+      })(e), t.forEach(e => s(e.label, '', e.on, () => {
+        e.pick(), _mpMenuClose();
+      }));
+    };
+  if ('root' === e) {
+    const e = _mpQuality(), t = _mpAudio(), a = _mpCaps(), r = a.find(_mpCcOn);
+    n.servers.length && s('Source', n.servers[n.si] ? n.servers[n.si].providerName : '', !1, () => _mpMenu('src'), !0), e && s('Quality', e.value, !1, () => _mpMenu('q'), !0), t && s('Audio', t.value, !1, () => _mpMenu('a'), !0), a.length && s('Captions', r ? r.label : 'Off', !1, () => _mpMenu('cc'), !0), s('Speed', 1 === o.playbackRate ? 'Normal' : o.playbackRate + 'x', !1, () => _mpMenu('spd'), !0);
+  } else if ('src' === e)
+    r('Source', n.servers.map((e, t) => ({
+      label: e.providerName,
+      on: t === n.si,
+      pick: () => t === n.si ? null : _mpSwitch(t, (n.plan.find(e => e.si === t) || { qi: 0 }).qi)
+    })));
+  else if ('q' === e) {
+    const e = _mpQuality();
+    e ? r('Quality', e.items) : _mpMenu('root');
+  } else if ('a' === e) {
+    const e = _mpAudio();
+    e ? r('Audio', e.items) : _mpMenu('root');
+  } else
+    'cc' === e ? r('Captions', [{
+        label: 'Off',
+        on: !_mpCaps().some(_mpCcOn),
+        pick: () => _mpCcSet(null)
+      }].concat(_mpCaps().map(e => ({
+      label: e.label,
+      on: _mpCcOn(e),
+      pick: () => _mpCcSet(e)
+    })))) : 'spd' === e && r('Speed', _MP_RATES.map(e => ({
+      label: 1 === e ? 'Normal' : e + 'x',
+      on: o.playbackRate === e,
+      pick: () => {
+        o.playbackRate = e;
+      }
+    })));
+}
+function _mpMenuClose() {
+  const e = _mp;
+  e.el && e.menuOpen && (e.menuOpen = !1, e.menuPanel = null, e.r.menu.classList.remove('open'), _mpWake());
+}
+async function _mpPrepNext(e) {
+  const t = _mp;
+  if ('tv' === t.item.type)
+    try {
+      let n = await _mvSeasonEps(t.item.tid, t.s), a = n.find(e => e.episode_number > t.e && !_mvFuture(e)), o = t.s;
+      if (!a) {
+        const e = _mvSeasonNums(await _mvDetail(t.item)).find(e => e > t.s);
+        e && (n = await _mvSeasonEps(t.item.tid, e), a = n.find(e => !_mvFuture(e)), o = e);
+      }
+      a && e === t.gen && (t.next = {
+        s: o,
+        e: a.episode_number,
+        name: a.name
+      }, t.r.nextBtn.hidden = !1);
+    } catch (e) {
+    }
+}
+async function _mpUpNext() {
+  const e = _mp;
+  if (!e.next && 'tv' === e.item.type && (await _mpPrepNext(e.gen), !e.v.ended))
+    return;
+  const t = e.next;
+  if (!t)
+    return;
+  e.r.next.querySelector('.mp-next-t').textContent = 'S' + t.s + ' E' + t.e + (t.name ? ' \xB7 ' + t.name : '');
+  const n = e.r.next.querySelector('.mp-next-bar i');
+  n.style.animation = 'none', n.offsetWidth, n.style.animation = '', e.r.next.classList.add('show'), clearTimeout(e.nextT), e.nextT = setTimeout(_mpPlayNext, 8000);
+}
+function _mpNextCancel() {
+  clearTimeout(_mp.nextT), _mp.r.next && _mp.r.next.classList.remove('show');
+}
+function _mpPlayNext() {
+  const e = _mp, t = e.next;
+  t && (_mpSave(), _mpStart(e.item, t.s, t.e, t.name));
+}
+function _mpTick() {
+  const e = _mp, t = e.v, n = performance.now(), a = Math.min(2, (n - e.last) / 1000);
+  if (e.last = n, !e.started)
+    return void (e.beginAt && e.qAuto && n - e.beginAt > 10000 && 'file' === (e.servers[e.si] || {}).type && (e.beginAt = 0, _mpStep(-1)));
+  const o = !t.paused && !t.ended && t.readyState >= 3;
+  o && (e.acc += a, e.ply += a), t.paused || ++e.n % 5 != 0 || _mpSave(), e.lastT = t.currentTime, o && (!e.ramped && e.ply >= _MP_RAMP && _mpRamp(), e.hls ? (e.capIdx >= 0 && (e.hls.autoLevelCapping < 0 || e.hls.autoLevelCapping > e.capIdx) && (e.hls.autoLevelCapping = e.capIdx), e.n % 10 == 0 && e.hls.bandwidthEstimate > 0 && _mpBw(e.hls.bandwidthEstimate)) : _mpLadder(n), e.next && !e.nextPre && t.duration - t.currentTime < Math.min(240, 0.2 * t.duration) && _mpPreStreams());
+}
+function _mpSave() {
+  const e = _mp, t = e.v;
+  if (!(e.item && e.started && t.duration > 0 && isFinite(t.duration)))
+    return;
+  const n = _mvTouch(e.item), a = Date.now(), o = t.duration, s = Math.min(t.currentTime, o), r = e.acc;
+  if (e.acc = 0, n.ts = a, n.pos = s, n.dur = o, n.spent = (n.spent || 0) + r, 'tv' === e.item.type) {
+    const t = _mvEpKey(e.s, e.e), i = n.eps[t] || (n.eps[t] = {
+        pos: 0,
+        dur: 0,
+        spent: 0,
+        ts: 0
+      });
+    Object.assign(i, {
+      pos: s,
+      dur: o,
+      ts: a,
+      name: e.epName || i.name || ''
+    }), i.spent += r, n.s = e.s, n.e = e.e;
+  }
+  _mvSave(n);
+}
+function _mpClose() {
+  const e = _mp;
+  if (e.el && e.el.classList.contains('open')) {
+    _mpSave(), _mpBwSave(), e.gen++, e.ac && e.ac.abort(), clearInterval(e.tick), clearTimeout(e.idleT), clearTimeout(e.nextT), e.idleT = 0, _mpMenuClose(), _mpNextCancel(), _mpSolo(!1), _fsInner() && document.exitFullscreen().catch(() => {
+    }), document.pictureInPictureElement && document.exitPictureInPicture().catch(() => {
+    }), _mpTeardown(), e.started = !1, e.servers = [], e.plan = [], _mpPre = null, e.el.classList.remove('open', 'active', 'paused', 'ended', 'buffering', 'loading', 'err'), document.removeEventListener('keydown', _mpKey, !0);
+    for (const e of [
+        'pointermove',
+        'mousemove'
+      ])
+      window.removeEventListener(e, _mpMove, !0);
+    _mvRefreshBox(), _mvPaintLists(), _opmMovieClosed();
+  }
+}
+function _mpKey(e) {
+  if (!_mvPlayerOpen() || e.ctrlKey || e.metaKey || e.altKey)
+    return;
+  const t = _mp.v, n = e.key;
+  let a = !0;
+  switch (n) {
+  case ' ':
+  case 'k':
+  case 'K':
+    _mpToggle();
+    break;
+  case 'ArrowLeft':
+    _mpSkip(e.shiftKey ? -10 : -5);
+    break;
+  case 'ArrowRight':
+    _mpSkip(e.shiftKey ? 10 : 5);
+    break;
+  case 'j':
+  case 'J':
+    _mpSkip(-10);
+    break;
+  case 'l':
+  case 'L':
+    _mpSkip(10);
+    break;
+  case 'ArrowUp':
+  case 'ArrowDown':
+    t.muted = !1, t.volume = Math.min(1, Math.max(0, +(t.volume + ('ArrowUp' === n ? 0.05 : -0.05)).toFixed(2))), _mpToast('Volume ' + Math.round(100 * t.volume) + '%');
+    break;
+  case 'm':
+  case 'M':
+    t.muted = !t.muted, _mpToast(t.muted ? 'Muted' : 'Volume ' + Math.round(100 * t.volume) + '%');
+    break;
+  case 'f':
+  case 'F':
+    _mpFull();
+    break;
+  case 'c':
+  case 'C':
+    _mpCcToggle();
+    break;
+  case 'n':
+  case 'N':
+    _mp.next && _mpPlayNext();
+    break;
+  case 'Escape':
+    _mp.menuOpen ? _mpMenuClose() : !document.fullscreenElement && performance.now() - _mp.fsAt > 250 && _mpClose();
+    break;
+  default:
+    /^[0-9]$/.test(n) && t.duration > 0 ? t.currentTime = t.duration * (+n / 10) : a = !1;
+  }
+  a && (e.preventDefault(), e.stopImmediatePropagation(), _mpWake());
+}
+MOVIES_ON || document.getElementById('navMovies')?.remove();
 const AI_WS_PATH = '/ai';
-let _aiWs = null, _aiWsReady = !1, _aiModelsGrouped = {}, _aiSelectedModel = null, _aiWebSearchEnabled = !1, _aiChats = [], _aiCurrentChatId = null, _aiStreaming = !1, _aiHandlersBound = !1, _aiReadOnly = !1;
+let _aiWs = null, _aiWsReady = !1, _aiModelsGrouped = {}, _aiSelectedModel = null, _aiTextModel = null, _aiChats = [], _aiCurrentChatId = null, _aiStreaming = !1, _aiHandlersBound = !1, _aiReadOnly = !1;
 const AI_CHAT_TTL_MS = 126000000;
-let _streamShell = null, _streamPlaceholder = null, _streamContent = '', _streamReasoning = '', _streamUsage = null, _streamStartedAt = 0, _streamFirstTokenAt = 0, _streamTitle = '', _streamMedia = null, _streamAsstId = null, _pendingUserMsg = null, _aiAttachedFile = null, _aiAttachedPreviewUrl = null, _pendingMediaResolve = null, _pendingDeleteChatId = null;
-const SOLVE_QUESTION_PROMPT = 'Answer any questions on this page correctly; think step by step internally, give plain answers unless special input like graphing/formatting is needed (then briefly explain how to input it), and label multiple questions by number/letter (e.g., 1:, 2A:, 2B:).';
+let _streamShell = null, _streamPlaceholder = null, _streamContent = '', _streamReasoning = '', _streamUsage = null, _streamStartedAt = 0, _streamFirstTokenAt = 0, _streamTitle = '', _streamMedia = null, _streamAsstId = null, _pendingUserMsg = null, _streamSteps = [], _streamRestore = null, _aiEverConnected = !1, _aiRetryMs = 0;
+const AI_TURN_EVENTS = [
+  'message',
+  'thinking',
+  'content',
+  'processing',
+  'status',
+  'tool',
+  'usage',
+  'image',
+  'video',
+  'done',
+  'cancelled',
+  'error'
+];
+let _aiAttachedFile = null, _aiAttachedPreviewUrl = null, _pendingMediaResolve = null, _pendingDeleteChatId = null;
+const SOLVE_QUESTION_PROMPT = 'Solve every question visible in this screenshot. Work each one out carefully, then reply with only the answers: label them the way the page does (1, 2a, 2b...), put each final answer in bold, and for multiple choice give the letter and the option text. Add a short note only when an answer needs special input (a graph, an equation editor, drag and drop) or when part of a question is cut off or unreadable. Ignore ads, menus and anything that is not a question.';
 let _screenshareStream = null, _screenshareVideo = null, _screenshareChatId = null, _screenshareWin = null, _screenshareStreaming = !1, _screenshareContent = '', _screenshareReasoning = '', _screenshareAsstId = null, _screenshareUi = null, _pendingScreenshareUserMsg = null, _pendingScreenshareMediaResolve = null;
-const AI_IMAGE_MIME_RE = /^image\/(png|jpeg|jpg|webp|gif)$/, AI_IMAGE_MAX_BYTES = 11534336, AI_MEDIA_CHUNK_CHARS = 800000;
+const AI_IMAGE_MIME_RE = /^image\/(png|jpeg|jpg|webp|gif)$/, AI_IMAGE_MAX_BYTES = 11250000, AI_MEDIA_CHUNK_CHARS = 800000;
 let _idCounter = 0;
 function _newId() {
   return 'm' + ++_idCounter + '_' + Math.random().toString(36).slice(2, 10);
@@ -3090,8 +6540,6 @@ function _persistChat(e, t = !0) {
   }));
 }
 let _aiChatsLoadPromise = null;
-let _aiRetryCount = 0;
-let _aiRetryTimer = null;
 function _ensureAIChatsLoaded() {
   return _aiChatsLoadPromise || (_aiChatsLoadPromise = _loadAllChats().then(e => {
     _aiChats = e, _renderRecents();
@@ -3106,15 +6554,16 @@ function _aiWsUrl() {
   }
 }
 function openAI() {
-  _activateAtlasScreen('aiScreen');
-  _aiRetryCount = 0;
-  const e = document.getElementById('aiScreen'), t = !!e && e.classList.contains('open');
-  e && e.classList.add('open'), e && !t && _genie(e, 'navAI', !0), _ensureAIWs(), _ensureAIChatsLoaded(), setTimeout(() => _initAIInputHandlers(), 50);
+  _opmOpen('ai');
 }
 function closeAI() {
-  clearTimeout(_aiRetryTimer);
-  const e = document.getElementById('aiScreen'), t = !!e && e.classList.contains('open');
-  e && e.classList.remove('open'), t && _genie(e, 'navAI', !1);
+  _opmClose('ai');
+}
+function _aiShow() {
+  document.getElementById('aiScreen')?.classList.add('open'), _ensureAIWs(), _ensureAIChatsLoaded(), setTimeout(() => _initAIInputHandlers(), 50);
+}
+function _aiHide() {
+  document.getElementById('aiScreen')?.classList.remove('open', 'side-open');
 }
 function _ensureAIWs() {
   (!_aiWs || _aiWs.readyState !== WebSocket.CONNECTING && _aiWs.readyState !== WebSocket.OPEN) && _connectAI();
@@ -3123,28 +6572,41 @@ function _connectAI() {
   clearTimeout(_aiRetryTimer);
   const previous = _aiWs;
   _aiWs = null;
-  try { previous?.close(); } catch {}
+  try {
+    previous?.close();
+  } catch {
+  }
   _aiWsReady = false;
   _setAIStatus('connecting\u2026');
   let socket;
-  try { socket = new WebSocket(_aiWsUrl()); }
-  catch { _setAIStatus('AI is temporarily unavailable. Close and reopen AI to retry.'); return; }
+  try {
+    socket = new WebSocket(_aiWsUrl());
+  } catch {
+    _setAIStatus('AI is temporarily unavailable. Close and reopen AI to retry.');
+    return;
+  }
   _aiWs = socket;
   const timeout = setTimeout(() => socket.close(), 10000);
   socket.onopen = () => {
     clearTimeout(timeout);
-    if (_aiWs !== socket) return;
+    if (_aiWs !== socket)
+      return;
     _aiWsReady = true;
     _aiRetryCount = 0;
     _setAIStatus('');
   };
-  socket.onmessage = event => { if (_aiWs === socket) _handleAIMessage(event.data); };
+  socket.onmessage = event => {
+    if (_aiWs === socket)
+      _handleAIMessage(event.data);
+  };
   socket.onclose = () => {
     clearTimeout(timeout);
-    if (_aiWs !== socket) return;
+    if (_aiWs !== socket)
+      return;
     _aiWsReady = false;
     _aiWs = null;
-    if (_aiStreaming) _onStreamError('connection lost');
+    if (_aiStreaming)
+      _onStreamError('connection lost');
     if (++_aiRetryCount <= 3 && document.getElementById('aiScreen').classList.contains('open')) {
       _setAIStatus('disconnected - reconnecting\u2026');
       _aiRetryTimer = setTimeout(_ensureAIWs, 2000 * _aiRetryCount);
@@ -3161,91 +6623,88 @@ function _handleAIMessage(e) {
   } catch (e) {
     return;
   }
-  if (!_screenshareStreaming || _screenshareChatId && t.conversationId !== _screenshareChatId || ![
-      'message',
-      'thinking',
-      'content',
-      'processing',
-      'usage',
-      'image',
-      'video',
-      'done',
-      'error'
-    ].includes(t.type))
-    switch (t.type) {
-    case 'toast':
-      _toast(t.text || 'connected');
-      break;
-    case 'models':
-      _aiModelsGrouped = t.models || {}, _renderModelSelect(_aiModelsGrouped);
-      break;
-    case 'newChat':
-      _aiCurrentChatId = t.conversationId, _clearAIMessages(), _showAIWelcome(!0);
-      break;
-    case 'message':
-      _onStreamStart(t);
-      break;
-    case 'thinking':
-      _onStreamThinking(t.delta);
-      break;
-    case 'content':
-      _onStreamContent(t.delta);
-      break;
-    case 'processing':
-      _onStreamProcessing(t.text || '');
-      break;
-    case 'status':
-      _setAIStatus(t.text || '');
-      break;
-    case 'usage':
-      _streamUsage = t;
-      break;
-    case 'image':
-      _onStreamMedia('image', t.url);
-      break;
-    case 'video':
-      _onStreamMedia('video', t.url);
-      break;
-    case 'requestMediaId':
-      _pendingScreenshareMediaResolve ? (_pendingScreenshareMediaResolve(t.mediaId), _pendingScreenshareMediaResolve = null) : _pendingMediaResolve && (_pendingMediaResolve(t.mediaId), _pendingMediaResolve = null);
-      break;
-    case 'done':
-      _onStreamDone();
-      break;
-    case 'deleted':
-      _onConversationDeleted(t.conversationId);
-      break;
-    case 'cancelled':
-      _onStreamError(t.text || 'cancelled');
-      break;
-    case 'error':
-      if (_pendingMediaResolve && (_pendingMediaResolve = null), 'not_found' === t.code && _pendingDeleteChatId) {
-        const e = _pendingDeleteChatId;
-        _pendingDeleteChatId = null, _onConversationDeleted(e);
+  const n = AI_TURN_EVENTS.includes(t.type);
+  if (!_screenshareStreaming || !n || 'error' === t.type && 'not_found' === t.code) {
+    if (!n || _aiStreaming || 'error' === t.type)
+      switch (t.type) {
+      case 'connected':
+        _aiWsReady = !0, _aiEverConnected = !0, _aiRetryMs = 0, _setAIStatus('');
         break;
-      }
-      if ('not_found' === t.code && _aiStreaming && _aiCurrentChatId) {
-        const e = _aiCurrentChatId;
-        _onStreamError('This chat expired, start a new chat to continue'), _markChatExpired(e);
+      case 'models':
+        _aiModelsGrouped = t.models || {}, _renderModelSelect(_aiModelsGrouped);
         break;
+      case 'newChat':
+        _aiStreaming || _aiCurrentChatId || (_aiCurrentChatId = t.conversationId);
+        break;
+      case 'message':
+        _onStreamStart(t);
+        break;
+      case 'thinking':
+        _onStreamThinking(t.delta || '');
+        break;
+      case 'content':
+        _onStreamContent(t.delta || '');
+        break;
+      case 'processing':
+      case 'status':
+        _onStreamProcessing(t.text || '');
+        break;
+      case 'tool':
+        _onStreamTool(t);
+        break;
+      case 'usage':
+        _streamUsage = t;
+        break;
+      case 'image':
+        _onStreamMedia('image', t.url);
+        break;
+      case 'video':
+        _onStreamMedia('video', t.url);
+        break;
+      case 'requestMediaId':
+        _pendingScreenshareMediaResolve ? (_pendingScreenshareMediaResolve(t.mediaId), _pendingScreenshareMediaResolve = null) : _pendingMediaResolve && (_pendingMediaResolve(t.mediaId), _pendingMediaResolve = null);
+        break;
+      case 'done':
+        _onStreamDone();
+        break;
+      case 'deleted':
+        _onConversationDeleted(t.conversationId);
+        break;
+      case 'cancelled':
+        _onStreamError(t.text || 'cancelled');
+        break;
+      case 'error':
+        if (_pendingMediaResolve && (_pendingMediaResolve = null), 'limit' === t.code) {
+          _aiStreaming ? _onStreamError(t.text || 'too many connections') : _showError(t.text || 'too many connections');
+          break;
+        }
+        if ('not_found' === t.code && _pendingDeleteChatId) {
+          const e = _pendingDeleteChatId;
+          _pendingDeleteChatId = null, _onConversationDeleted(e);
+          break;
+        }
+        if ('not_found' === t.code && _aiStreaming && _aiCurrentChatId) {
+          const e = _aiCurrentChatId;
+          _onStreamError('This chat expired, start a new chat to continue'), _markChatExpired(e);
+          break;
+        }
+        _onStreamError(t.text || 'error');
+        break;
+      case 'ping':
+        _aiWs && 1 === _aiWs.readyState && _aiWs.send(JSON.stringify({ type: 'pong' }));
       }
-      _onStreamError(t.text || 'error');
-      break;
-    case 'ping':
-      _aiWs && 1 === _aiWs.readyState && _aiWs.send(JSON.stringify({ type: 'pong' }));
-    }
-  else
+  } else
     _handleScreenshareMessage(t);
 }
 function _setAIStatus(e) {
   const t = document.getElementById('aiStatus');
-  t && (t.textContent = e, t.classList.toggle('show', !!e));
+  t && (e && (t.textContent = e), t.classList.toggle('show', !!e));
 }
 function _toast(e) {
-  _setAIStatus(e), setTimeout(() => {
-    const e = document.getElementById('aiStatus');
-    e && (e.textContent = '');
-  }, 2500);
+  _showError(e);
+}
+function _aiOffline() {
+  return (!_aiWsReady || !_aiWs) && (_ensureAIWs(), _showError('not connected yet, try again in a moment'), !0);
 }
 function _showAIWelcome(e) {
   const t = document.getElementById('aiWelcome');
@@ -3297,17 +6756,11 @@ function _renderModelSelect(e) {
       const a = document.createElement('div');
       a.className = 'ai-model-item', a.textContent = e, a.dataset.modelId = e, a.onclick = () => {
         _selectModel(e), _closeModelPopup();
-      };
-      a.setAttribute('role', 'button'); a.tabIndex = 0;
-      a.addEventListener('keydown', event => {
-        if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); a.click(); }
-        if (event.key === 'Escape') _closeModelPopup();
-      });
-      t.appendChild(a), s || 'image' === n || 'video' === n || (s = e);
+      }, t.appendChild(a), s || 'image' === n || 'video' === n || (s = e);
     });
-  });
-  const r = _aiCurrentChatId ? _aiChats.find(e => e.id === _aiCurrentChatId) : null;
-  r && r.model && (_aiSelectedModel = r.model), _aiSelectedModel || (_aiSelectedModel = s), _selectModel(_aiSelectedModel);
+  }), _aiTextModel = s;
+  const r = o.flatMap(t => e[t]), i = _aiCurrentChatId ? _aiChats.find(e => e.id === _aiCurrentChatId) : null;
+  i && r.includes(i.model) && (_aiSelectedModel = i.model), r.includes(_aiSelectedModel) || (_aiSelectedModel = s), _selectModel(_aiSelectedModel);
 }
 function _initModelDropdown() {
   const e = document.getElementById('aiModelWrap'), t = document.getElementById('aiModelTrigger');
@@ -3330,7 +6783,7 @@ function _initAIInputHandlers() {
     const t = Math.min(e.scrollHeight, 110);
     e.style.height = t + 'px', e.style.overflowY = t >= 110 ? 'auto' : 'hidden';
   }), e.addEventListener('keydown', t => {
-    'Enter' !== t.key || t.shiftKey || (t.preventDefault(), (e.value.trim() || _aiAttachedFile) && _sendMessage());
+    'Enter' !== t.key || t.shiftKey || (t.preventDefault(), (e.value.trim() || _aiAttachedFile) && _aiSelectedModel && _sendMessage());
   })), t && (t.onclick = _sendMessage);
   const a = document.getElementById('aiNewChatBtn');
   a && (a.onclick = _newChat);
@@ -3344,10 +6797,6 @@ function _initAIInputHandlers() {
   const i = document.getElementById('aiAttachRemove');
   i && (i.onclick = () => {
     _setAttachedFile(null), n();
-  });
-  const c = document.getElementById('aiWebSearchBtn');
-  c && (c.onclick = () => {
-    _aiWebSearchEnabled = !_aiWebSearchEnabled, c.classList.toggle('active', _aiWebSearchEnabled);
   }), e && e.addEventListener('paste', e => {
     const t = e.clipboardData && e.clipboardData.items;
     if (t)
@@ -3358,8 +6807,8 @@ function _initAIInputHandlers() {
           break;
         }
   });
-  const l = document.getElementById('aiScreenshareBtn');
-  l && (l.onclick = _startScreenshare);
+  const c = document.getElementById('aiScreenshareBtn');
+  c && (c.onclick = _startScreenshare);
 }
 function _setAttachedFile(e) {
   _aiAttachedPreviewUrl && (URL.revokeObjectURL(_aiAttachedPreviewUrl), _aiAttachedPreviewUrl = null), _aiAttachedFile = null;
@@ -3370,72 +6819,18 @@ function _newChat() {
   if (_aiStreaming)
     return;
   _aiCurrentChatId = null, _aiReadOnly = !1, _applyAIReadOnlyState(), _clearAIMessages(), _showAIWelcome(!0);
-  _renderRecents(); _setAttachedFile(null);
   const e = document.getElementById('aiInput');
   e && (e.value = '', e.style.height = 'auto');
   const t = document.getElementById('aiSendBtn');
-  t && t.classList.add('hidden'), _aiWsReady && _aiWs && _aiWs.send(JSON.stringify({ type: 'newChat' }));
-}
-// The upstream protocol exposes message content, not a documented system role.
-// Keep application context on the wire; local transcripts retain the user's text.
-function _atlasAiPrompt(text) {
-  return 'Application context: You are Atlas AI, the assistant inside Atlas on Synergy. ' +
-    'Use Atlas AI as your product name when introducing yourself. This identifies the application, not the underlying model or service provider.\n\nUser request:\n' + text;
-}
-const ATLAS_AI_RESTRICTION = "Sorry, I can't help with that. [restriction = chemistry]";
-function _atlasBlockedPrompt(text) {
-  const lookalikes = {'0':'o','1':'i','о':'o','ο':'o','р':'p','ρ':'p','і':'i','ι':'i','υ':'u','м':'m'};
-  const normalized = String(text || '').normalize('NFKD').toLowerCase()
-    .replace(/[\p{M}\p{Cf}]/gu, '')
-    .replace(/[01оοрρіιυм]/gu, character => lookalikes[character]);
-  // Separators may be spaces, punctuation or symbols, but not other letters.
-  return /(?:^|[^\p{L}\p{N}_])o[\p{P}\p{Z}\p{S}\s_]*p[\p{P}\p{Z}\p{S}\s_]*i[\p{P}\p{Z}\p{S}\s_]*u[\p{P}\p{Z}\p{S}\s_]*m(?:s)?(?=$|[^\p{L}\p{N}_])/u.test(normalized);
-}
-// Replace only the provider domain; ordinary subject-matter words stay intact.
-function _atlasResponseText(text, streaming = false) {
-  const domain = String.fromCharCode(111, 112, 105, 117, 109, 46, 98, 101, 115, 116);
-  let value = String(text || '').replace(new RegExp(domain.replace('.', '\\.'), 'gi'), 'Atlas');
-  // Hold a possible domain suffix until the next chunk or completion so it
-  // cannot briefly appear when the provider splits it across stream events.
-  if (streaming) {
-    const lower = value.toLowerCase();
-    for (let size = Math.min(domain.length - 1, value.length); size > 0; size--) {
-      if (lower.endsWith(domain.slice(0, size))) return value.slice(0, -size);
-    }
-  }
-  return value;
-}
-function _atlasRejectPrompt(text) {
-  _showAIWelcome(false);
-  const user = _renderUserMessage(_newId(), text);
-  user.querySelector('.ai-message-actions')?.remove();
-  const placeholder = _showThinkingIndicator();
-  _aiStreaming = true;
-  document.getElementById('aiInput').value = '';
-  _setAttachedFile(null);
-  const send = document.getElementById('aiSendBtn');
-  if (send) { send.disabled = true; send.classList.add('hidden'); }
-  setTimeout(() => {
-    placeholder.remove();
-    const shell = _createAssistantShell();
-    shell.waitDiv.classList.add('hidden');
-    shell.messageDiv.insertBefore(shell.textDiv, shell.actionsDiv);
-    // Plain text preserves the literal bracketed restriction message.
-    shell.textDiv.textContent = ATLAS_AI_RESTRICTION;
-    document.getElementById('aiMessages').appendChild(shell.messageDiv);
-    _aiStreaming = false;
-    if (send) send.disabled = false;
-    _scrollChatToBottom();
-  }, 2000);
+  t && t.classList.add('hidden');
 }
 function _sendMessage() {
   const e = document.getElementById('aiInput'), t = (e.value || '').trim(), n = _aiAttachedFile;
-  if (!t && !n || _aiStreaming || _screenshareStreaming || _aiReadOnly)
+  if (!t && !n || !_aiSelectedModel || _aiStreaming || _screenshareStreaming || _aiReadOnly)
     return;
   if (_atlasBlockedPrompt(t)) return _atlasRejectPrompt(t);
-  if (!_aiSelectedModel) return;
-  if (!_aiWsReady || !_aiWs)
-    return _setAIStatus('not connected'), void _ensureAIWs();
+  if (_aiOffline())
+    return;
   _showAIWelcome(!1);
   const a = _newId(), o = n ? _aiAttachedPreviewUrl : null;
   _pendingUserMsg = {
@@ -3444,7 +6839,8 @@ function _sendMessage() {
     media: n ? {
       url: o,
       blob: n
-    } : void 0
+    } : void 0,
+    typed: !0
   }, _renderUserMessage(a, t, o), _streamPlaceholder = _showThinkingIndicator(), e.value = '', e.style.height = 'auto';
   const s = document.getElementById('aiSendBtn');
   if (s && (s.classList.add('hidden'), s.disabled = !0), _aiStreaming = !0, _streamMedia = null, n) {
@@ -3456,8 +6852,7 @@ function _sendMessage() {
       type: 'sendMessage',
       conversationId: _aiCurrentChatId,
       content: _atlasAiPrompt(t),
-      model: _aiSelectedModel,
-      webSearch: _aiWebSearchEnabled
+      model: _aiSelectedModel
     }));
 }
 function _fileToBase64(e) {
@@ -3466,54 +6861,57 @@ function _fileToBase64(e) {
     a.onload = () => t(String(a.result).split(',')[1] || ''), a.onerror = () => n(new Error('could not read file')), a.readAsDataURL(e);
   });
 }
-async function _sendMediaMessage(e, t) {
-  const n = await _fileToBase64(e), a = await new Promise((t, n) => {
+async function _sendMediaMessage(e, t, n) {
+  const a = await _fileToBase64(e), o = await new Promise((t, a) => {
       _pendingMediaResolve = t, _aiWs.send(JSON.stringify({
         type: 'mediaStart',
         model: _aiSelectedModel,
         mime: e.type,
-        conversationId: _aiCurrentChatId || void 0
+        conversationId: _aiCurrentChatId || void 0,
+        editMessageId: n
       })), setTimeout(() => {
-        _pendingMediaResolve === t && (_pendingMediaResolve = null, n(new Error('upload timed out')));
+        _pendingMediaResolve === t && (_pendingMediaResolve = null, a(new Error('upload timed out')));
       }, 15000);
     });
-  for (let e = 0; e < n.length; e += AI_MEDIA_CHUNK_CHARS)
+  for (let e = 0; e < a.length; e += AI_MEDIA_CHUNK_CHARS)
     _aiWs.send(JSON.stringify({
       type: 'mediaChunk',
-      mediaId: a,
-      chunk: n.slice(e, e + AI_MEDIA_CHUNK_CHARS)
+      mediaId: o,
+      chunk: a.slice(e, e + AI_MEDIA_CHUNK_CHARS)
     }));
   _aiWs.send(JSON.stringify({
     type: 'mediaDone',
-    mediaId: a,
-    prompt: _atlasAiPrompt(t),
-    webSearch: _aiWebSearchEnabled
+    mediaId: o,
+    prompt: _atlasAiPrompt(t)
   }));
 }
-function _makeStreamRenderer(e) {
-  let t = 0, n = 0;
-  const a = () => {
-    clearTimeout(t), t = 0;
-    const a = performance.now();
-    e(), n = performance.now() - a;
+function _makeStreamRenderer(e, t) {
+  let n = 0, a = 0, o = window;
+  const s = () => {
+    n && o.clearTimeout(n), n = 0;
+    const t = performance.now();
+    e(), a = performance.now() - t;
   };
   return {
     schedule() {
-      t || (t = setTimeout(a, Math.max(40, 3 * n)));
+      n || (o = t && t() || window, n = o.setTimeout(s, Math.max(40, 3 * a)));
     },
-    flush: a,
+    flush: s,
     cancel() {
-      clearTimeout(t), t = 0, n = 0;
+      n && o.clearTimeout(n), n = 0, a = 0;
     }
   };
 }
 const _streamRenderer = _makeStreamRenderer(() => {
   const e = _streamShell;
-  e && (_streamContent && _renderMarkdown(e.textDiv, _atlasResponseText(_streamContent, _aiStreaming)), _scrollChatToBottom());
+  if (!e)
+    return;
+  const t = _streamSteps[_streamSteps.length - 1];
+  e.liveReasoning && t && 'reasoning' === t.kind ? e.liveReasoning.body.textContent = t.text : e.liveContent && t && 'content' === t.kind && _renderMarkdown(e.liveContent, t.text), _scrollChatToBottom();
 });
 function _onStreamStart(e) {
-  _streamRenderer.cancel(), _aiCurrentChatId = e.conversationId, _streamContent = '', _streamReasoning = '', _streamUsage = null, _streamMedia = null, _streamStartedAt = performance.now(), _streamFirstTokenAt = 0, _streamTitle = e.title || '', _streamAsstId = _newId();
-  if (/^Application context:/i.test(_streamTitle)) _streamTitle = (_pendingUserMsg?.content || 'Image conversation').slice(0, 80);
+  _streamRenderer.cancel(), _streamRestore = null, _aiCurrentChatId = e.conversationId, _streamContent = '', _streamReasoning = '', _streamSteps = [], _streamUsage = null, _streamMedia = null, _streamStartedAt = performance.now(), _streamFirstTokenAt = 0, _streamTitle = _atlasResponseText(e.title || ''), _streamAsstId = _newId();
+  if (/^Application context:/i.test(_streamTitle)) _streamTitle = (_pendingUserMsg?.content || 'Image conversation').slice(0,80);
   const t = _getChat(_aiCurrentChatId);
   if (t.lastMessageAt = Date.now(), t.title || (t.title = _streamTitle), e.model && (t.model = e.model), _pendingUserMsg) {
     const n = e.messageId || _pendingUserMsg.id;
@@ -3528,22 +6926,57 @@ function _onStreamStart(e) {
     }
     _pendingUserMsg = null, _persistChat(t);
   }
-  _streamPlaceholder && (_streamPlaceholder.remove(), _streamPlaceholder = null), _streamShell = _createAssistantShell(), _aiWebSearchEnabled && (_streamShell.statusDiv.classList.remove('hidden'), _streamShell.statusDiv.textContent = 'Searching the web\u2026');
+  _streamPlaceholder && (_streamPlaceholder.remove(), _streamPlaceholder = null), _streamShell = _createAssistantShell(), _streamShell.stepsDiv.classList.add('live');
   const n = document.getElementById('aiMessages');
   n && n.appendChild(_streamShell.messageDiv), _scrollChatToBottom();
 }
+function _endLiveStep(e) {
+  (e.liveReasoning || e.liveContent) && (_streamRenderer.flush(), e.liveReasoning && (e.liveReasoning.label.textContent = 'Reasoning', e.liveReasoning.root.open = !1), e.liveReasoning = null, e.liveContent = null);
+}
 function _onStreamThinking(e) {
-  if (!_streamShell) return;
-  if (!_streamFirstTokenAt) _streamFirstTokenAt = performance.now();
-  _streamShell.reasoningDetails.classList.remove('hidden');
-  _streamShell.reasoningLabel.textContent = 'Reasoning\u2026';
-  _streamShell.waitDiv.classList.add('hidden');
+  if (!_streamShell)
+    return;
+  let t = _streamSteps[_streamSteps.length - 1];
+  const n = !t || 'reasoning' !== t.kind;
+  n && (_streamFirstTokenAt || (_streamFirstTokenAt = performance.now()), _streamShell.waitDiv.classList.add('hidden'), _endLiveStep(_streamShell), t = {
+    kind: 'reasoning',
+    text: ''
+  }, _streamSteps.push(t), _streamShell.liveReasoning = _addReasoningStep(_streamShell, '', !0)), _streamShell.statusDiv.classList.add('hidden'), t.text = '', _streamReasoning = '', n ? _streamRenderer.flush() : _streamRenderer.schedule();
 }
 function _onStreamContent(e) {
   if (!_streamShell)
     return;
-  const t = !_streamContent;
-  t && (_streamFirstTokenAt || (_streamFirstTokenAt = performance.now()), _streamShell.waitDiv.classList.add('hidden'), _streamShell.statusDiv.classList.add('hidden'), _streamShell.reasoningDetails.open = !1, _streamShell.reasoningLabel.textContent = 'Reasoning', _mountTextDiv(_streamShell)), _streamContent += e, t ? _streamRenderer.flush() : _streamRenderer.schedule();
+  let t = _streamSteps[_streamSteps.length - 1];
+  const n = !t || 'content' !== t.kind;
+  n && (_streamFirstTokenAt || (_streamFirstTokenAt = performance.now()), _streamShell.waitDiv.classList.add('hidden'), _endLiveStep(_streamShell), t = {
+    kind: 'content',
+    text: ''
+  }, _streamSteps.push(t), _streamShell.liveContent = _addContentStep(_streamShell)), _streamShell.statusDiv.classList.add('hidden'), t.text += e, _streamContent += e, n ? _streamRenderer.flush() : _streamRenderer.schedule();
+}
+function _onStreamTool(e) {
+  e={...e,name:_atlasResponseText(e.name),argument:_atlasResponseText(e.argument)};
+  const t = _streamShell;
+  if (t) {
+    if (_endLiveStep(t), t.statusDiv.classList.add('hidden'), 'calling' === e.status) {
+      const n = {
+        kind: 'tool',
+        name: e.name || 'tool',
+        arg: e.argument || '',
+        status: 'calling'
+      };
+      _streamSteps.push(n), t.waitDiv.classList.add('hidden'), _addToolStep(t, n);
+    } else {
+      let n = null;
+      for (let t = _streamSteps.length - 1; t >= 0 && !n; t--) {
+        const a = _streamSteps[t];
+        'tool' !== a.kind || 'calling' !== a.status || e.name && a.name !== e.name || (n = a);
+      }
+      if (!n)
+        return;
+      n.status = 'error' === e.status ? 'error' : 'done', null != e.chars && (n.chars = e.chars), e.cached && (n.cached = !0), _paintToolStep(t.stepEls[_streamSteps.indexOf(n)], n), t.waitDiv.classList.remove('hidden');
+    }
+    _scrollChatToBottom();
+  }
 }
 function _onStreamProcessing(e) {
   _streamShell && (_streamShell.waitDiv.classList.add('hidden'), _streamShell.statusDiv.classList.remove('hidden'), _streamShell.statusDiv.textContent = e, _scrollChatToBottom());
@@ -3552,27 +6985,33 @@ function _onStreamMedia(e, t) {
   _streamMedia = {
     kind: e,
     url: t
-  }, _streamShell && (_streamShell.waitDiv.classList.add('hidden'), _streamShell.statusDiv.classList.add('hidden'), _mountTextDiv(_streamShell), _appendMedia(_streamShell.textDiv, e, t)), _scrollChatToBottom();
+  }, _streamShell && (_streamShell.waitDiv.classList.add('hidden'), _streamShell.statusDiv.classList.add('hidden'), _endLiveStep(_streamShell), _mountTextDiv(_streamShell), _appendMedia(_streamShell.textDiv, e, t)), _scrollChatToBottom();
 }
 function _onStreamDone() {
-  _streamContent = _atlasResponseText(_streamContent); _streamReasoning = _atlasResponseText(_streamReasoning);
+  _streamContent = _atlasResponseText(_streamContent);
+  _streamSteps = _atlasResponseSteps(_streamSteps);
   _aiStreaming = false;
   _streamRenderer.flush();
-  const e = _streamShell, t = _streamContent, n = _streamReasoning, a = _streamMedia, o = _streamAsstId;
-  e && (e.waitDiv.classList.add('hidden'), e.statusDiv.classList.add('hidden'), e.statsDiv.textContent = _formatStats({
+  const e = _streamShell, t = _streamContent, n = _streamMedia, a = _streamAsstId, o = _streamSteps.map(e => 'tool' === e.kind && 'calling' === e.status ? {
+      ...e,
+      status: 'done'
+    } : e);
+  e && (_endLiveStep(e), o.forEach((t, n) => {
+    'tool' === t.kind ? _paintToolStep(e.stepEls[n], t) : t.kind === 'content' && _renderMarkdown(e.stepEls[n],t.text);
+  }), e.waitDiv.classList.add('hidden'), e.statusDiv.classList.add('hidden'), e.statsDiv.textContent = _formatStats({
     startedAt: _streamStartedAt,
     firstTokenAt: _streamFirstTokenAt,
     usage: _streamUsage
-  }), _addCopyAction(e.actionsDiv, () => a ? a.url : t), _addRetryAction(e.actionsDiv, () => _retryMessage(o)));
+  }), _addCopyAction(e.actionsDiv, () => n ? n.url : t), _addRetryAction(e.actionsDiv, () => _retryMessage(a)));
   const s = _getChat(_aiCurrentChatId);
   if (s) {
-    const e = s.messages.findIndex(e => e.id === o), r = {
-        id: o,
+    const e = s.messages.findIndex(e => e.id === a), r = {
+        id: a,
         role: 'assistant',
-        hasReasoning: !!_streamShell && !_streamShell.reasoningDetails.classList.contains('hidden'),
+        hasReasoning: o.some(step=>step.kind==='reasoning'),
         content: t,
-        reasoning: n || void 0,
-        media: a || void 0
+        steps: o.length ? o : void 0,
+        media: n || void 0
       };
     -1 !== e ? s.messages[e] = r : s.messages.push(r), s.lastMessageAt = Date.now(), _persistChat(s);
   }
@@ -3583,7 +7022,13 @@ function _onStreamDone() {
 function _onStreamError(e) {
   if (_streamRenderer.cancel(), _streamPlaceholder && (_streamPlaceholder.remove(), _streamPlaceholder = null), _streamShell && (_streamShell.messageDiv.remove(), _streamShell = null), _pendingUserMsg) {
     const e = document.querySelector(`[data-msg-id="${ _pendingUserMsg.id }"]`);
-    e && e.remove(), _pendingUserMsg = null;
+    e && e.remove();
+    const t = document.getElementById('aiInput');
+    _pendingUserMsg.typed && t && !t.value && (t.value = _pendingUserMsg.content, t.dispatchEvent(new Event('input'))), _pendingUserMsg = null;
+  }
+  if (_streamRestore) {
+    const e = _aiChats.find(e => e.id === _streamRestore.chatId);
+    e && (e.messages = _streamRestore.messages, _persistChat(e, !1), _aiCurrentChatId === e.id && _renderChatMessages(e)), _streamRestore = null;
   }
   _pendingMediaResolve = null, _showError(e), _aiStreaming = !1;
   const t = document.getElementById('aiSendBtn');
@@ -3603,7 +7048,7 @@ function _formatMessage(text) {
   return window.AtlasMarkdown?.render ? window.AtlasMarkdown.render(text) : _escapeHtml(text).replace(/\n/g, '<br>');
 }
 function _renderMarkdown(e, t) {
-  e.innerHTML = _formatMessage(t), e.querySelectorAll('a').forEach(e => {
+  e.innerHTML = _formatMessage(_atlasResponseText(t, _aiStreaming || _screenshareStreaming)), e.querySelectorAll('a').forEach(e => {
     e.target = '_blank', e.rel = 'noreferrer';
   });
 }
@@ -3612,13 +7057,17 @@ function _scrollChatToBottom() {
   e && (e.scrollTop = e.scrollHeight);
 }
 function _showError(e) {
+  e=_atlasResponseText(e);
   const t = document.getElementById('aiChatContainer');
   if (!t)
     return;
   const n = t.querySelector('.ai-error-box') || document.createElement('div');
   clearTimeout(n._dismissTimer);
-  n.className = 'ai-error-box'; n.setAttribute('role', 'alert'); n.textContent = e;
-  if (!n.parentNode) t.appendChild(n);
+  n.className = 'ai-error-box';
+  n.setAttribute('role', 'alert');
+  n.textContent = e;
+  if (!n.parentNode)
+    t.appendChild(n);
   n._dismissTimer = setTimeout(() => n.remove(), 5000);
 }
 function _addCopyAction(e, t) {
@@ -3631,7 +7080,7 @@ function _addCopyAction(e, t) {
 }
 function _addRetryAction(e, t) {
   const n = document.createElement('button');
-  n.className = 'ai-message-action-btn', n.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"/><polyline points="23 20 23 14 17 14"/><path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 0 1 3.51 15"/></svg>', n.title = 'Retry', n.onclick = t, e.appendChild(n);
+  n.className = 'ai-message-action-btn ai-retry-btn', n.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"/><polyline points="23 20 23 14 17 14"/><path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 0 1 3.51 15"/></svg>', n.title = 'Retry', n.onclick = t, e.appendChild(n);
 }
 function _addEditAction(e, t) {
   const n = document.createElement('button');
@@ -3654,33 +7103,92 @@ function _createAssistantShell() {
   const e = document.createElement('div');
   e.className = 'ai-message assistant';
   const t = document.createElement('div');
-  t.className = 'ai-reasoning hidden';
-  t.setAttribute('role', 'status');
+  t.className = 'ai-steps';
   const n = document.createElement('div');
-  n.className = 'ai-reasoning-summary', n.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3a6 6 0 0 0-6 6c0 1.887.833 3.32 2.09 4.264.55.417.91 1.05.91 1.736v.5a1 1 0 0 0 1 1h4a1 1 0 0 0 1-1v-.5c0-.686.36-1.319.91-1.736A6.001 6.001 0 0 0 18 9a6 6 0 0 0-6-6z"/><path d="M9.663 17h4.673"/></svg><span class="ai-reasoning-label">Reasoning</span><svg class="ai-reasoning-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg>';
-  const a = n.querySelector('.ai-reasoning-label'), o = document.createElement('div');
-  n.querySelector('.ai-reasoning-chevron')?.remove();
-  o.className = 'ai-reasoning-body', t.appendChild(n), t.appendChild(o);
+  n.className = 'ai-message-text';
+  const a = document.createElement('div');
+  a.className = 'ai-message-actions';
+  const o = document.createElement('div');
+  o.className = 'ai-message-stats';
   const s = document.createElement('div');
-  s.className = 'ai-message-text';
+  s.className = 'ai-thinking-dots', s.innerHTML = '<span class="ai-typing-dot"></span><span class="ai-typing-dot"></span><span class="ai-typing-dot"></span>';
   const r = document.createElement('div');
-  r.className = 'ai-message-actions';
-  const i = document.createElement('div');
-  i.className = 'ai-message-stats';
-  const c = document.createElement('div');
-  c.className = 'ai-thinking-dots', c.innerHTML = '<span class="ai-typing-dot"></span><span class="ai-typing-dot"></span><span class="ai-typing-dot"></span>';
-  const l = document.createElement('div');
-  return l.className = 'ai-message-status hidden', e.appendChild(t), e.appendChild(c), e.appendChild(l), e.appendChild(r), e.appendChild(i), {
+  return r.className = 'ai-message-status hidden', e.appendChild(t), e.appendChild(s), e.appendChild(r), e.appendChild(a), e.appendChild(o), {
     messageDiv: e,
-    reasoningDetails: t,
-    reasoningBody: o,
-    reasoningLabel: a,
-    textDiv: s,
-    actionsDiv: r,
-    statsDiv: i,
-    waitDiv: c,
-    statusDiv: l
+    stepsDiv: t,
+    stepEls: [],
+    liveReasoning: null,
+    liveContent: null,
+    textDiv: n,
+    actionsDiv: a,
+    statsDiv: o,
+    waitDiv: s,
+    statusDiv: r
   };
+}
+function _addContentStep(e) {
+  const t = document.createElement('div');
+  return t.className = 'ai-message-text', e.stepsDiv.appendChild(t), e.stepEls.push(t), t;
+}
+function _addReasoningStep(e, t, n) {
+  const a = document.createElement('div');
+  a.className = 'ai-reasoning'; a.setAttribute('role','status');
+  const o = document.createElement('div');
+  o.className = 'ai-reasoning-summary', o.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3a6 6 0 0 0-6 6c0 1.887.833 3.32 2.09 4.264.55.417.91 1.05.91 1.736v.5a1 1 0 0 0 1 1h4a1 1 0 0 0 1-1v-.5c0-.686.36-1.319.91-1.736A6.001 6.001 0 0 0 18 9a6 6 0 0 0-6-6z"/><path d="M9.663 17h4.673"/></svg><span class="ai-reasoning-label"></span><svg class="ai-reasoning-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg>';
+  o.querySelector('.ai-reasoning-chevron')?.remove();
+  const s = o.querySelector('.ai-reasoning-label');
+  s.textContent = n ? 'Reasoning\u2026' : 'Reasoning';
+  const r = document.createElement('div');
+  r.className = 'ai-reasoning-body', r.textContent = '', a.appendChild(o), a.appendChild(r), e.stepsDiv.appendChild(a);
+  const i = {
+    root: a,
+    label: s,
+    body: r
+  };
+  return e.stepEls.push(i), i;
+}
+'undefined' != typeof marked && (marked.setOptions({ breaks: !0 }), 'undefined' != typeof markedKatex && marked.use(markedKatex({ throwOnError: !1 })), 'undefined' != typeof markedHighlight && 'undefined' != typeof hljs && marked.use(markedHighlight.markedHighlight({
+  langPrefix: 'hljs language-',
+  highlight(e, t) {
+    const n = hljs.getLanguage(t) ? t : 'plaintext';
+    return hljs.highlight(e, { language: n }).value;
+  }
+})));
+const AI_TOOL_WRENCH = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>', AI_TOOL_STATE = {
+    calling: '<span class="ai-tool-spin"></span>',
+    done: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>',
+    error: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg>'
+  };
+function _addToolStep(e, t) {
+  const n = document.createElement('div');
+  n.className = 'ai-tool', n.innerHTML = '<span class="ai-tool-icon">' + AI_TOOL_WRENCH + '</span><span class="ai-tool-name"></span><button type="button" class="ai-tool-arg"></button><span class="ai-tool-meta"></span><span class="ai-tool-state"></span>';
+  const a = n.querySelector('.ai-tool-arg');
+  return a.onclick = () => {
+    const e = a.title;
+    a.classList.contains('is-url') ? window.open(e, '_blank', 'noopener,noreferrer') : navigator.clipboard.writeText(e).then(() => {
+      a.classList.contains('copied') || (a.style.width = a.offsetWidth + 'px'), a.textContent = 'Copied', a.classList.add('copied'), clearTimeout(a._copied), a._copied = setTimeout(() => {
+        a.classList.remove('copied'), a.style.width = '', a.textContent = e;
+      }, 1200);
+    }, () => {
+    });
+  }, e.stepsDiv.appendChild(n), e.stepEls.push(n), _paintToolStep(n, t), n;
+}
+function _paintToolStep(e, t) {
+  if (!e)
+    return;
+  const n = [];
+  'error' === t.status ? n.push('failed') : 'done' === t.status && null != t.chars && n.push(t.chars >= 1000 ? +(t.chars / 1000).toFixed(1) + 'k chars' : t.chars + ' chars'), 'done' === t.status && t.cached && n.push('cached'), e.dataset.state = t.status, e.querySelector('.ai-tool-name').textContent = t.name;
+  const a = t.arg || t.url || '', o = e.querySelector('.ai-tool-arg');
+  o.classList.contains('copied') || (o.textContent = a), o.title = a;
+  let s = !1;
+  try {
+    s = !/\s/.test(a) && /^https?:$/.test(new URL(a).protocol);
+  } catch (e) {
+  }
+  o.classList.toggle('is-url', s);
+  e.querySelector('.ai-tool-meta').textContent = n.join(' \xB7 ');
+  const r = e.querySelector('.ai-tool-state');
+  r.dataset.state !== t.status && (r.dataset.state = t.status, r.innerHTML = AI_TOOL_STATE[t.status]);
 }
 function _mountTextDiv(e) {
   e.textDiv.isConnected || e.messageDiv.insertBefore(e.textDiv, e.actionsDiv);
@@ -3688,7 +7196,7 @@ function _mountTextDiv(e) {
 function _appendMedia(e, t, n) {
   const a = document.createElement('div');
   a.className = 'ai-message-media';
-  const o = sjEncode(n);
+  const o = 'image' === t ? imgProxy(n) : sjEncode(n);
   if ('image' === t) {
     const e = document.createElement('img');
     e.src = o, e.alt = '', e.onclick = () => window.open(o, '_blank'), a.appendChild(e);
@@ -3699,18 +7207,22 @@ function _appendMedia(e, t, n) {
   e.appendChild(a);
 }
 function _renderAssistantMessage(e) {
-  const hadReasoning = !!(e.hasReasoning || e.reasoning);
-  e = {...e, content: _atlasResponseText(e.content), reasoning: ''};
+  e = {...e, content:_atlasResponseText(e.content), reasoning:'', steps:_atlasResponseSteps(e.steps || (e.hasReasoning || e.reasoning ? [{kind:'reasoning',text:''}] : []))};
   const t = document.getElementById('aiMessages'), n = _createAssistantShell();
-  if (hadReasoning) n.reasoningDetails.classList.remove('hidden');
-  return n.messageDiv.dataset.msgId = e.id, e.reasoning && (n.reasoningDetails.classList.remove('hidden'), n.reasoningBody.textContent = e.reasoning), n.waitDiv.classList.add('hidden'), _mountTextDiv(n), _renderMarkdown(n.textDiv, e.content), e.media && _appendMedia(n.textDiv, e.media.kind, e.media.url), _addCopyAction(n.actionsDiv, () => e.media ? e.media.url : e.content), _aiReadOnly || _addRetryAction(n.actionsDiv, () => _retryMessage(e.id)), t.appendChild(n.messageDiv), _scrollChatToBottom(), n.messageDiv;
+  n.messageDiv.dataset.msgId = e.id;
+  const a = e.steps || (e.reasoning ? [{
+      kind: 'reasoning',
+      text: e.reasoning
+    }] : []);
+  a.forEach(e => {
+    'tool' === e.kind ? _addToolStep(n, e) : 'content' === e.kind ? _renderMarkdown(_addContentStep(n), e.text || '') : _addReasoningStep(n, e.text || '', !1);
+  }), n.waitDiv.classList.add('hidden');
+  const o = a.some(e => 'content' === e.kind);
+  return (e.media || !o && e.content) && (_mountTextDiv(n), o || _renderMarkdown(n.textDiv, e.content || ''), e.media && _appendMedia(n.textDiv, e.media.kind, e.media.url)), _addCopyAction(n.actionsDiv, () => e.media ? e.media.url : e.content), _aiReadOnly || _addRetryAction(n.actionsDiv, () => _retryMessage(e.id)), t.appendChild(n.messageDiv), _scrollChatToBottom(), n.messageDiv;
 }
 function _showThinkingIndicator() {
   const e = document.getElementById('aiMessages'), t = document.createElement('div');
-  if (t.className = 'ai-message assistant', _aiWebSearchEnabled) {
-    const e = document.createElement('div');
-    e.className = 'ai-message-status', e.textContent = 'Searching the web\u2026', t.appendChild(e);
-  }
+  t.className = 'ai-message assistant';
   const n = document.createElement('div');
   return n.className = 'ai-blink-dots', n.innerHTML = '<span class="ai-typing-dot"></span><span class="ai-typing-dot"></span><span class="ai-typing-dot"></span>', t.appendChild(n), e.appendChild(t), _scrollChatToBottom(), t;
 }
@@ -3722,30 +7234,30 @@ function _formatStats({
   const a = [((performance.now() - e) / 1000).toFixed(1) + 's'];
   if (t && a.push(`TTFT ${ ((t - e) / 1000).toFixed(1) }s`), n) {
     const e = n.total_tokens ?? (n.prompt_tokens ?? 0) + (n.completion_tokens ?? 0);
-    e && a.push(`${ e } tokens total`);
+    e && a.push(`${ e.toLocaleString('en-US') } tokens total`);
   }
   return a.join(' \xB7 ');
 }
 function _retryMessage(e) {
   if (_aiStreaming || _aiReadOnly)
     return;
-  const retryChat = _aiChats.find(chat => chat.id === _aiCurrentChatId);
-  const retryIndex = retryChat?.messages.findIndex(message => message.id === e) ?? -1;
-  const retryPrompt = retryChat?.messages.slice(0, retryIndex).reverse().find(message => message.role === 'user')?.content;
-  if (_atlasBlockedPrompt(retryPrompt)) return _atlasRejectPrompt(retryPrompt);
-  if (!_aiWsReady || !_aiWs)
-    return _setAIStatus('not connected'), void _ensureAIWs();
   if (!e || !_aiCurrentChatId)
     return;
-  const t = _getChat(_aiCurrentChatId), n = t.messages.findIndex(t => t.id === e);
-  -1 !== n && (t.messages = t.messages.slice(0, n), _persistChat(t)), _clearAIMessages(), t.messages.forEach(e => {
+  const retryPrompt = _getChat(_aiCurrentChatId)?.messages.filter(message=>message.role==='user').at(-1)?.content || '';
+  if (_atlasBlockedPrompt(retryPrompt)) return _atlasRejectPrompt(retryPrompt);
+  if (_aiOffline())
+    return;
+  const t = _getChat(_aiCurrentChatId), n = t.messages[t.messages.length - 1];
+  n && n.id === e && (_streamRestore = {
+    chatId: t.id,
+    messages: t.messages.slice()
+  }, t.messages = t.messages.slice(0, -1), _persistChat(t), _clearAIMessages(), t.messages.forEach(e => {
     'user' === e.role ? _renderUserMessage(e.id, e.content, e.media ? e.media.url : null) : _renderAssistantMessage(e);
   }), _aiStreaming = !0, _streamMedia = null, _streamAsstId = e, _streamPlaceholder = _showThinkingIndicator(), _aiWs.send(JSON.stringify({
     type: 'retry',
     conversationId: _aiCurrentChatId,
-    model: _aiSelectedModel,
-    webSearch: _aiWebSearchEnabled
-  }));
+    model: _aiSelectedModel
+  })));
 }
 function _editMessage(e, t) {
   if (_aiStreaming)
@@ -3771,26 +7283,29 @@ function _editMessage(e, t) {
 function _editAndResend(e, t) {
   if (_aiStreaming || _aiReadOnly)
     return;
-  if (_atlasBlockedPrompt(t)) return _atlasRejectPrompt(t);
-  if (!_aiWsReady || !_aiWs)
-    return _setAIStatus('not connected'), void _ensureAIWs();
   if (!_aiCurrentChatId)
     return;
-  const n = _getChat(_aiCurrentChatId), a = n.messages.findIndex(t => t.id === e), o = -1 !== a ? n.messages[a].media : null;
+  if (_atlasBlockedPrompt(t)) return _atlasRejectPrompt(t);
+  if (_aiOffline())
+    return;
+  const n = _getChat(_aiCurrentChatId);
+  _streamRestore = {
+    chatId: n.id,
+    messages: n.messages.slice()
+  };
+  const a = n.messages.findIndex(t => t.id === e), o = -1 !== a ? n.messages[a].media : null;
   -1 !== a && (n.messages = n.messages.slice(0, a)), _persistChat(n), _clearAIMessages(), n.messages.forEach(e => {
     'user' === e.role ? _renderUserMessage(e.id, e.content, e.media ? e.media.url : null) : _renderAssistantMessage(e);
   }), _showAIWelcome(!1), _renderUserMessage(e, t, o ? o.url : null), _streamPlaceholder = _showThinkingIndicator(), _aiStreaming = !0, _streamMedia = null, _pendingUserMsg = {
     id: e,
     content: t,
     media: o
-  }, _aiWs.send(JSON.stringify({
+  }, o && o.blob ? _sendMediaMessage(o.blob, t, e).catch(e => _onStreamError(e.message || 'upload failed')) : _aiWs.send(JSON.stringify({
     type: 'edit',
     conversationId: _aiCurrentChatId,
     messageId: e,
-    userMessageId: e,
     content: _atlasAiPrompt(t),
-    model: _aiSelectedModel,
-    webSearch: _aiWebSearchEnabled
+    model: _aiSelectedModel
   }));
 }
 function _chatExpired(e) {
@@ -3832,14 +7347,19 @@ function _renderRecents() {
       return t.className = 'ai-empty-state', t.textContent = 'No recent chats', void e.appendChild(t);
     }
     _aiChats.forEach(t => {
-      if (/^Application context:/i.test(t.title || '')) t.title = (t.messages.find(message => message.role === 'user')?.content || 'Conversation').slice(0, 80);
+      if (/^Application context:/i.test(t.title || ''))
+        t.title = (t.messages.find(message => message.role === 'user')?.content || 'Conversation').slice(0, 80);
       const n = _chatExpired(t), a = document.createElement('div');
       a.className = 'ai-recent-item' + (t.id === _aiCurrentChatId ? ' active' : '') + (n ? ' expired' : ''), a.dataset.chatId = t.id;
       a.setAttribute('role', 'group');
       const o = document.createElement('span');
-      o.setAttribute('role', 'button'); o.tabIndex = 0;
+      o.setAttribute('role', 'button');
+      o.tabIndex = 0;
       o.addEventListener('keydown', event => {
-        if(event.key === 'Enter' || event.key === ' ') { event.preventDefault(); _loadChat(t.id); }
+        if (event.key === 'Enter' || event.key === ' ') {
+          event.preventDefault();
+          _loadChat(t.id);
+        }
       });
       if (o.className = 'ai-recent-item-title', o.textContent = t.title || 'untitled', o.onclick = () => _loadChat(t.id), a.appendChild(o), n) {
         const e = document.createElement('span');
@@ -3860,17 +7380,10 @@ function _deleteChatRecord(e) {
   });
 }
 function _deleteChat(e) {
-  if (e)
-    if (_chatExpired(_aiChats.find(t => t.id === e)))
-      _onConversationDeleted(e);
-    else {
-      if (!_aiWsReady || !_aiWs)
-        return _setAIStatus('not connected'), void _ensureAIWs();
-      _pendingDeleteChatId = e, _aiWs.send(JSON.stringify({
-        type: 'deleteConversation',
-        conversationId: e
-      }));
-    }
+  e && (_chatExpired(_aiChats.find(t => t.id === e)) ? _onConversationDeleted(e) : _aiOffline() || (_pendingDeleteChatId = e, _aiWs.send(JSON.stringify({
+    type: 'deleteConversation',
+    conversationId: e
+  }))));
 }
 function _onConversationDeleted(e) {
   e && (_pendingDeleteChatId === e && (_pendingDeleteChatId = null), _aiChats = _aiChats.filter(t => t.id !== e), _deleteChatRecord(e), _aiCurrentChatId === e && (_aiCurrentChatId = null, _aiReadOnly = !1, _applyAIReadOnlyState(), _clearAIMessages(), _showAIWelcome(!0)), _renderRecents());
@@ -3888,12 +7401,12 @@ function _loadChat(e) {
   }
 }
 function _startScreenshare() {
-  _screenshareStream ? _toast('screenshare already active') : window.documentPictureInPicture && window.documentPictureInPicture.requestWindow ? (alert('Choose the tab or window to screenshare, NOT your entire screen.\nThe model currently selected will be used for screenshare.'), navigator.mediaDevices.getDisplayMedia({
+  _screenshareStream ? _toast('screenshare already active') : window.documentPictureInPicture && window.documentPictureInPicture.requestWindow ? navigator.mediaDevices.getDisplayMedia({
     video: { displaySurface: 'browser' },
     audio: !1
   }).then(e => _initScreenshareStream(e)).catch(e => {
     e && 'NotAllowedError' !== e.name && _toast('screenshare failed: ' + (e.message || e));
-  })) : _toast('Picture-in-Picture is not supported in this browser');
+  }) : _toast('Picture-in-Picture is not supported in this browser');
 }
 async function _initScreenshareStream(e) {
   _screenshareStream = e;
@@ -3910,20 +7423,15 @@ async function _initScreenshareStream(e) {
 function _stopScreenshare() {
   if (_screenshareRenderer.cancel(), _screenshareStream && (_screenshareStream.getTracks().forEach(e => e.stop()), _screenshareStream = null), _screenshareVideo = null, _screenshareWin) {
     try {
-      _screenshareWin.close();
+      _screenshareWin.removeEventListener('pagehide', _stopScreenshare), _screenshareWin.close();
     } catch (e) {
     }
     _screenshareWin = null;
   }
-  _screenshareUi = null, _screenshareStreaming = !1, _screenshareChatId = null, _screenshareAsstId = null, _screenshareContent = '', _screenshareReasoning = '', _pendingScreenshareUserMsg = null, _pendingScreenshareMediaResolve = null;
+  _screenshareUi = null, _screenshareStreaming && _aiWs && _aiWsReady ? (_aiWs.send(JSON.stringify({ type: 'cancel' })), setTimeout(() => {
+    _screenshareUi || (_screenshareStreaming = !1);
+  }, 10000)) : _screenshareStreaming = !1, _screenshareChatId = null, _screenshareAsstId = null, _screenshareContent = '', _screenshareReasoning = '', _pendingScreenshareUserMsg = null, _pendingScreenshareMediaResolve = null;
 }
-'undefined' != typeof marked && (marked.setOptions({ breaks: !0 }), 'undefined' != typeof markedKatex && marked.use(markedKatex({ throwOnError: !1 })), 'undefined' != typeof markedHighlight && 'undefined' != typeof hljs && marked.use(markedHighlight.markedHighlight({
-  langPrefix: 'hljs language-',
-  highlight(e, t) {
-    const n = hljs.getLanguage(t) ? t : 'plaintext';
-    return hljs.highlight(e, { language: n }).value;
-  }
-})));
 const SCREENSHARE_MAX_SIDE = 1920, SCREENSHARE_JPEG_QUALITY = 0.85;
 function _captureScreenshot() {
   return new Promise((e, t) => {
@@ -3942,211 +7450,289 @@ function _captureScreenshot() {
     }
   });
 }
+const SS_ICONS = {
+    scan: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7V5a2 2 0 0 1 2-2h2M17 3h2a2 2 0 0 1 2 2v2M21 17v2a2 2 0 0 1-2 2h-2M7 21H5a2 2 0 0 1-2-2v-2M7 8h8M7 12h10M7 16h6"/></svg>',
+    stop: '<svg viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="6" width="12" height="12" rx="2.5"/></svg>',
+    send: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 7-7 7 7M12 19V5"/></svg>',
+    copy: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>',
+    check: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>'
+  }, SS_CSS = '\n:root { --accent: #8b7cf6; --accent-bright: #a78bfa; --bg: #0a0a0f; --bg-image: none; --btn: var(--accent); --field: rgba(255,255,255,.035); --field-line: rgba(255,255,255,.13); --thumb: color-mix(in srgb, var(--accent) 40%, transparent); color-scheme: dark; }\n* { box-sizing: border-box; }\n::-webkit-scrollbar { width: 8px; height: 8px; }\n::-webkit-scrollbar-track, ::-webkit-scrollbar-corner { background: transparent; }\n::-webkit-scrollbar-thumb { border: 2px solid transparent; border-radius: 8px; background: var(--thumb) padding-box; }\nhtml, body { margin: 0; height: 100%; }\nbody { background-color: var(--bg); background-image: var(--bg-image); color: rgba(255,255,255,.9); font: 13px/1.55 Inter, system-ui, -apple-system, \'Segoe UI\', Roboto, sans-serif; -webkit-font-smoothing: antialiased; }\nbutton, textarea { font: inherit; }\n.ss-wrap { display: flex; flex-direction: column; height: 100%; }\n.ss-main { flex: 1; min-height: 0; overflow-y: auto; scrollbar-gutter: stable; padding: 14px 8px 10px 14px; }\n.ss-main:hover { --thumb: color-mix(in srgb, var(--accent) 65%, transparent); }\n.ss-empty { height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; padding: 0 16px; text-align: center; }\n.ss-empty-icon { display: flex; align-items: center; justify-content: center; width: 38px; height: 38px; margin-bottom: 8px; border-radius: 12px; background: color-mix(in srgb, var(--accent) 16%, transparent); color: var(--accent-bright); }\n.ss-empty-icon svg { width: 19px; height: 19px; }\n.ss-empty-title { font-size: 13.5px; font-weight: 600; }\n.ss-empty-sub { max-width: 230px; font-size: 12px; line-height: 1.5; color: rgba(255,255,255,.45); }\n.ss-turn { animation: ssIn .25s ease both; }\n.ss-q { display: flex; align-items: flex-start; gap: 8px; margin-bottom: 12px; padding: 7px 8px 7px 10px; border: 1px solid rgba(255,255,255,.08); border-radius: 10px; background: rgba(255,255,255,.03); font-size: 12px; line-height: 1.45; color: rgba(255,255,255,.6); }\n.ss-q-text { flex: 1; min-width: 0; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; white-space: pre-wrap; overflow-wrap: anywhere; }\n.ss-copy { display: flex; align-items: center; justify-content: center; flex-shrink: 0; width: 22px; height: 22px; margin: -2px 0; padding: 0; border: none; border-radius: 6px; background: none; color: rgba(255,255,255,.45); cursor: pointer; }\n.ss-copy[hidden] { display: none; }\n.ss-copy:hover { background: rgba(255,255,255,.08); color: #fff; }\n.ss-copy svg { width: 13px; height: 13px; }\n.ss-phase { display: flex; align-items: center; gap: 8px; font-size: 12px; color: rgba(255,255,255,.5); }\n.ss-phase[hidden] { display: none; }\n.ss-spin { flex-shrink: 0; width: 12px; height: 12px; border: 1.75px solid color-mix(in srgb, var(--accent) 25%, transparent); border-top-color: var(--accent-bright); border-radius: 50%; animation: ssSpin .75s linear infinite; }\n.ss-time { margin-left: auto; font-variant-numeric: tabular-nums; color: rgba(255,255,255,.3); }\n.ss-phase.note .ss-spin, .ss-phase.error .ss-spin, .ss-phase.note .ss-time, .ss-phase.error .ss-time { display: none; }\n.ss-phase.error { color: #f87171; }\n.ss-a { font-size: 13.5px; line-height: 1.6; color: rgba(255,255,255,.92); overflow-wrap: anywhere; }\n.ss-a:empty { display: none; }\n.ss-a:not(:empty) + .ss-phase { margin-top: 10px; }\n.ss-a > :first-child { margin-top: 0; }\n.ss-a > :last-child { margin-bottom: 0; }\n.ss-a p, .ss-a ul, .ss-a ol, .ss-a pre, .ss-a table, .ss-a blockquote { margin: 0 0 8px; }\n.ss-a ul, .ss-a ol { padding-left: 20px; }\n.ss-a li { margin: 2px 0; }\n.ss-a h1, .ss-a h2, .ss-a h3, .ss-a h4 { margin: 12px 0 6px; font-size: 14px; font-weight: 600; }\n.ss-a strong { font-weight: 650; color: #fff; }\n.ss-a a { color: var(--accent-bright); }\n.ss-a code { padding: 1px 5px; border-radius: 4px; background: rgba(255,255,255,.08); font: 12px/1.5 ui-monospace, Consolas, monospace; }\n.ss-a pre { padding: 10px 12px; overflow-x: auto; border: 1px solid rgba(255,255,255,.08); border-radius: 8px; background: rgba(0,0,0,.3); }\n.ss-a pre code { padding: 0; background: none; }\n.ss-a table { display: block; overflow-x: auto; border-collapse: collapse; font-size: 12.5px; }\n.ss-a th, .ss-a td { padding: 4px 8px; border: 1px solid rgba(255,255,255,.1); }\n.ss-a blockquote { padding-left: 10px; border-left: 2px solid color-mix(in srgb, var(--accent) 50%, transparent); color: rgba(255,255,255,.7); }\n.ss-a hr { margin: 10px 0; border: none; border-top: 1px solid rgba(255,255,255,.1); }\n.ss-a .katex-display { margin: 6px 0; padding: 2px 0; overflow-x: auto; overflow-y: hidden; }\n.ss-foot { flex-shrink: 0; display: flex; flex-direction: column; gap: 8px; padding: 10px; border-top: 1px solid rgba(255,255,255,.06); }\n.ss-status { padding: 0 4px; font-size: 11.5px; color: #f87171; }\n.ss-status:empty { display: none; }\n.ss-solve { display: flex; align-items: center; justify-content: center; gap: 8px; height: 38px; border: none; border-radius: 12px; background: var(--btn); color: #fff; font-size: 13px; font-weight: 600; cursor: pointer; transition: filter .15s, transform .12s, background .2s, color .2s; }\n.ss-solve svg { width: 15px; height: 15px; }\n.ss-solve:hover:not(:disabled) { filter: brightness(1.12); }\n.ss-solve:active:not(:disabled) { transform: scale(.98); }\n.ss-solve:disabled { opacity: .5; cursor: default; }\n.ss-solve.stop { background: rgba(255,255,255,.07); color: rgba(255,255,255,.85); box-shadow: inset 0 0 0 1px rgba(255,255,255,.12); }\n.ss-solve.stop svg { width: 12px; height: 12px; }\n.ss-field { display: flex; align-items: flex-end; gap: 6px; padding: 5px 5px 5px 12px; border: 1px solid var(--field-line); border-radius: 19px; background: var(--field); transition: border-color .15s; }\n.ss-field:focus-within { border-color: color-mix(in srgb, var(--accent) 60%, transparent); }\n.ss-input { flex: 1; min-width: 0; height: 26px; max-height: 96px; padding: 4px 0; border: none; outline: none; resize: none; background: none; color: #fff; font-size: 13px; line-height: 18px; }\n.ss-input::placeholder { color: rgba(255,255,255,.38); }\n.ss-send { display: flex; align-items: center; justify-content: center; flex-shrink: 0; width: 26px; height: 26px; padding: 0; border: none; border-radius: 50%; background: var(--btn); color: #fff; cursor: pointer; transition: opacity .15s, transform .15s; }\n.ss-send:disabled { opacity: 0; transform: scale(.6); pointer-events: none; }\n.ss-send svg { width: 14px; height: 14px; }\n@keyframes ssSpin { to { transform: rotate(360deg); } }\n@keyframes ssIn { from { opacity: 0; transform: translateY(4px); } }\n';
 async function _openScreenshareWindow() {
   let e;
   try {
     e = await window.documentPictureInPicture.requestWindow({
-      width: 380,
-      height: 520
+      width: 340,
+      height: 460
     });
   } catch (e) {
     return _toast('could not open the AI screenshare window'), void _stopScreenshare();
   }
   _screenshareWin = e;
-  const t = e.document.createElement('style');
-  t.textContent = '\n        * { box-sizing: border-box; }\n        html, body { margin: 0; height: 100%; background: #0c0c14; color: #e8e8f0; font-family: \'Inter\', system-ui, sans-serif; }\n        .ss-wrap { display: flex; flex-direction: column; height: 100%; }\n        .ss-header { padding: 10px 12px; font-size: 11px; font-weight: 600; color: rgba(255,255,255,0.5); letter-spacing: .02em; border-bottom: 1px solid rgba(255,255,255,0.08); flex-shrink: 0; }\n        .ss-messages { flex: 1; overflow-y: auto; padding: 10px 12px; display: flex; flex-direction: column; gap: 12px; }\n        .ss-turn { display: flex; flex-direction: column; gap: 6px; }\n        .ss-user { font-size: 12px; color: rgba(255,255,255,0.45); font-style: italic; white-space: pre-wrap; }\n        .ss-assistant { font-size: 13.5px; line-height: 1.5; color: rgba(255,255,255,0.92); word-wrap: break-word; }\n        .ss-assistant a { color: #a78bfa; }\n        .ss-assistant p { margin: 0 0 8px; }\n        .ss-assistant p:last-child { margin-bottom: 0; }\n        .ss-status { font-size: 11px; color: rgba(255,255,255,0.4); padding: 0 12px 4px; min-height: 14px; flex-shrink: 0; }\n        .ss-inputrow { display: flex; gap: 6px; padding: 8px 10px; border-top: 1px solid rgba(255,255,255,0.08); flex-shrink: 0; }\n        .ss-textarea { flex: 1; resize: none; min-height: 34px; max-height: 90px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12); border-radius: 8px; color: #fff; padding: 8px 10px; font-family: inherit; font-size: 13px; }\n        .ss-textarea:focus { outline: none; border-color: rgba(167,139,250,0.5); }\n        .ss-btn { border: none; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }\n        .ss-send { width: 34px; height: 34px; background: #8b7cf6; color: #fff; }\n        .ss-send:disabled, .ss-solve:disabled { opacity: .4; cursor: default; }\n        .ss-solverow { padding: 0 10px 8px; flex-shrink: 0; }\n        .ss-solve { width: 100%; padding: 8px; background: rgba(167,139,250,0.15); color: #cbb8ff; font-size: 12.5px; font-weight: 500; border: 1px solid rgba(167,139,250,0.3); }\n        .ss-solve:hover:not(:disabled) { background: rgba(167,139,250,0.25); }\n        .ss-dots { display: flex; gap: 4px; padding: 2px 0; }\n        .ss-dot { width: 5px; height: 5px; border-radius: 50%; background: rgba(255,255,255,0.4); animation: ssBlink 1.2s infinite ease-in-out; }\n        .ss-dot:nth-child(2) { animation-delay: .15s; }\n        .ss-dot:nth-child(3) { animation-delay: .3s; }\n        @keyframes ssBlink { 0%, 80%, 100% { opacity: .25; } 40% { opacity: 1; } }\n    ', e.document.head.appendChild(t);
-  const n = e.document.createElement('div');
-  n.className = 'ss-wrap';
-  const a = e.document.createElement('div');
-  a.className = 'ss-header', a.textContent = 'Atlas AI - screenshare', n.appendChild(a);
-  const o = e.document.createElement('div');
-  o.className = 'ss-messages', n.appendChild(o);
-  const s = e.document.createElement('div');
-  s.className = 'ss-status', n.appendChild(s);
-  const r = e.document.createElement('div');
-  r.className = 'ss-solverow';
-  const i = e.document.createElement('button');
-  i.type = 'button', i.className = 'ss-btn ss-solve', i.textContent = 'Solve question on this page', r.appendChild(i), n.appendChild(r);
-  const c = e.document.createElement('div');
-  c.className = 'ss-inputrow';
-  const l = e.document.createElement('textarea');
-  l.className = 'ss-textarea', l.placeholder = 'Ask about this tab\u2026', l.rows = 1;
-  const d = e.document.createElement('button');
-  d.type = 'button', d.className = 'ss-btn ss-send', d.innerHTML = '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="m5 12 7-7 7 7M12 19V5"/></svg>', c.appendChild(l), c.appendChild(d), n.appendChild(c), e.document.body.appendChild(n);
-  const u = () => {
-    const e = l.value.trim();
-    e && !_screenshareStreaming && (l.value = '', _sendScreenshareMessage(e));
+  const t = e.document, n = t.createElement('style');
+  n.textContent = SS_CSS, t.head.appendChild(n);
+  new Set([
+    ...document.querySelectorAll('link[rel=stylesheet]'),
+    ..._uiRoot.querySelectorAll('link[rel=stylesheet]')
+  ].map(e => e.href).filter(e => /katex|highlight/.test(e))).forEach(e => {
+    const n = t.createElement('link');
+    n.rel = 'stylesheet', n.href = e, t.head.appendChild(n);
+  }), t.body.innerHTML = '<div class="ss-wrap"><main class="ss-main"></main><div class="ss-foot"><div class="ss-status"></div><button type="button" class="ss-solve"></button><div class="ss-field"><textarea class="ss-input" rows="1" placeholder="Ask about this tab\u2026"></textarea><button type="button" class="ss-send" title="Send">' + SS_ICONS.send + '</button></div></div></div>';
+  const a = e => t.querySelector(e), o = {
+      main: a('.ss-main'),
+      status: a('.ss-status'),
+      solveBtn: a('.ss-solve'),
+      textarea: a('.ss-input'),
+      sendBtn: a('.ss-send'),
+      phase: null,
+      answerEl: null,
+      copyBtn: null,
+      sending: !1,
+      timer: 0,
+      t0: 0
+    };
+  _screenshareUi = o, o.main.innerHTML = '<div class="ss-empty"><span class="ss-empty-icon">' + SS_ICONS.scan + '</span><div class="ss-empty-title"></div><div class="ss-empty-sub"></div></div>', o.main.querySelector('.ss-empty-title').textContent = 'Ask about the shared tab', o.main.querySelector('.ss-empty-sub').textContent = 'Every question takes a new screenshot and starts fresh, earlier answers are not remembered.';
+  const s = () => {
+    const e = o.textarea.value.trim();
+    e && _sendScreenshareMessage(e);
   };
-  d.onclick = u, l.addEventListener('keydown', e => {
-    'Enter' !== e.key || e.shiftKey || (e.preventDefault(), u());
-  }), i.onclick = () => {
-    _screenshareStreaming || _sendScreenshareMessage(SOLVE_QUESTION_PROMPT);
-  }, e.addEventListener('pagehide', _stopScreenshare, { once: !0 }), _screenshareUi = {
-    messages: o,
-    status: s,
-    sendBtn: d,
-    solveBtn: i,
-    textarea: l,
-    currentTurn: null,
-    currentAssistantEl: null,
-    currentDots: null
-  };
+  o.sendBtn.onclick = s, o.textarea.addEventListener('keydown', e => {
+    'Enter' !== e.key || e.shiftKey || (e.preventDefault(), s());
+  }), o.textarea.addEventListener('input', () => {
+    o.textarea.style.height = '', o.textarea.style.height = Math.min(o.textarea.scrollHeight, 96) + 'px', _screenshareButtons();
+  }), o.solveBtn.onclick = () => {
+    _screenshareStreaming ? (o.solveBtn.disabled = !0, _aiWs && _aiWsReady ? _aiWs.send(JSON.stringify({ type: 'cancel' })) : _screenshareOnError('Stopped', 'note')) : _sendScreenshareMessage(SOLVE_QUESTION_PROMPT);
+  }, e.addEventListener('pagehide', _stopScreenshare, { once: !0 }), _screenshareTheme(), _screenshareButtons(), o.textarea.focus();
 }
-function _screenshareSetStatus(e) {
-  _screenshareUi && _screenshareUi.status && (_screenshareUi.status.textContent = e || '');
-}
-function _screenshareRenderUser(e) {
-  if (!_screenshareUi || !_screenshareWin)
+function _screenshareTheme() {
+  const e = document.getElementById('aiScreen');
+  if (!_screenshareWin || !e)
     return;
-  const t = _screenshareWin.document, n = t.createElement('div');
-  n.className = 'ss-turn';
-  const a = t.createElement('div');
-  a.className = 'ss-user', a.textContent = '\uD83D\uDCF8 ' + e, n.appendChild(a), _screenshareUi.messages.appendChild(n), _screenshareUi.currentTurn = n, _screenshareUi.messages.scrollTop = _screenshareUi.messages.scrollHeight;
-}
-function _screenshareShowThinking() {
-  if (!_screenshareUi || !_screenshareUi.currentTurn || !_screenshareWin)
-    return;
-  const e = _screenshareWin.document.createElement('div');
-  e.className = 'ss-dots', e.innerHTML = '<span class="ss-dot"></span><span class="ss-dot"></span><span class="ss-dot"></span>', _screenshareUi.currentTurn.appendChild(e), _screenshareUi.currentDots = e;
-}
-function _screenshareUpdateResponse() {
-  if (_screenshareUi && _screenshareUi.currentTurn && _screenshareWin) {
-    if (_screenshareUi.currentDots && (_screenshareUi.currentDots.remove(), _screenshareUi.currentDots = null), !_screenshareUi.currentAssistantEl) {
-      const e = _screenshareWin.document.createElement('div');
-      e.className = 'ss-assistant', _screenshareUi.currentTurn.appendChild(e), _screenshareUi.currentAssistantEl = e;
-    }
-    _renderMarkdown(_screenshareUi.currentAssistantEl, _atlasResponseText(_screenshareContent, _screenshareStreaming)), _screenshareUi.messages.scrollTop = _screenshareUi.messages.scrollHeight;
+  const t = _screenshareWin.document.documentElement, n = (e, n) => {
+      n && t.style.setProperty(e, n);
+    }, a = getComputedStyle(e);
+  [
+    '--accent',
+    '--accent-bright'
+  ].forEach(e => n(e, a.getPropertyValue(e).trim())), n('--bg', a.backgroundColor), n('--bg-image', a.backgroundImage);
+  const o = document.getElementById('aiSendBtn');
+  o && n('--btn', getComputedStyle(o).backgroundColor);
+  const s = document.getElementById('aiInputWrapper');
+  if (s) {
+    const e = getComputedStyle(s);
+    n('--field', 'none' !== e.backgroundImage ? e.backgroundImage : e.backgroundColor), n('--field-line', e.borderColor);
   }
 }
-async function _sendScreenshareMessage(e) {
-  if (_screenshareStreaming)
-    return;
+function _screenshareButtons() {
+  const e = _screenshareUi;
   if (!e)
     return;
-  if (_aiStreaming)
-    return void _screenshareSetStatus('main chat is busy, try again in a moment');
-  if (_atlasBlockedPrompt(e)) {
-    const ui = _screenshareUi;
-    if (!ui) return;
-    _screenshareRenderUser(e); _screenshareShowThinking(); _screenshareStreaming = true;
-    ui.sendBtn.disabled = ui.solveBtn.disabled = true;
-    setTimeout(() => {
-      if (_screenshareUi !== ui) return;
-      _screenshareContent = ATLAS_AI_RESTRICTION; _screenshareUpdateResponse();
-      _screenshareStreaming = false; ui.sendBtn.disabled = ui.solveBtn.disabled = false;
-    }, 2000);
-    return;
-  }
-  if (!_screenshareVideo)
-    return void _screenshareSetStatus('no tab is being shared');
-  if (!_aiWsReady || !_aiWs)
-    return _ensureAIWs(), void _screenshareSetStatus('not connected');
-  let t;
-  _screenshareUi && (_screenshareUi.sendBtn && (_screenshareUi.sendBtn.disabled = !0), _screenshareUi.solveBtn && (_screenshareUi.solveBtn.disabled = !0)), _screenshareSetStatus('capturing screenshot\u2026');
-  try {
-    t = await _captureScreenshot();
-  } catch (e) {
-    return void _screenshareOnError('screenshot failed');
-  }
-  const n = new File([t], 'screenshot.jpg', { type: t.type || 'image/jpeg' }), a = URL.createObjectURL(t);
-  _screenshareRenderUser(e), _screenshareShowThinking(), _screenshareStreaming = !0, _screenshareContent = '', _screenshareReasoning = '', _screenshareAsstId = _newId(), _pendingScreenshareUserMsg = {
-    id: _newId(),
-    content: e,
-    media: {
-      url: a,
-      blob: n
-    }
-  }, _screenshareSetStatus('uploading screenshot\u2026');
-  try {
-    const t = await _fileToBase64(n), a = await new Promise((e, t) => {
-        _pendingScreenshareMediaResolve = e, _aiWs.send(JSON.stringify({
-          type: 'mediaStart',
-          model: _aiSelectedModel,
-          mime: n.type,
-          conversationId: _screenshareChatId || void 0
-        })), setTimeout(() => {
-          _pendingScreenshareMediaResolve === e && (_pendingScreenshareMediaResolve = null, t(new Error('upload timed out')));
-        }, 15000);
-      });
-    for (let e = 0; e < t.length; e += AI_MEDIA_CHUNK_CHARS)
-      _aiWs.send(JSON.stringify({
-        type: 'mediaChunk',
-        mediaId: a,
-        chunk: t.slice(e, e + AI_MEDIA_CHUNK_CHARS)
-      }));
-    _aiWs.send(JSON.stringify({
-      type: 'mediaDone',
-      mediaId: a,
-      prompt: _atlasAiPrompt(e)
-    })), _screenshareSetStatus('');
-  } catch (e) {
-    _screenshareOnError(e.message || 'upload failed');
-  }
+  const t = _screenshareStreaming || e.sending;
+  e.solveBtn.classList.toggle('stop', t), e.solveBtn.innerHTML = t ? SS_ICONS.stop + '<span>Stop</span>' : SS_ICONS.scan + '<span>Solve this page</span>', e.solveBtn.disabled = e.sending, e.sendBtn.disabled = t || !e.textarea.value.trim();
 }
-const _screenshareRenderer = _makeStreamRenderer(_screenshareUpdateResponse);
+function _screenshareSetStatus(e) {
+  e=_atlasResponseText(e);
+  _screenshareUi && (_screenshareUi.status.textContent = e || '');
+}
+function _screenshareRenderUser(e) {
+  const t = _screenshareUi;
+  if (!t)
+    return;
+  t.main.innerHTML = '<div class="ss-turn"><div class="ss-q"><span class="ss-q-text"></span><button type="button" class="ss-copy" title="Copy answer" hidden>' + SS_ICONS.copy + '</button></div><div class="ss-a"></div><div class="ss-phase"><span class="ss-spin"></span><span class="ss-phase-text"></span><span class="ss-time"></span></div></div>';
+  const n = e => t.main.querySelector(e);
+  n('.ss-q-text').textContent = e === SOLVE_QUESTION_PROMPT ? 'Solve this page' : e, t.phase = n('.ss-phase'), t.answerEl = n('.ss-a'), t.copyBtn = n('.ss-copy');
+  const a = _screenshareWin;
+  t.copyBtn.onclick = () => {
+    a.navigator.clipboard.writeText(_screenshareContent).then(() => {
+      t.copyBtn.innerHTML = SS_ICONS.check, a.setTimeout(() => {
+        t.copyBtn.innerHTML = SS_ICONS.copy;
+      }, 1500);
+    }, () => {
+    });
+  }, t.main.scrollTop = 0, t.t0 = Date.now();
+}
+function _screenshareShowThinking(e, t) {
+  e=_atlasResponseText(e);
+  const n = _screenshareUi;
+  if (!n || !n.phase)
+    return;
+  n.phase.hidden = !e, n.phase.className = 'ss-phase' + (t ? ' ' + t : ''), n.phase.querySelector('.ss-phase-text').textContent = e || '';
+  const a = n.phase.querySelector('.ss-time'), o = () => {
+      const e = Math.floor((Date.now() - n.t0) / 1000);
+      a.textContent = e >= 2 ? e + 's' : '';
+    };
+  e && !t ? (o(), n.timer || (n.timer = _screenshareWin.setInterval(o, 1000))) : n.timer && (_screenshareWin.clearInterval(n.timer), n.timer = 0);
+}
+function _screenshareUpdateResponse() {
+  const e = _screenshareUi;
+  if (!e || !e.answerEl)
+    return;
+  const t = e.main, n = t.scrollHeight - t.scrollTop - t.clientHeight < 40;
+  _renderMarkdown(e.answerEl, _screenshareContent || ''), n && (t.scrollTop = t.scrollHeight);
+}
+async function _sendScreenshareMessage(e) {
+  const t = _screenshareUi;
+  if (!t || !e || _screenshareStreaming || t.sending)
+    return;
+  if (_atlasBlockedPrompt(e)) {
+    _screenshareContent=''; _screenshareRenderUser(e); _screenshareStreaming=true; _screenshareButtons();
+    setTimeout(()=>{_screenshareContent="Sorry, I can't help with that. [restriction = chemistry]";_screenshareStreaming=false;_screenshareUpdateResponse();_screenshareButtons();},2000);return;
+  }
+  if (_aiStreaming)
+    return void _screenshareSetStatus('The main chat is busy, try again in a moment');
+  if (!_screenshareVideo)
+    return void _screenshareSetStatus('No tab is being shared');
+  if (!_aiWsReady || !_aiWs)
+    return _ensureAIWs(), void _screenshareSetStatus('Not connected yet, try again in a moment');
+  let n, a;
+  _screenshareSetStatus(''), e !== SOLVE_QUESTION_PROMPT && (t.textarea.value = '', t.textarea.style.height = ''), _screenshareTheme(), _screenshareRenderUser(e), _screenshareContent = '', _screenshareReasoning = '', t.sending = !0, _screenshareButtons(), _screenshareShowThinking('Taking a screenshot');
+  try {
+    n = await _captureScreenshot(), a = await _fileToBase64(n);
+  } catch (e) {
+    return void _screenshareOnError('Could not take a screenshot');
+  }
+  if (_screenshareUi !== t)
+    return;
+  if (t.sending = !1, !_aiWs || !_aiWsReady)
+    return void _screenshareOnError('Connection lost, try again');
+  _screenshareStreaming = !0, _screenshareChatId = null;
+  const o = (_aiModelsGrouped.image || []).concat(_aiModelsGrouped.video || []).includes(_aiSelectedModel) && _aiTextModel || _aiSelectedModel;
+  _aiWs.send(JSON.stringify({
+    type: 'screenshare',
+    model: o,
+    prompt: _atlasAiPrompt(e),
+    image: a,
+    mime: n.type || 'image/jpeg'
+  })), _screenshareShowThinking('Reading the screen'), _screenshareButtons();
+}
+const _screenshareRenderer = _makeStreamRenderer(_screenshareUpdateResponse, () => _screenshareWin);
 function _handleScreenshareMessage(e) {
   switch (e.type) {
   case 'message':
-    if (_screenshareChatId = e.conversationId, _pendingScreenshareUserMsg) {
-      const t = _getChat(_screenshareChatId);
-      t.lastMessageAt = Date.now(), t.title || (t.title = e.title || 'Screenshare'), t.model = e.model || _aiSelectedModel;
-      const n = e.messageId || _pendingScreenshareUserMsg.id;
-      t.messages.push({
-        id: n,
-        role: 'user',
-        content: _pendingScreenshareUserMsg.content,
-        media: _pendingScreenshareUserMsg.media
-      }), _persistChat(t), _pendingScreenshareUserMsg = null;
-    }
-    _renderRecents();
+    _screenshareChatId = e.conversationId;
     break;
   case 'thinking':
-    _screenshareReasoning || _screenshareSetStatus('Reasoning\u2026'), _screenshareReasoning += e.delta || '';
+    _screenshareReasoning || _screenshareContent || _screenshareShowThinking('Thinking'), _screenshareReasoning = '';
+    break;
+  case 'status':
+  case 'processing':
+    !_screenshareContent && e.text && _screenshareShowThinking(e.text);
     break;
   case 'content': {
       const t = !_screenshareContent;
-      t && _screenshareSetStatus(''), _screenshareContent += e.delta || '', t ? _screenshareRenderer.flush() : _screenshareRenderer.schedule();
+      _screenshareContent += e.delta || '', t ? (_screenshareShowThinking(''), _screenshareRenderer.flush()) : _screenshareRenderer.schedule();
       break;
     }
-  case 'processing':
-    _screenshareSetStatus(e.text || '');
-    break;
   case 'usage':
     break;
   case 'image':
   case 'video':
-    _screenshareContent += (_screenshareContent ? '\n\n' : '') + `[${ e.type }](${ e.url })`, _screenshareRenderer.flush();
+    _screenshareContent += (_screenshareContent ? '\n\n' : '') + `[${ e.type }](${ e.url })`, _screenshareShowThinking(''), _screenshareRenderer.flush();
     break;
   case 'done':
     _screenshareFinish();
     break;
+  case 'cancelled':
+    _screenshareOnError('Stopped', 'note');
+    break;
   case 'error':
-    _pendingScreenshareMediaResolve && (_pendingScreenshareMediaResolve = null), _screenshareOnError(e.text || 'error');
+    _screenshareOnError(e.text || 'Something went wrong');
   }
 }
 function _screenshareFinish() {
-  _screenshareContent = _atlasResponseText(_screenshareContent); _screenshareReasoning = _atlasResponseText(_screenshareReasoning);
-  _screenshareRenderer.flush();
-  const e = _getChat(_screenshareChatId);
-  if (e) {
-    const t = {
-      id: _screenshareAsstId,
-      role: 'assistant',
-      content: _screenshareContent,
-      reasoning: _screenshareReasoning || void 0
-    };
-    e.messages.push(t), e.lastMessageAt = Date.now(), _persistChat(e);
-  }
-  _renderRecents(), _screenshareUi && (_screenshareUi.currentTurn = null, _screenshareUi.currentAssistantEl = null, _screenshareUi.currentDots = null, _screenshareUi.sendBtn && (_screenshareUi.sendBtn.disabled = !1), _screenshareUi.solveBtn && (_screenshareUi.solveBtn.disabled = !1)), _screenshareStreaming = !1, _screenshareSetStatus('');
+  _screenshareContent = _atlasResponseText(_screenshareContent);
+  _screenshareRenderer.flush(), _screenshareStreaming = !1;
+  const e = _screenshareUi;
+  e && (_screenshareContent ? _screenshareShowThinking('') : _screenshareShowThinking('No answer came back, try again', 'error'), e.copyBtn && (e.copyBtn.hidden = !_screenshareContent), _screenshareButtons());
 }
-function _screenshareOnError(e) {
-  _screenshareRenderer.cancel(), _screenshareSetStatus(e), _screenshareUi && (_screenshareUi.currentDots && (_screenshareUi.currentDots.remove(), _screenshareUi.currentDots = null), _screenshareUi.currentTurn = null, _screenshareUi.currentAssistantEl = null, _screenshareUi.sendBtn && (_screenshareUi.sendBtn.disabled = !1), _screenshareUi.solveBtn && (_screenshareUi.solveBtn.disabled = !1)), _pendingScreenshareUserMsg = null, _pendingScreenshareMediaResolve = null, _screenshareStreaming = !1;
+function _screenshareOnError(e, t) {
+  _screenshareRenderer.flush(), _screenshareStreaming = !1, _pendingScreenshareUserMsg = null, _pendingScreenshareMediaResolve = null;
+  const n = _screenshareUi;
+  n && (n.sending = !1, n.phase ? _screenshareShowThinking(e, t || 'error') : _screenshareSetStatus(e), n.copyBtn && (n.copyBtn.hidden = !_screenshareContent), _screenshareButtons());
+}
+function _atlasAiPrompt(text) {
+  return 'Application context: You are Atlas AI, the assistant inside Atlas on Synergy. ' + 'Use Atlas AI as your product name when introducing yourself. This identifies the application, not the underlying model or service provider.\n\nUser request:\n' + text;
+}
+function _atlasBlockedPrompt(text) {
+  const lookalikes = {
+    '0': 'o',
+    '1': 'i',
+    'о': 'o',
+    'ο': 'o',
+    'р': 'p',
+    'ρ': 'p',
+    'і': 'i',
+    'ι': 'i',
+    'υ': 'u',
+    'м': 'm'
+  };
+  const normalized = String(text || '').normalize('NFKD').toLowerCase().replace(/[\p{M}\p{Cf}]/gu, '').replace(/[01оοрρіιυм]/gu, character => lookalikes[character]);
+  return /(?:^|[^\p{L}\p{N}_])o[\p{P}\p{Z}\p{S}\s_]*p[\p{P}\p{Z}\p{S}\s_]*i[\p{P}\p{Z}\p{S}\s_]*u[\p{P}\p{Z}\p{S}\s_]*m(?:s)?(?=$|[^\p{L}\p{N}_])/u.test(normalized);
+}
+function _atlasResponseText(text, streaming = false) {
+  const domain = String.fromCharCode(111, 112, 105, 117, 109, 46, 98, 101, 115, 116);
+  let value = String(text || '').replace(new RegExp(domain.replace('.', '\\.'), 'gi'), 'Atlas');
+  if (streaming) {
+    const lower = value.toLowerCase();
+    for (let size = Math.min(domain.length - 1, value.length); size > 0; size--) {
+      if (lower.endsWith(domain.slice(0, size)))
+        return value.slice(0, -size);
+    }
+  }
+  return value;
+}
+const ATLAS_AI_RESTRICTION = "Sorry, I can't help with that. [restriction = chemistry]";
+function _atlasRejectPrompt(text) {
+  _showAIWelcome(false);
+  const user = _renderUserMessage(_newId(), text);
+  user.querySelector('.ai-message-actions')?.remove();
+  const placeholder = _showThinkingIndicator();
+  _aiStreaming = true;
+  document.getElementById('aiInput').value = '';
+  _setAttachedFile(null);
+  const send = document.getElementById('aiSendBtn');
+  if (send) {
+    send.disabled = true;
+    send.classList.add('hidden');
+  }
+  setTimeout(() => {
+    placeholder.remove();
+    const shell = _createAssistantShell();
+    shell.waitDiv.classList.add('hidden');
+    shell.messageDiv.insertBefore(shell.textDiv, shell.actionsDiv);
+    shell.textDiv.textContent = ATLAS_AI_RESTRICTION;
+    document.getElementById('aiMessages').appendChild(shell.messageDiv);
+    _aiStreaming = false;
+    if (send)
+      send.disabled = false;
+    _scrollChatToBottom();
+  }, 2000);
 }
 async function clearAtlasData() {
-  if (!confirm('Clear Atlas bookmarks, chats, settings and cached games? Synergy login will be kept.')) return;
-  for (const key of ['SETTINGS','TRNSPRT','transport','WID','O_MIGRATED','CTRLLERMAP','CLOUD_ICE','ADS_NOTICE_SEEN']) localStorage.removeItem(key);
-  for (const key of ['atlasSwSoft','atlasSwReloaded']) sessionStorage.removeItem(key);
-  const databases = ['O','oCache','oAiChats','__jet_controller','__scramjet_controller'];
+  if (!confirm('Clear Atlas bookmarks, chats, settings and cached games? Synergy login will be kept.'))
+    return;
+  for (const key of [
+      'SETTINGS',
+      'TRNSPRT',
+      'transport',
+      'WID',
+      'O_MIGRATED',
+      'CTRLLERMAP',
+      'CLOUD_ICE',
+      'ADS_NOTICE_SEEN', 'MV_BW', 'MV_CC', 'MV_CERT', 'MV_PH', 'MV_SRC', 'MV_VOL'
+    ])
+    localStorage.removeItem(key);
+  for (const key of [
+      'atlasSwSoft',
+      'atlasSwReloaded'
+    ])
+    sessionStorage.removeItem(key);
+  const databases = [
+    'O',
+    'oCache',
+    'oAiChats',
+    '__jet_controller',
+    '__scramjet_controller'
+  ];
   await Promise.all(databases.map(name => new Promise(resolve => {
     const request = indexedDB.deleteDatabase(name);
     request.onsuccess = request.onerror = request.onblocked = resolve;
@@ -4155,6 +7741,80 @@ async function clearAtlasData() {
   await Promise.all(registrations.filter(item => item.scope === window.atlasAppBase).map(item => item.unregister()));
   allowUnload = true;
   location.reload();
+}
+let _aiRetryTimer = 0, _aiRetryCount = 0;
+
+function _makeShortcutAccessible(element, label) {
+  element.setAttribute('role', 'button');
+  element.setAttribute('tabindex', '0');
+  element.setAttribute('aria-label', label);
+  element.addEventListener('keydown', event => {
+    if (event.target === element && (event.key === 'Enter' || event.key === ' ')) {
+      event.preventDefault();
+      element.click();
+    }
+  });
+}
+
+function _renderShortcuts() {
+  grid.innerHTML = '', SHORTCUTS.forEach(({
+    label: e,
+    url: t,
+    faviconHost: n,
+    faviconUrl: a,
+    onclick: o
+  }) => {
+    const s = document.createElement('div');
+    s.className = 'shortcut';
+    _makeShortcutAccessible(s, e);
+    const r = document.createElement('img');
+    r.className = 'shortcut-icon', r.alt = '', r.loading = 'lazy', r.decoding = 'async', r.src = sjEncode(a || 'https://www.google.com/s2/favicons?domain=' + new URL(n || t).hostname + '&sz=128'), r.onerror = () => {
+      r.removeAttribute('src');
+    };
+    const i = document.createElement('span');
+    i.className = 'shortcut-title';
+    i.textContent = e;
+    const number = document.createElement('span'), domain = document.createElement('span');
+    number.className = 'shortcut-number';
+    number.textContent = String(grid.children.length + 1).padStart(2, '0');
+    domain.className = 'shortcut-domain';
+    domain.textContent = t ? new URL(t).hostname.replace(/^www\./, '') : 'Atlas';
+    s.append(number, i, domain);
+    s.onclick = o ? () => o() : () => navigate(t);
+    grid.appendChild(s);
+  }), _bookmarks.forEach(e => {
+    const t = document.createElement('div');
+    t.className = 'shortcut';
+    _makeShortcutAccessible(t, e.label);
+    const n = document.createElement('img');
+    n.className = 'shortcut-icon', n.alt = '', n.loading = 'lazy', n.decoding = 'async', n.src = e.faviconUrl, n.onerror = () => {
+      n.removeAttribute('src');
+    };
+    const a = document.createElement('span');
+    a.className = 'shortcut-title';
+    a.textContent = e.label;
+    const number = document.createElement('span');
+    number.className = 'shortcut-number';
+    number.textContent = String(grid.children.length + 1).padStart(2, '0');
+    const o = document.createElement('button');
+    o.className = 'shortcut-delete', o.type = 'button', o.title = 'Remove bookmark', o.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>', o.onclick = async t => {
+      t.stopPropagation(), await _bookmarksReady, _bookmarks = _bookmarks.filter(t => t.id !== e.id), _renderShortcuts(), _updateBookmarkIcon(document.getElementById('addrInput').value.trim()), _deleteBookmark(e.id);
+    };
+    const edit = document.createElement('button');edit.className='shortcut-edit';edit.type='button';edit.title='Edit shortcut';edit.setAttribute('aria-label','Edit '+e.label);edit.textContent='Edit';
+    edit.onclick=event=>{event.stopPropagation();_openShortcutDialog(e);};
+    t.append(number,a,edit,o);t.onclick=()=>navigate(e.url);grid.appendChild(t);
+  });
+  const count = SHORTCUTS.length + _bookmarks.length;
+  grid.style.gridTemplateRows = `repeat(${ Math.ceil(count / 2) }, minmax(38px, 1fr))`;
+  const countLabel = document.getElementById('atlasDestinationCount');
+  if (countLabel)
+    countLabel.textContent = `All ${ count }`;
+}
+
+function _activateAtlasScreen(id){
+  document.getElementById('settingsScreen')?.classList.remove('open');
+  const page={gamesScreen:'games',effectsScreen:'effects',moviesScreen:'movies',aiScreen:'ai'}[id];
+  if(page) _opmOpen(page); else if(!id && activeTab()) _opmGo(activeTab(),'');
 }
 
 function applyAtlasTheme() {
@@ -4179,6 +7839,8 @@ function applyAtlasTheme() {
       <div class="atlas-credit">Based on tongsherbet/storage &middot; Inspired by GUST</div>
     </aside>`;
   shadowRoot.appendChild(chrome);
+  const tabStrip=document.querySelector('.ptab-strip'); if(tabStrip) shadowRoot.appendChild(tabStrip);
+  document.getElementById('navMovies')?.setAttribute('data-label','Movies');
   const content = document.querySelector('.content');
   const searchWrap = document.getElementById('searchWrap');
   const shortcuts = document.getElementById('shortcuts');
@@ -4244,7 +7906,7 @@ function applyAtlasTheme() {
   }
   const gamesButton = document.getElementById('navGames');
   const effectsButton = document.getElementById('navEffects');
-  const aiButton = [...document.querySelectorAll('.nav-item')].find(button => button.textContent.trim() === 'AI');
+  const aiButton = document.getElementById('navAI');
   if (gamesButton)
     gamesButton.dataset.label = 'Library';
   if (effectsButton)
@@ -4286,8 +7948,9 @@ function applyAtlasTheme() {
   const commandKey = chrome.querySelector('.atlas-command-key');
   commandKey.onclick = () => {
     const panel = document.getElementById('panel');
-    if (!panel?.classList.contains('open')) _activateAtlasScreen(null);
-    const input = panel?.classList.contains('open') ? document.getElementById('addrInput') : document.getElementById('searchInput');
+    if (!panel?.classList.contains('open'))
+      _activateAtlasScreen(null);
+    const input = activeTab()?.url ? document.getElementById('addrInput') : document.getElementById('searchInput');
     input?.focus();
     input?.select();
   };
@@ -4298,7 +7961,7 @@ function applyAtlasTheme() {
     const settingsOpen = document.getElementById('settingsScreen')?.classList.contains('open');
     const playerOpen = document.getElementById('gamePlayer')?.classList.contains('open');
     const aiOpen = document.getElementById('aiScreen')?.classList.contains('open');
-    const context = aiOpen ? 'AI' : settingsOpen ? 'Settings' : soundOpen ? 'Sound' : libraryOpen ? 'Library' : panelOpen ? 'Browsing' : 'Home';
+    const context = aiOpen ? 'AI' : settingsOpen ? 'Settings' : soundOpen ? 'Sound' : libraryOpen ? 'Library' : activeTab()?.url ? (_opmKind(activeTab().url)==='movies' || _opmKind(activeTab().url)==='movie' ? 'Movies' : 'Browsing') : 'Home';
     const contextEl = document.getElementById('atlasRailContext');
     if (contextEl)
       contextEl.textContent = context;
@@ -4313,13 +7976,48 @@ function applyAtlasTheme() {
     if (!event.altKey || event.ctrlKey || event.metaKey || event.shiftKey)
       return;
     const active = shadowRoot?.activeElement || document.activeElement;
-    if (active?.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(active?.tagName || '')) return;
+    if (active?.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(active?.tagName || ''))
+      return;
     const index = event.key === '0' ? 9 : Number(event.key) - 1;
     if (index < 0 || index > 8 || !SHORTCUTS[index])
       return;
     event.preventDefault();
-    if (SHORTCUTS[index].url) navigate(SHORTCUTS[index].url);
-    else SHORTCUTS[index].onclick?.();
+    if (SHORTCUTS[index].url)
+      navigate(SHORTCUTS[index].url);
+    else
+      SHORTCUTS[index].onclick?.();
   });
 }
 applyAtlasTheme();
+
+for(let i=EXTENSIONS.length-1;i>=0;i--)if(!EXTENSIONS[i].code)EXTENSIONS.splice(i,1);
+
+atlasNavigationReady = true; updateNavActive();
+
+const aiLogo=document.querySelector('.ai-logo-text');if(aiLogo)aiLogo.innerHTML='<span class="screen-header-title">Atlas</span><span class="screen-header-sub">AI</span>';
+
+const moviesHeading = document.querySelector('#moviesScreen .screen-header-left');
+if(moviesHeading) moviesHeading.innerHTML='<span class="screen-header-title">Movies &amp; TV</span><span class="screen-header-sub">Discover, watch, and pick up where you left off.</span>';
+// The imported SVG sprite contains a provider wordmark drawn as paths.
+document.querySelector('svg.Atlas-sprite')?.remove();
+
+document.getElementById('navBrowse').onclick=()=>{
+ document.getElementById('settingsScreen')?.classList.remove('open');
+ if(activeTab()?.url && _opmKind(activeTab().url)!=='web')newTab();
+ const input=document.getElementById(activeTab()?.url?'addrInput':'searchInput');input?.focus();input?.select();
+};
+
+function _atlasResponseSteps(steps) {
+ const domain=String.fromCharCode(111,112,105,117,109,46,98,101,115,116);
+ let pending='',last=null;
+ const result=steps.map(step=>{
+  if(step.kind==='reasoning')return {kind:'reasoning',text:''};
+  if(step.kind==='tool')return {...step,name:_atlasResponseText(step.name),arg:_atlasResponseText(step.arg)};
+  if(step.kind!=='content')return {...step};
+  const raw=pending+(step.text||'');pending='';
+  for(let size=Math.min(domain.length-1,raw.length);size>0;size--)if(raw.toLowerCase().endsWith(domain.slice(0,size))){pending=raw.slice(-size);break;}
+  last={...step,text:_atlasResponseText(raw,true)};return last;
+ });
+ if(last)last.text+=pending;
+ return result;
+}

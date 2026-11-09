@@ -913,3 +913,59 @@
 .ai-reasoning-summary { cursor: default; }
 .ai-reasoning-body, .ai-reasoning-chevron { display: none !important; }
 .cloud-toggle-wrap { display: none !important; }
+
+/* Tabbed application integration. Keep Atlas framing above all feature surfaces. */
+.panel { transform:none!important; display:flex; flex-direction:column; overflow:hidden; }
+.ptab-strip { flex:0 0 34px; background:var(--atlas-surface); border-bottom:1px solid var(--atlas-line); min-width:0; }
+.ptabs { flex:1; min-width:0; }
+.ptab { color:var(--atlas-muted); background:transparent; border-color:var(--atlas-line); }
+.ptab.active { color:var(--atlas-text); background:var(--atlas-surface-2); }
+.ptab-new,.ptab-wbtn { color:var(--atlas-amber); }
+#tabViews { position:relative; flex:1; min-height:0; overflow:hidden; }
+#homePage.content { position:absolute; inset:0 38px 24px; padding:0; width:auto; }
+#homePage.home-hidden { display:none!important; }
+.panel:not(.browsing) .panel-bar-wrap { display:none; }
+.panel.opm-page .panel-bar-wrap { display:none; }
+.panel .opm-web { position:absolute; inset:10px 38px 24px; width:calc(100% - 76px);height:calc(100% - 34px); margin:0; }
+.panel .opm-web.opm-hidden { visibility:hidden; pointer-events:none; }
+.movies-screen { position:fixed; inset:var(--atlas-frame-y) var(--atlas-frame-x); padding:calc(var(--atlas-nav) + 34px) 0 0 var(--atlas-rail);background:var(--atlas-surface); }
+.games-screen,.effects-screen,.ai-screen { padding-top:calc(var(--atlas-nav) + 34px); }
+.panel.opm-page .ptab-strip { position:relative; z-index:260; }
+#panel { z-index:50; }
+.ptab-strip { z-index:260; }
+#mvModal { color:var(--atlas-text); }
+.mv-box,.sc-dialog,.ptab-menu { background:var(--atlas-surface-2); border-color:var(--atlas-line-strong); color:var(--atlas-text); }
+.mv-hero,.mv-list,.mv-search,.mv-pill,.mv-inp { border-color:var(--atlas-line); }
+#mvPlayer { background:#060402; }
+#scDialog { margin:auto; padding:24px; width:min(440px,calc(100vw - 32px)); color:var(--atlas-text);background:var(--atlas-surface-2);border:1px solid var(--atlas-line-strong); }
+#scDialog::backdrop { background:rgba(0,0,0,.6); }
+.sc-field { display:flex; flex-direction:column; gap:8px; margin:16px 0; }
+.sc-field input { background:var(--atlas-surface); color:var(--atlas-text); border:1px solid var(--atlas-line);padding:10px; }
+.ai-reasoning-summary { cursor:default; }
+.ai-reasoning-body,.ai-reasoning-chevron { display:none!important; }
+.ai-tool { border-color:var(--atlas-line); background:var(--atlas-surface-2); }
+@media(max-width:700px) {
+ #homePage.content { inset:0 14px 16px; }
+ .panel .opm-web { inset:8px 12px 12px; width:calc(100% - 24px);height:calc(100% - 20px); }
+ .movies-screen { padding-left:0; }
+ .nav-buttons { gap:0; }
+ .nav-item { padding:0 6px; }
+}
+
+#bottomNav { display:flex!important; }
+#bottomNav.atlas-player-open { display:none!important; }
+.nav-item:not(.atlas-text-nav)::after { position:static; width:auto; height:auto; opacity:1; transform:none; background:none; white-space:nowrap; }
+.ptab-strip { position:fixed; top:calc(var(--atlas-frame-y) + var(--atlas-nav)); left:calc(var(--atlas-frame-x) + var(--atlas-rail)); right:var(--atlas-frame-x); z-index:275; height:34px; }
+.panel { padding-top:calc(var(--atlas-nav) + 34px); }
+#panel .panel-bar-wrap { flex-shrink:0; }
+
+#tabViews > iframe { position:absolute; left:38px; top:10px; width:calc(100% - 76px); height:calc(100% - 34px); margin:0; border:1px solid var(--atlas-line); }
+#tabViews > iframe.ptab-hidden { display:none!important; }
+#moviesScreen .screen-header { min-height:148px; padding:28px 40px 20px; }
+@media(max-width:700px){#tabViews > iframe{left:12px;width:calc(100% - 24px)}#moviesScreen .screen-header{padding:20px;min-height:120px}}
+
+.shortcut:has(.shortcut-edit) { grid-template-columns:18px minmax(0,1fr) 30px 22px; padding-right:8px; }
+.shortcut .shortcut-edit,.shortcut .shortcut-delete { position:static!important; transform:none!important; opacity:1; padding:0; height:22px; width:auto; min-width:0; border:0; background:transparent; color:var(--atlas-muted); }
+.shortcut .shortcut-edit { font:500 9px Inter,sans-serif; }
+.shortcut .shortcut-delete svg { display:block; width:12px; height:12px; }
+.shortcut .shortcut-edit:hover,.shortcut .shortcut-delete:hover { color:var(--atlas-amber); }
