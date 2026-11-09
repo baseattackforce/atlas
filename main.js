@@ -194,6 +194,13 @@ const SETTINGS = {
             }
         }
     },
+    Account: {
+        'Guest passes': {
+            type: 'button',
+            label: 'Manage invites',
+            action: () => { allowUnload = true; window.top.location.href = new URL('/invites.html', window.location.origin).href; }
+        }
+    },
     Advanced: {
         'Clear Atlas Data': {
             type: 'button',

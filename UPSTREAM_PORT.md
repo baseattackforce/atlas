@@ -7,3 +7,5 @@ Includes tab navigation/history/restoration/audio/unloading, Movies/TV discovery
 Excluded: Cobalt, Roblox placeholder/integration, upstream ads/tracking/lockout, font obfuscation and seasonal design. Desktop is the target; tablet layout is secondary, phone support is outside scope.
 
 Verification: source/owned smoke checks cover tabs, persistence, game/catalog navigation, settings, bookmarks, safe rendering, streamed AI/tool events and restrictions. Actual browser tests passed AI streaming/Markdown, proxied IANA browsing, bookmark editing, tab restore, catalog loading and 2048 play/keyboard input. Movies search/details passed, but Night of the Living Dead and Big Buck Bunny did not obtain playable external sources. Cloud status reports unavailable; its release toggle stays hidden. Real movie/cloud playback is not verified. No Synergy account rules or production database changes are part of this port.
+
+Guest passes: Account settings links to the same-origin /invites.html portal. Issuance/redemption and the release gate live in Synergy, not this asset repository.
