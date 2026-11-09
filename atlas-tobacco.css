@@ -912,3 +912,4 @@
 .cm-modal-header, .cm-footer { border-color: var(--atlas-line); }
 .ai-reasoning-summary { cursor: default; }
 .ai-reasoning-body, .ai-reasoning-chevron { display: none !important; }
+.cloud-toggle-wrap { display: none !important; }
