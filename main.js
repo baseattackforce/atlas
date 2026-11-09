@@ -7887,6 +7887,13 @@ function applyAtlasTheme() {
     destinationHeading.className = 'atlas-destinations-heading';
     destinationHeading.innerHTML = `<strong>Destinations</strong><span>Press Alt + 1&ndash;9 to jump</span><span id="atlasDestinationCount">All ${ SHORTCUTS.length + _bookmarks.length }</span>`;
     shortcuts.before(destinationHeading);
+    const inviteFriends = document.createElement('button');
+    inviteFriends.id = 'atlasInviteFriends';
+    inviteFriends.className = 'atlas-invite-friends';
+    inviteFriends.type = 'button';
+    inviteFriends.textContent = 'Invite Friends';
+    inviteFriends.onclick = () => { allowUnload = true; window.top.location.href = new URL('/invites.html', window.location.origin).href; };
+    content.appendChild(inviteFriends);
   }
   const navButtons = document.querySelector('.nav-buttons');
   if (navButtons) {
