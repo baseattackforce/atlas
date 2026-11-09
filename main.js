@@ -467,23 +467,23 @@ const homeStateEls = [
 ].map(e => document.getElementById(e));
 let _starsResumeAt = 0;
 function starsShouldRun() {
-  return !document.hidden && document.hasFocus() && isOpiumMenu(!0) && performance.now() >= _starsResumeAt;
+  return !document.hidden && document.hasFocus() && isAtlasMenu(!0) && performance.now() >= _starsResumeAt;
 }
-const OPIUM_EXTERNAL_SCREENS = [
+const ATLAS_EXTERNAL_SCREENS = [
     'panel',
     'gamePlayer'
-  ], OPIUM_HOME_ONLY_SCREENS = [
+  ], ATLAS_HOME_ONLY_SCREENS = [
     'gamesScreen',
     'effectsScreen',
     'aiScreen'
   ];
-function isOpiumMenu(e = !1) {
+function isAtlasMenu(e = !1) {
   return !(e ? [
-    ...OPIUM_EXTERNAL_SCREENS,
-    ...OPIUM_HOME_ONLY_SCREENS
-  ] : OPIUM_EXTERNAL_SCREENS).some(e => document.getElementById(e)?.classList.contains('open'));
+    ...ATLAS_EXTERNAL_SCREENS,
+    ...ATLAS_HOME_ONLY_SCREENS
+  ] : ATLAS_EXTERNAL_SCREENS).some(e => document.getElementById(e)?.classList.contains('open'));
 }
-globalThis.isOpiumMenu = isOpiumMenu;
+globalThis.isAtlasMenu = isAtlasMenu;
 const navActiveMap = [
   [
     'gamesScreen',
