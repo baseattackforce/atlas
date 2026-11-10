@@ -472,14 +472,15 @@ function scrollToCategory(e) {
   panelsEl.scrollTop = 0;
 }
 categories.forEach((e, t) => {
+  const categoryTitle = e === 'Prxy' ? 'Browser' : e;
   const n = document.createElement('div');
-  n.className = 'sidebar-item' + (0 === t ? ' active' : ''), n.textContent = e, n.dataset.cat = e, n.onclick = () => scrollToCategory(e), sidebar.appendChild(n);
+  n.className = 'sidebar-item' + (0 === t ? ' active' : ''), n.textContent = categoryTitle, n.dataset.cat = e, n.onclick = () => scrollToCategory(e), sidebar.appendChild(n);
   const a = document.createElement('button');
-  a.className = 'tab-item' + (0 === t ? ' active' : ''), a.textContent = e, a.dataset.cat = e, a.onclick = () => scrollToCategory(e), tabsEl.appendChild(a);
+  a.className = 'tab-item' + (0 === t ? ' active' : ''), a.textContent = categoryTitle, a.dataset.cat = e, a.onclick = () => scrollToCategory(e), tabsEl.appendChild(a);
   const o = document.createElement('div');
   o.className = 'settings-panel-section', o.dataset.section = e, sectionEls.push(o);
   const s = document.createElement('div');
-  s.className = 'category-label', s.textContent = e, o.appendChild(s);
+  s.className = 'category-label', s.textContent = categoryTitle, o.appendChild(s);
   const r = document.createElement('div');
   r.className = 'category-rows', Object.entries(SETTINGS[e]).forEach(([e, t]) => {
     const n = document.createElement('div');
@@ -7849,9 +7850,12 @@ function applyAtlasTheme() {
       <button class="atlas-command-key" type="button" title="Focus search">&#8984;K</button>
       <div class="atlas-rail-wordmark">atlas</div>
       <div class="atlas-rail-context" id="atlasRailContext">Home</div>
-      <div class="atlas-credit">Based on tongsherbet/storage &middot; Inspired by GUST</div>
     </aside>`;
   shadowRoot.appendChild(chrome);
+  const settingsCredit = document.createElement('p');
+  settingsCredit.className = 'atlas-settings-credit';
+  settingsCredit.textContent = 'Based on 0pium. Inspired by GUST.';
+  document.getElementById('settingsScreen').appendChild(settingsCredit);
   const tabStrip=document.querySelector('.ptab-strip'); if(tabStrip) shadowRoot.appendChild(tabStrip);
   document.getElementById('navMovies')?.setAttribute('data-label','Movies');
   const content = document.querySelector('.content');
