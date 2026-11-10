@@ -7879,7 +7879,7 @@ function applyAtlasTheme() {
   const settingsCredit = document.createElement('p');
   settingsCredit.className = 'atlas-settings-credit';
   settingsCredit.textContent = 'Based on 0pium. Inspired by GUST.';
-  document.getElementById('settingsScreen').appendChild(settingsCredit);
+  document.querySelector('#settingsScreen .settings-inner').appendChild(settingsCredit);
   const tabStrip=document.querySelector('.ptab-strip'); if(tabStrip) shadowRoot.appendChild(tabStrip);
   document.getElementById('navMovies')?.setAttribute('data-label','Movies');
   const content = document.querySelector('.content');
