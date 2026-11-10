@@ -340,11 +340,17 @@ let frame = null;
 const tabs = [];
 let activeTabId = 0, tabSeq = 0, starsEnabled = !0, shootingStarsEnabled = !0, preventCloseEnabled = !0, STAR_RGB = '255,255,255';
 var allowUnload = !1;
+window.addEventListener('synergy:auth-redirect', () => {
+  allowUnload = true;
+  // Embedded websites can install their own leave-page prompts.
+  for (const tab of tabs) tab.el?.remove();
+  document.querySelectorAll('iframe').forEach(frame => frame.remove());
+});
 window.addEventListener('keydown', e => {
 });
 try {
   window.top.addEventListener('beforeunload', e => {
-    !allowUnload && preventCloseEnabled && (e.preventDefault(), e.returnValue = '');
+    !window.__synergyAuthRedirect && !allowUnload && preventCloseEnabled && (e.preventDefault(), e.returnValue = '');
   });
 } catch {
 }
@@ -2187,7 +2193,7 @@ window.addEventListener('blur', () => {
 try {
   window.top.addEventListener('beforeunload', e => {
     const t = _opmMods, n = activeTab();
-    allowUnload || !t.ctrl || t.other || !n || 1 === tabs.length && !n.url || (e.preventDefault(), e.returnValue = '', closeTab(n.id));
+    window.__synergyAuthRedirect || allowUnload || !t.ctrl || t.other || !n || 1 === tabs.length && !n.url || (e.preventDefault(), e.returnValue = '', closeTab(n.id));
   });
 } catch (e) {
 }
