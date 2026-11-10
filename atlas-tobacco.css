@@ -107,7 +107,8 @@
   user-select: none;
 }
 
-.atlas-rail-context {
+.atlas-rail-context,
+.atlas-credit {
   position: absolute;
   bottom: 22px;
   left: 50%;
@@ -120,6 +121,8 @@
 }
 
 .atlas-settings-credit { margin: 0; padding: 12px 24px; color: #8c7d70; font-size: 11px; text-align: center; flex-shrink: 0; }
+.atlas-credit { visibility: hidden; }
+#atlasChrome.atlas-home .atlas-credit.atlas-credit-fits { visibility: visible; }
 #atlasChrome.atlas-home .atlas-rail-context { display: none; }
 #atlasChrome.atlas-player-open,
 .bottom-nav.atlas-player-open { display: none !important; }

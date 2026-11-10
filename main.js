@@ -7850,8 +7850,26 @@ function applyAtlasTheme() {
       <button class="atlas-command-key" type="button" title="Focus search">&#8984;K</button>
       <div class="atlas-rail-wordmark">atlas</div>
       <div class="atlas-rail-context" id="atlasRailContext">Home</div>
+      <div class="atlas-credit">Based on 0pium &middot; Inspired by GUST</div>
     </aside>`;
   shadowRoot.appendChild(chrome);
+  const railCredit = chrome.querySelector('.atlas-credit');
+  const railWordmark = chrome.querySelector('.atlas-rail-wordmark');
+  const updateRailCredit = () => {
+    const creditBounds = railCredit.getBoundingClientRect();
+    const wordmarkBounds = railWordmark.getBoundingClientRect();
+    railCredit.classList.toggle('atlas-credit-fits', creditBounds.height > 0 && creditBounds.top >= wordmarkBounds.bottom + 20);
+  };
+  window.addEventListener('resize', updateRailCredit);
+  if (typeof ResizeObserver !== 'undefined') {
+    const railObserver = new ResizeObserver(updateRailCredit);
+    railObserver.observe(chrome.querySelector('.atlas-rail'));
+    railObserver.observe(railCredit);
+    railObserver.observe(railWordmark);
+  }
+  document.fonts?.ready.then(updateRailCredit);
+  document.addEventListener('atlas:theme-ready', updateRailCredit);
+  updateRailCredit();
   const settingsCredit = document.createElement('p');
   settingsCredit.className = 'atlas-settings-credit';
   settingsCredit.textContent = 'Based on 0pium. Inspired by GUST.';
