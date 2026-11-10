@@ -12,8 +12,8 @@
   --accent-glow: rgba(199, 138, 67, .16);
   --atlas-text: #eee5da;
   --atlas-muted: #8c7d70;
-  --atlas-frame-x: clamp(20px, 3.5vw, 54px);
-  --atlas-frame-y: clamp(18px, 3.6vh, 42px);
+  --atlas-frame-x: 0px;
+  --atlas-frame-y: 0px;
   --atlas-rail: 92px;
   --atlas-nav: 64px;
   position: fixed;
@@ -839,8 +839,8 @@
 
 @media (max-width: 800px) {
   :host {
-    --atlas-frame-x: 8px;
-    --atlas-frame-y: 8px;
+    --atlas-frame-x: 0px;
+    --atlas-frame-y: 0px;
     --atlas-rail: 0px;
     --atlas-nav: 54px;
   }
